@@ -65,7 +65,7 @@ onMounted(() => {
 </script>
 
 <template>
-    <div class="dashboard p-4">
+    <div class="dashboard p-4 mt-4">
         <div class="header flex justify-content-between align-items-center mb-4">
             <h1>My Slides</h1>
             <Button @click="createNewSlide" label="Create New Slide" icon="pi pi-plus" />

@@ -9,6 +9,12 @@ import PrimeVue from 'primevue/config'
 import { definePreset } from '@primeuix/themes'
 import Aura from '@primeuix/themes/aura'
 
+// PrimeVue components
+import Menubar from 'primevue/menubar'
+import Button from 'primevue/button'
+import Avatar from 'primevue/avatar'
+import 'primeicons/primeicons.css'
+
 const app = createApp(App)
 
 const MyPreset = definePreset(Aura, {
@@ -39,5 +45,10 @@ app.use(PrimeVue, {
         }
     }
 });
+
+// Register PrimeVue components
+app.component('Menubar', Menubar)
+app.component('Button', Button)
+app.component('Avatar', Avatar)
 
 app.mount('#app')
