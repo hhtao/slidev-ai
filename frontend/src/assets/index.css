@@ -1,3 +1,15 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+@import "tailwindcss";
+@import "tailwindcss-primeui";
+@custom-variant dark (&:where(.my-app-dark, .my-app-dark *));
+/* 
+button {
+    transition: all 0.08s ease-in-out;
+}
+
+button:focus {
+    scale: 0.95;
+    transition: all 0.08s ease-in-out;
+} */
