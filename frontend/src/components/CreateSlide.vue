@@ -9,10 +9,13 @@ import InputText from 'primevue/inputtext'
 import Textarea from 'primevue/textarea'
 import Card from 'primevue/card'
 import Message from 'primevue/message'
+import FileUpload from 'primevue/fileupload'
 
 const router = useRouter()
 const title = ref('')
 const outline = ref('')
+const file = ref<any>(null)
+const fileUpload = ref<any>(null)
 const loading = ref(false)
 const error = ref('')
 
@@ -26,14 +29,35 @@ if (!token) {
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3001'
 
+const onFileSelect = (event: any) => {
+    // Get the first selected file
+    if (event.files && event.files.length > 0) {
+        file.value = event.files[0]
+        error.value = ''
+    }
+}
+
+const onFileRemove = () => {
+    file.value = null
+    error.value = ''
+}
+
+const removeFile = () => {
+    if (fileUpload.value) {
+        fileUpload.value.clear()
+    }
+    onFileRemove()
+}
+
 const createSlide = async () => {
     if (!title.value.trim()) {
         error.value = 'Please enter a slide title'
         return
     }
 
-    if (!outline.value.trim()) {
-        error.value = 'Please enter a slide outline'
+    // Either outline or file must be provided
+    if (!outline.value.trim() && !file.value) {
+        error.value = 'Please provide either a slide outline or upload a file'
         return
     }
 
@@ -41,11 +65,20 @@ const createSlide = async () => {
     error.value = ''
 
     try {
-        const response = await axios.post(`${API_BASE_URL}/slides`, {
-            title: title.value,
-            outline: outline.value
-        }, {
+        const formData = new FormData()
+        formData.append('title', title.value)
+        
+        if (outline.value.trim()) {
+            formData.append('outline', outline.value)
+        }
+        
+        if (file.value) {
+            formData.append('file', file.value)
+        }
+
+        const response = await axios.post(`${API_BASE_URL}/slides`, formData, {
             headers: {
+                'Content-Type': 'multipart/form-data',
                 Authorization: `Bearer ${token}`
             }
         })
@@ -134,6 +167,38 @@ Getting started:
                         />
                         <small class="block mt-2 text-600">
                             Enter your slide outline. Use lines ending with ':' for section headers, and lines starting with '-' for bullet points.
+                        </small>
+                    </div>
+
+                    <div class="p-field mb-4">
+                        <label class="block mb-2">Upload File (Optional)</label>
+                        <FileUpload 
+                            ref="fileUpload"
+                            mode="basic" 
+                            name="file" 
+                            :auto="false"
+                            accept=".pdf,.doc,.docx,.md,.markdown,.txt"
+                            :maxFileSize="5000000"
+                            @select="onFileSelect"
+                            :disabled="loading"
+                            :class="{ 'opacity-50 pointer-events-none': loading }"
+                            class="w-full"
+                        />
+                        <div v-if="file" class="mt-2 p-2 bg-primary-100 border-round flex align-items-center justify-content-between">
+                            <span class="font-medium">Selected file:</span> 
+                            <span class="mr-2">{{ file.name }}</span>
+                            <Button 
+                                icon="pi pi-times" 
+                                rounded 
+                                text 
+                                severity="danger" 
+                                @click="removeFile"
+                                :disabled="loading"
+                                size="small"
+                            />
+                        </div>
+                        <small class="block mt-2 text-600">
+                            Upload a PDF, Word document, or Markdown file as source material (optional, max 5MB)
                         </small>
                     </div>
 

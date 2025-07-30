@@ -5,6 +5,11 @@ import { v4 as uuidv4 } from 'uuid';
 import { Slide } from './slide.entity';
 import { User } from '../users/user.entity'
 import { CreateSlideDto } from './dto/create-slide.dto';
+import { Multer } from 'multer';
+import * as fs from 'fs';
+
+// 定义文件类型
+type MulterFile = Express.Multer.File;
 
 @Injectable()
 export class SlidesService {
@@ -13,12 +18,19 @@ export class SlidesService {
     private slidesRepository: Repository<Slide>,
   ) {}
 
-  async createSlide(userId: string, createSlideDto: CreateSlideDto): Promise<Slide> {
+  async createSlide(userId: string, createSlideDto: CreateSlideDto, file?: MulterFile): Promise<Slide> {
     // Generate a unique hash for the preview URL
     const previewHash = uuidv4().replace(/-/g, '').substring(0, 16);
     
-    // Convert outline to Slidev markdown format
-    const slidevContent = this.convertOutlineToSlidev(createSlideDto.outline);
+    // Convert outline or file content to Slidev markdown format
+    let slidevContent = '';
+    if (createSlideDto.outline) {
+      slidevContent = this.convertOutlineToSlidev(createSlideDto.outline);
+    } else if (file) {
+      slidevContent = await this.convertFileToSlidev(file);
+    } else {
+      slidevContent = this.getDefaultSlidevContent();
+    }
     
     const slide = this.slidesRepository.create({
       title: createSlideDto.title,
@@ -54,12 +66,48 @@ export class SlidesService {
     return this.slidesRepository.findOne({ where: { previewHash: hash } });
   }
 
-  private convertOutlineToSlidev(outline: string): string {
-    // Split outline into lines and filter out empty lines
-    const lines = outline.split('\n').filter(line => line.trim() !== '');
+  private async convertFileToSlidev(file: MulterFile): Promise<string> {
+    // Read file content
+    const fileContent = fs.readFileSync(file.path, 'utf-8');
     
-    if (lines.length === 0) {
-      return `---
+    // Delete the file after reading
+    fs.unlinkSync(file.path);
+    
+    // For now, we'll create a simple slide with the file content
+    // In a real implementation, you might want to parse the file content more intelligently
+    let content = fileContent;
+    
+    // If it's a markdown file, we can use it as-is
+    if (file.mimetype === 'text/markdown' || file.originalname.endsWith('.md')) {
+      return fileContent;
+    }
+    
+    // For other file types, create a simple slide
+    return `---
+theme: default
+background: https://source.unsplash.com/collection/94734569/1920x1080
+---
+
+# ${file.originalname}
+
+---
+
+## File Content
+
+\`\`\`
+${content.substring(0, 1000)}${content.length > 1000 ? '...' : ''}
+\`\`\`
+
+---
+
+## Thank You
+
+Questions?
+`;
+  }
+
+  private getDefaultSlidevContent(): string {
+    return `---
 theme: default
 background: https://source.unsplash.com/collection/94734569/1920x1080
 ---
@@ -78,6 +126,14 @@ Content here...
 
 Questions?
 `;
+  }
+
+  private convertOutlineToSlidev(outline: string): string {
+    // Split outline into lines and filter out empty lines
+    const lines = outline.split('\n').filter(line => line.trim() !== '');
+    
+    if (lines.length === 0) {
+      return this.getDefaultSlidevContent();
     }
 
     // Start building the Slidev markdown

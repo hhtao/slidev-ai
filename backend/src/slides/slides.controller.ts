@@ -1,8 +1,15 @@
-import { Controller, Get, Post, Body, Param, UseGuards, Request, Query } from '@nestjs/common';
+import { Controller, Get, Post, Body, Param, UseGuards, Request, Query, UseInterceptors, UploadedFile } from '@nestjs/common';
 import { SlidesService } from './slides.service';
 import { CreateSlideDto } from './dto/create-slide.dto';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { Request as ExpressRequest } from 'express';
+import { FileInterceptor } from '@nestjs/platform-express';
+import { diskStorage } from 'multer';
+import { extname } from 'path';
+import { Multer } from 'multer';
+
+// 定义文件类型
+type MulterFile = Express.Multer.File;
 
 @Controller('slides')
 export class SlidesController {
@@ -23,9 +30,26 @@ export class SlidesController {
   }
 
   @UseGuards(JwtAuthGuard)
+  @UseInterceptors(
+    FileInterceptor('file', {
+      storage: diskStorage({
+        destination: './uploads',
+        filename: (req, file, callback) => {
+          const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1e9);
+          const ext = extname(file.originalname);
+          const filename = `${file.fieldname}-${uniqueSuffix}${ext}`;
+          callback(null, filename);
+        },
+      }),
+    }),
+  )
   @Post()
-  async createSlide(@Request() req: ExpressRequest, @Body() createSlideDto: CreateSlideDto) {
-    return this.slidesService.createSlide((req.user as any).id, createSlideDto);
+  async createSlide(
+    @Request() req: ExpressRequest, 
+    @Body() createSlideDto: CreateSlideDto,
+    @UploadedFile() file: MulterFile
+  ) {
+    return this.slidesService.createSlide((req.user as any).id, createSlideDto, file);
   }
 
   @Get('preview/:hash')

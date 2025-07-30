@@ -1,4 +1,4 @@
-import { IsString, IsNotEmpty } from 'class-validator';
+import { IsString, IsNotEmpty, IsOptional } from 'class-validator';
 
 export class CreateSlideDto {
   @IsString()
@@ -6,6 +6,6 @@ export class CreateSlideDto {
   title!: string;
 
   @IsString()
-  @IsNotEmpty()
-  outline!: string;
+  @IsOptional()
+  outline?: string;
 }
