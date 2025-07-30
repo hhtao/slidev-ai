@@ -34,6 +34,22 @@ export class SlidesService {
     return this.slidesRepository.find({ where: { userId } });
   }
 
+  async getPublicSlides(skip: number, take: number): Promise<[Slide[], number]> {
+    return this.slidesRepository
+      .createQueryBuilder('slide')
+      .leftJoinAndSelect('slide.user', 'user')
+      .select([
+        'slide.id',
+        'slide.title',
+        'slide.previewHash',
+        'slide.createdAt',
+        'user.username'
+      ])
+      .skip(skip)
+      .take(take)
+      .getManyAndCount();
+  }
+
   async getSlideByHash(hash: string): Promise<Slide | null> {
     return this.slidesRepository.findOne({ where: { previewHash: hash } });
   }
@@ -78,15 +94,27 @@ background: https://source.unsplash.com/collection/94734569/1920x1080
 `;
 
     // Process the rest of the outline
+    let inList = false;
     for (let i = 1; i < lines.length; i++) {
       const line = lines[i].trim();
       
       // If line starts with -, treat as bullet point
       if (line.startsWith('-')) {
+        // If this is the first list item, start a new slide
+        if (!inList) {
+          slidevMarkdown += `---
+
+`;
+          inList = true;
+        }
         slidevMarkdown += `${line}\n`;
       } 
       // If line ends with :, treat as section header
       else if (line.endsWith(':')) {
+        // Close previous list if needed
+        if (inList) {
+          inList = false;
+        }
         slidevMarkdown += `---
 
 ## ${line.slice(0, -1)}
@@ -95,7 +123,14 @@ background: https://source.unsplash.com/collection/94734569/1920x1080
       } 
       // Otherwise, treat as content
       else {
-        slidevMarkdown += `${line}\n\n`;
+        // Close previous list if needed
+        if (inList) {
+          inList = false;
+        }
+        // If this is not an empty line, add as content
+        if (line !== '') {
+          slidevMarkdown += `${line}\n\n`;
+        }
       }
     }
 

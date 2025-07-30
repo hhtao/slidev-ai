@@ -3,6 +3,7 @@ import Auth from '../components/Auth.vue'
 import Dashboard from '../components/Dashboard.vue'
 import CreateSlide from '../components/CreateSlide.vue'
 import Preview from '../components/Preview.vue'
+import PublicSlides from '../components/PublicSlides.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -20,6 +21,11 @@ const router = createRouter({
       path: '/dashboard',
       name: 'dashboard',
       component: Dashboard
+    },
+    {
+      path: '/public',
+      name: 'public',
+      component: PublicSlides
     },
     {
       path: '/create',

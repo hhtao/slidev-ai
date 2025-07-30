@@ -63,7 +63,7 @@ const items = ref([
         label: 'Public Slides',
         icon: 'pi pi-globe',
         command: () => {
-            router.push('/')
+            router.push('/public')
         }
     },
     {

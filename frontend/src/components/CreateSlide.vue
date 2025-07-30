@@ -21,104 +21,150 @@ const token = localStorage.getItem('token')
 
 // Redirect to login if no token
 if (!token) {
-  router.push('/login')
+    router.push('/login')
 }
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3001'
 
 const createSlide = async () => {
-  if (!title.value.trim() || !outline.value.trim()) {
-    error.value = 'Please fill in all fields'
-    return
-  }
-  
-  loading.value = true
-  error.value = ''
-  
-  try {
-    const response = await axios.post(`${API_BASE_URL}/slides`, {
-      title: title.value,
-      outline: outline.value
-    }, {
-      headers: {
-        Authorization: `Bearer ${token}`
-      }
-    })
-    
-    // Redirect to dashboard after successful creation
-    router.push('/dashboard')
-  } catch (err) {
-    error.value = 'Failed to create slide. Please try again.'
-    console.error(err)
-  } finally {
-    loading.value = false
-  }
+    if (!title.value.trim()) {
+        error.value = 'Please enter a slide title'
+        return
+    }
+
+    if (!outline.value.trim()) {
+        error.value = 'Please enter a slide outline'
+        return
+    }
+
+    loading.value = true
+    error.value = ''
+
+    try {
+        const response = await axios.post(`${API_BASE_URL}/slides`, {
+            title: title.value,
+            outline: outline.value
+        }, {
+            headers: {
+                Authorization: `Bearer ${token}`
+            }
+        })
+
+        // Redirect to dashboard after successful creation
+        router.push('/dashboard')
+    } catch (err: any) {
+        if (err.response && err.response.status === 401) {
+            error.value = 'Authentication failed. Please log in again.'
+            localStorage.removeItem('token')
+            router.push('/login')
+        } else {
+            error.value = 'Failed to create slide. Please try again.'
+        }
+        console.error(err)
+    } finally {
+        loading.value = false
+    }
 }
 
 const cancel = () => {
-  router.push('/dashboard')
+    router.push('/dashboard')
+}
+
+// Add example outline to help users
+const addExample = () => {
+    outline.value = `Introduction to Slidev AI:
+- What is Slidev AI
+- Key features
+- Benefits of using AI for presentations
+
+How it works:
+- Step 1: Enter your topic
+- Step 2: Provide an outline
+- Step 3: Generate beautiful slides
+
+Getting started:
+- Sign up for an account
+- Create your first presentation
+- Share with your team
+`
 }
 </script>
 
 <template>
-  <div class="create-slide p-4">
-    <div class="header mb-4">
-      <h1>Create New Slide</h1>
+    <div class="create-slide p-4">
+        <div class="header mb-4">
+            <h1>Create New Slide</h1>
+        </div>
+
+        <Card>
+            <template #content>
+                <form @submit.prevent="createSlide">
+                    <div class="p-field mb-4">
+                        <label for="title" class="block mb-2">Slide Title</label>
+                        <InputText 
+                            id="title" 
+                            v-model="title" 
+                            type="text" 
+                            placeholder="Enter slide title"
+                            class="w-full"
+                            :disabled="loading"
+                        />
+                    </div>
+
+                    <div class="p-field mb-4">
+                        <div class="flex justify-content-between align-items-center mb-2">
+                            <label for="outline" class="block">Slide Outline</label>
+                            <Button 
+                                type="button" 
+                                label="Add Example" 
+                                text 
+                                size="small" 
+                                @click="addExample"
+                                :disabled="loading"
+                            />
+                        </div>
+                        <Textarea 
+                            id="outline" 
+                            v-model="outline"
+                            placeholder="Enter your slide outline&#10;&#10;Example:&#10;Introduction&#10;- Main point 1&#10;- Main point 2&#10;Conclusion"
+                            :autoResize="true" 
+                            rows="10" 
+                            class="w-full"
+                            :disabled="loading"
+                        />
+                        <small class="block mt-2 text-600">
+                            Enter your slide outline. Use lines ending with ':' for section headers, and lines starting with '-' for bullet points.
+                        </small>
+                    </div>
+
+                    <div v-if="error" class="mb-4">
+                        <Message severity="error">{{ error }}</Message>
+                    </div>
+
+                    <div class="flex justify-content-end gap-2">
+                        <Button 
+                            type="button" 
+                            @click="cancel" 
+                            label="Cancel" 
+                            severity="secondary" 
+                            :disabled="loading"
+                        />
+                        <Button 
+                            type="submit" 
+                            :label="loading ? 'Creating...' : 'Create Slide'" 
+                            :disabled="loading"
+                            icon="pi pi-check"
+                        />
+                    </div>
+                </form>
+            </template>
+        </Card>
     </div>
-    
-    <Card>
-      <template #content>
-        <form @submit.prevent="createSlide">
-          <div class="p-field mb-4">
-            <label for="title" class="block mb-2">Slide Title</label>
-            <InputText 
-              id="title" 
-              v-model="title" 
-              type="text" 
-              placeholder="Enter slide title"
-              class="w-full"
-            />
-          </div>
-          
-          <div class="p-field mb-4">
-            <label for="outline" class="block mb-2">Slide Outline</label>
-            <Textarea
-              id="outline" 
-              v-model="outline" 
-              placeholder="Enter your slide outline&#10;&#10;Example:&#10;Introduction&#10;- Main point 1&#10;- Main point 2&#10;Conclusion"
-              :autoResize="true"
-              rows="10"
-              class="w-full"
-            />
-          </div>
-          
-          <div v-if="error" class="mb-4">
-            <Message severity="error">{{ error }}</Message>
-          </div>
-          
-          <div class="flex justify-content-end gap-2">
-            <Button 
-              type="button" 
-              @click="cancel" 
-              label="Cancel" 
-              severity="secondary"
-            />
-            <Button 
-              type="submit" 
-              :label="loading ? 'Creating...' : 'Create Slide'"
-              :disabled="loading"
-              icon="pi pi-check"
-            />
-          </div>
-        </form>
-      </template>
-    </Card>
-  </div>
 </template>
 
 <style scoped>
 .create-slide {
-  max-width: 800px;
-  margin: 0 auto;
+    max-width: 800px;
+    margin: 0 auto;
 }
 </style>

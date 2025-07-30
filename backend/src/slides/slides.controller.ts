@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Param, UseGuards, Request } from '@nestjs/common';
+import { Controller, Get, Post, Body, Param, UseGuards, Request, Query } from '@nestjs/common';
 import { SlidesService } from './slides.service';
 import { CreateSlideDto } from './dto/create-slide.dto';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
@@ -12,6 +12,14 @@ export class SlidesController {
   @Get()
   async getUserSlides(@Request() req: ExpressRequest) {
     return this.slidesService.getUserSlides((req.user as any).id);
+  }
+
+  @Get('public')
+  async getPublicSlides(
+    @Query('skip') skip: number = 0,
+    @Query('take') take: number = 10
+  ) {
+    return this.slidesService.getPublicSlides(Number(skip) || 0, Number(take) || 10);
   }
 
   @UseGuards(JwtAuthGuard)

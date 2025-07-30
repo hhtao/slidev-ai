@@ -66,8 +66,7 @@ onMounted(() => {
 
 <template>
     <div class="dashboard p-4 mt-4">
-        <div class="header flex justify-content-between align-items-center mb-4">
-            <h1>My Slides</h1>
+        <div class="header flex justify-content-between align-items-center mb-4" v-if="slides.length > 0">
             <Button @click="createNewSlide" label="Create New Slide" icon="pi pi-plus" />
         </div>
 
