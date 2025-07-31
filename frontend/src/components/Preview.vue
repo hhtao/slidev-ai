@@ -4,7 +4,7 @@ import { useRoute } from 'vue-router'
 import axios from 'axios'
 
 const route = useRoute()
-const slide = ref(null)
+const slide = ref<{title: string, content: string} | null>(null)
 const loading = ref(true)
 const error = ref('')
 
@@ -20,6 +20,16 @@ const fetchSlide = async () => {
     } finally {
         loading.value = false
     }
+}
+
+const copyToClipboard = async () => {
+  if (slide.value) {
+    try {
+      await navigator.clipboard.writeText(slide.value.content)
+    } catch (err) {
+      console.error('Failed to copy text: ', err)
+    }
+  }
 }
 
 onMounted(() => {
@@ -41,7 +51,7 @@ onMounted(() => {
             <div class="slide-header">
                 <h1>{{ slide.title }}</h1>
                 <div class="actions">
-                    <button @click="() => navigator.clipboard.writeText(slide.content)" class="copy-btn">
+                    <button @click="copyToClipboard" class="copy-btn">
                         Copy Markdown
                     </button>
                 </div>

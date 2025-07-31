@@ -96,18 +96,14 @@ const items = ref([
             </template>
 
             <template #end>
-                <div class="flex align-items-center gap-2">
+                <div class="flex items-center gap-2">
                     <Button :icon="darkMode ? 'pi pi-moon' : 'pi pi-sun'" @click="toggleDarkMode" rounded text />
                     <a href="https://github.com/LSTM-Kirigaya/slidev-ai" target="_blank" rel="noopener noreferrer"
                         class="p-button p-button-text p-button-rounded h-[var(--p-button-icon-only-width)]">
                         <i class="pi pi-github text-xl"></i>
                     </a>
-                    <div v-if="user" class="flex align-items-center gap-2">
+                    <div v-if="user" class="h-[32px]">
                         <Avatar :label="user.username.charAt(0).toUpperCase()" shape="circle" />
-                        <div class="flex flex-column">
-                            <span class="font-bold">{{ user.username }}</span>
-                        </div>
-                        <Button label="Logout" @click="logout" text size="small" />
                     </div>
                     <Button v-else label="Login" @click="router.push('/login')" icon="pi pi-sign-in" />
                 </div>

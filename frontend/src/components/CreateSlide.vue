@@ -83,8 +83,8 @@ const createSlide = async () => {
             }
         })
 
-        // Redirect to dashboard after successful creation
-        router.push('/dashboard')
+        // Redirect to processing page after successful creation
+        router.push(`/slides/${response.data.id}/process`)
     } catch (err: any) {
         if (err.response && err.response.status === 401) {
             error.value = 'Authentication failed. Please log in again.'

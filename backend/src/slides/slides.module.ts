@@ -6,9 +6,9 @@ import { SlidesController } from './slides.controller';
 import { UsersModule } from '../users/users.module';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Slide]), UsersModule],
-  providers: [SlidesService],
-  controllers: [SlidesController],
-  exports: [SlidesService],
+    imports: [TypeOrmModule.forFeature([Slide]), UsersModule],
+    providers: [SlidesService],
+    controllers: [SlidesController],
+    exports: [SlidesService],
 })
-export class SlidesModule {}
+export class SlidesModule { }
