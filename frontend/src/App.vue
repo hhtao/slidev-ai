@@ -6,13 +6,31 @@ import Navbar from './components/Navbar.vue'
 const router = useRouter()
 
 // Check if user is authenticated
-onMounted(() => {
+const checkAuth = () => {
     const token = localStorage.getItem('token')
     const publicPages = ['/login']
     const authRequired = !publicPages.includes(router.currentRoute.value.path)
 
     if (authRequired && !token) {
         router.push('/login')
+    }
+}
+
+// Check auth on mount
+onMounted(() => {
+    checkAuth()
+})
+
+// Watch for route changes
+router.beforeEach((to, from, next) => {
+    const token = localStorage.getItem('token')
+    const publicPages = ['/login']
+    const authRequired = !publicPages.includes(to.path)
+
+    if (authRequired && !token) {
+        next('/login')
+    } else {
+        next()
     }
 })
 </script>

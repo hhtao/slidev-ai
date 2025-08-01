@@ -78,21 +78,32 @@ const createSlide = async () => {
         const response = await axios.post(`${API_BASE_URL}/slides`, formData, {
             headers: {
                 'Content-Type': 'multipart/form-data',
-                Authorization: `Bearer ${token}`
+                'Authorization': `Bearer ${token}`
             }
         })
 
         // Redirect to processing page after successful creation
         router.push(`/slides/${response.data.id}/process`)
     } catch (err: any) {
+        console.error('Create slide error:', err)
         if (err.response && err.response.status === 401) {
+            // Token is invalid or expired
             error.value = 'Authentication failed. Please log in again.'
             localStorage.removeItem('token')
-            router.push('/login')
+            // Add slight delay before redirecting to allow user to see error message
+            setTimeout(() => {
+                router.push('/login')
+            }, 2000)
+        } else if (err.response) {
+            // Server responded with error status
+            error.value = `Failed to create slide: ${err.response.data.message || err.response.statusText}`
+        } else if (err.request) {
+            // Request was made but no response received
+            error.value = 'Network error. Please check your connection and try again.'
         } else {
+            // Other error
             error.value = 'Failed to create slide. Please try again.'
         }
-        console.error(err)
     } finally {
         loading.value = false
     }

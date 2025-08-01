@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, watch } from 'vue'
 import { useRouter } from 'vue-router'
 
 // PrimeVue components
@@ -54,6 +54,11 @@ onMounted(() => {
         }
     }
 
+    checkAuthStatus()
+})
+
+// Watch for route changes to update auth status
+watch(() => router.currentRoute.value, () => {
     checkAuthStatus()
 })
 
