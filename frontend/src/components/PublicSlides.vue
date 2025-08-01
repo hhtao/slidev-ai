@@ -6,6 +6,7 @@ import Card from 'primevue/card'
 import DataView from 'primevue/dataview'
 import Message from 'primevue/message'
 import Skeleton from 'primevue/skeleton'
+import { API_BASE_URL } from '@/utils/api'
 
 interface Slide {
   id: string
@@ -24,8 +25,6 @@ const loadingMore = ref(false)
 const hasMore = ref(true)
 const skip = ref(0)
 const take = ref(10)
-
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3001'
 
 const fetchPublicSlides = async (loadMore = false) => {
   try {

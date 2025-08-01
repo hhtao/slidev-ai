@@ -10,6 +10,7 @@ import Textarea from 'primevue/textarea'
 import Card from 'primevue/card'
 import Message from 'primevue/message'
 import FileUpload from 'primevue/fileupload'
+import { API_BASE_URL } from '@/utils/api'
 
 const router = useRouter()
 const title = ref('')
@@ -26,8 +27,6 @@ const token = localStorage.getItem('token')
 if (!token) {
     router.push('/login')
 }
-
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3001'
 
 const onFileSelect = (event: any) => {
     // Get the first selected file

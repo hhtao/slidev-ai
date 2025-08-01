@@ -5,6 +5,7 @@ import Card from 'primevue/card'
 import ProgressBar from 'primevue/progressbar'
 import Message from 'primevue/message'
 import Button from 'primevue/button'
+import { API_BASE_URL } from '@/utils/api'
 
 const route = useRoute()
 const router = useRouter()
@@ -14,8 +15,6 @@ const progress = ref(0)
 const error = ref('')
 const eventSource = ref<EventSource | null>(null)
 const isProcessing = ref(true)
-
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3001'
 
 // 处理SSE事件
 const handleSSEEvent = (event: MessageEvent) => {

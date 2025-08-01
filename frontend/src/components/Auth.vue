@@ -9,6 +9,7 @@ import InputText from 'primevue/inputtext'
 import Password from 'primevue/password'
 import Card from 'primevue/card'
 import Message from 'primevue/message'
+import { API_BASE_URL } from '@/utils/api'
 
 const router = useRouter()
 
@@ -18,7 +19,6 @@ const email = ref('')
 const password = ref('')
 const error = ref('')
 
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3001'
 
 const toggleForm = () => {
     isLogin.value = !isLogin.value

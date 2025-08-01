@@ -8,6 +8,7 @@ import Button from 'primevue/button'
 import Card from 'primevue/card'
 import DataView from 'primevue/dataview'
 import Message from 'primevue/message'
+import { API_BASE_URL } from '@/utils/api'
 
 const router = useRouter()
 const slides = ref([])
@@ -21,8 +22,6 @@ const token = localStorage.getItem('token')
 if (!token) {
     router.push('/login')
 }
-
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3001'
 
 const fetchSlides = async () => {
     try {

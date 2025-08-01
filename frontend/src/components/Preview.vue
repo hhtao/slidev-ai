@@ -2,13 +2,12 @@
 import { ref, onMounted } from 'vue'
 import { useRoute } from 'vue-router'
 import axios from 'axios'
+import { API_BASE_URL } from '@/utils/api'
 
 const route = useRoute()
 const slide = ref<{title: string, content: string} | null>(null)
 const loading = ref(true)
 const error = ref('')
-
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3001'
 
 const fetchSlide = async () => {
     try {
