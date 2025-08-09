@@ -75,12 +75,13 @@ const createSlide = async () => {
             formData.append('file', file.value)
         }
 
+
         const response = await axios.post(`${API_BASE_URL}/slides`, formData, {
             headers: {
                 'Content-Type': 'multipart/form-data',
                 'Authorization': `Bearer ${token}`
             }
-        })
+        });
 
         // Redirect to processing page after successful creation
         router.push(`/slides/${response.data.id}/process`)

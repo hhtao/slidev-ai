@@ -107,8 +107,9 @@ const items = ref([
                         class="p-button p-button-text p-button-rounded h-[var(--p-button-icon-only-width)]">
                         <i class="pi pi-github text-xl"></i>
                     </a>
-                    <div v-if="user" class="h-[32px]">
+                    <div v-if="user" class="h-[32px] flex items-center gap-2">
                         <Avatar :label="user.username.charAt(0).toUpperCase()" shape="circle" />
+                        <Button label="Logout" @click="logout" icon="pi pi-sign-out" text size="small" />
                     </div>
                     <Button v-else label="Login" @click="router.push('/login')" icon="pi pi-sign-in" />
                 </div>

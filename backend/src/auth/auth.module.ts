@@ -4,17 +4,27 @@ import { UsersModule } from '../users/users.module';
 import { AuthService } from './auth.service';
 import { AuthController } from './auth.controller';
 import { JwtStrategy } from './jwt.strategy';
+import { ConfigService, ConfigModule } from '@nestjs/config';
 
 @Module({
-  imports: [
-    UsersModule,
-    JwtModule.register({
-      secret: process.env.JWT_SECRET || 'defaultSecretKey',
-      signOptions: { expiresIn: '7d' },
-    }),
-  ],
-  providers: [AuthService, JwtStrategy],
-  controllers: [AuthController],
-  exports: [AuthService],
+    imports: [
+        UsersModule,
+        ConfigModule,
+        JwtModule.registerAsync({
+            imports: [ConfigModule],
+            inject: [ConfigService],
+            useFactory: async (configService: ConfigService) => {
+                const secret = configService.get<string>('JWT_SECRET', 'defaultSecretKey');
+                console.log('Module secret', secret); // 这里才会拿到正确值
+                return {
+                    secret,
+                    signOptions: { expiresIn: '7d' },
+                };
+            },
+        }),
+    ],
+    providers: [AuthService, JwtStrategy],
+    controllers: [AuthController],
+    exports: [AuthService],
 })
-export class AuthModule {}
+export class AuthModule { }
