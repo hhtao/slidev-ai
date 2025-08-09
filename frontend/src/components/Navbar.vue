@@ -78,14 +78,6 @@ const items = ref([
         command: () => {
             router.push('/dashboard')
         }
-    },
-    {
-        label: 'Create Slide',
-        icon: 'pi pi-plus',
-        visible: () => user.value !== null,
-        command: () => {
-            router.push('/create')
-        }
     }
 ])
 
