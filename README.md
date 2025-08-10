@@ -1,5 +1,7 @@
 # Slidev AI
 
+![Slidev AI Logo](frontend/src/assets/icons/slidev-ai.svg)
+
 A web application that allows users to create, manage, and modify Slidev presentations through an AI-powered interface.
 
 ## Features
@@ -66,31 +68,14 @@ npm install
 
 ### Running the Application
 
-1. Start the backend server:
 ```bash
-cd backend
-npm run start:dev
-```
-
-2. Start the frontend development server:
-```bash
-cd frontend
 npm run dev
 ```
+
 
 The backend will be running on http://localhost:3001
 The frontend will be running on http://localhost:3000
 
-## API Endpoints
-
-### Authentication
-- POST `/auth/register` - Register a new user
-- POST `/auth/login` - Login user
-
-### Slides
-- GET `/slides` - Get user's slides (requires authentication)
-- POST `/slides` - Create a new slide (requires authentication)
-- GET `/slides/preview/:hash` - Get slide by preview hash
 
 ## Database
 
