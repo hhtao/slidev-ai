@@ -1,9 +1,9 @@
-import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn, DeleteDateColumn, Check,ManyToOne,JoinColumn } from 'typeorm';
+import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn, DeleteDateColumn, Check, ManyToOne, JoinColumn } from 'typeorm';
 import { User } from '../users/user.entity';
 @Entity("slides")
 export class Slide {
-    @PrimaryGeneratedColumn('uuid')
-    id: string;
+    @PrimaryGeneratedColumn()
+    id: number;
 
     @CreateDateColumn()
     createdAt: Date;
@@ -21,7 +21,7 @@ export class Slide {
     content!: string;
 
     @Column({ unique: true })
-    uid: string;
+    shareId: string;
 
     @Column({ default: 'pending' })
     processingStatus!: string;
