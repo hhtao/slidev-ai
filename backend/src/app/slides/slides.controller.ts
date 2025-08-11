@@ -9,7 +9,7 @@ import { Observable } from 'rxjs';
 import { Multer } from 'multer';
 import { InjectRepository } from '@nestjs/typeorm';
 import { SlideRepository } from '@/app/slides/slide.repository';
-import { CreateSlideDto } from './slide.entity';
+import { CreateSlideDto } from './slide.dto';
 
 // 定义文件类型
 type MulterFile = Express.Multer.File;
@@ -22,24 +22,44 @@ export class SlidesController {
     ) { }
 
     @UseGuards(JwtAuthGuard)
-    @Get(':uid')
-    async getSlideById(@Param('uid') uid: string) {
-        return this.slideRepository.findOneByUid(uid);
+    @Get(':id')
+    async getSlideById(@Param('id') id: string, @Request() req: ExpressRequest) {
+        const slide = await this.slideRepository.findOneByUid(id);
+        if (!slide) {
+            throw new Error('幻灯片不存在');
+        }
+        const userId = (req.user as any)?.id;
+        // 只有自己或公开的可以查看
+        if (slide.userId !== userId && slide.visibility !== 'public') {
+            throw new Error('无权查看该幻灯片');
+        }
+        return slide;
     }
 
-
+    
+    /**
+     * 获取自己的幻灯片，支持 visibility 筛选
+     */
     @UseGuards(JwtAuthGuard)
-    @Get()
-    async getUserSlides(@Request() req: ExpressRequest) {
-        return this.slideRepository.findAllByUserId((req.user as any).id);
+    @Get('self')
+    async getSelfSlides(
+        @Request() req: ExpressRequest,
+        @Query('visibility') visibility?: 'public' | 'private' | 'all'
+    ) {
+        const userId = (req.user as any).id;
+        return this.slideRepository.findByUserId(userId, visibility ?? 'all');
     }
 
+    /**
+     * 获取公开幻灯片，可以根据用户id筛选
+     */
     @Get('public')
     async getPublicSlides(
+        @Query('userId') userId: string,
         @Query('skip') skip: number = 0,
         @Query('take') take: number = 10
     ) {
-        return this.slideRepository.getPublicSlides(Number(skip) || 0, Number(take) || 10);
+        return this.slideRepository.getPublicSlides(userId,Number(skip) || 0, Number(take) || 10);
     }
 
     @UseGuards(JwtAuthGuard)

@@ -1,5 +1,4 @@
-import { IsString, IsNotEmpty, IsOptional } from 'class-validator';
-import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn,UpdateDateColumn,DeleteDateColumn } from 'typeorm';
+import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn, DeleteDateColumn,Check } from 'typeorm';
 
 @Entity("slides")
 export class Slide {
@@ -29,15 +28,9 @@ export class Slide {
 
     @Column()
     userId!: string;
+
+    @Column()
+    @Check(`"visibility" IN ('public', 'private')`)
+    visibility: string;
 }
 
-
-export class CreateSlideDto {
-    @IsString()
-    @IsNotEmpty()
-    title!: string;
-
-    @IsString()
-    @IsOptional()
-    outline?: string;
-}
