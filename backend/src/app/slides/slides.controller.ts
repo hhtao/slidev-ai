@@ -21,22 +21,8 @@ export class SlidesController {
         private readonly slideRepository: SlideRepository,
     ) { }
 
-    @UseGuards(JwtAuthGuard)
-    @Get(':id')
-    async getSlideById(@Param('id') id: string, @Request() req: ExpressRequest) {
-        const slide = await this.slideRepository.findOneByUid(id);
-        if (!slide) {
-            throw new Error('幻灯片不存在');
-        }
-        const userId = (req.user as any)?.id;
-        // 只有自己或公开的可以查看
-        if (slide.userId !== userId && slide.visibility !== 'public') {
-            throw new Error('无权查看该幻灯片');
-        }
-        return slide;
-    }
 
-    
+
     /**
      * 获取自己的幻灯片，支持 visibility 筛选
      */
@@ -59,7 +45,7 @@ export class SlidesController {
         @Query('skip') skip: number = 0,
         @Query('take') take: number = 10
     ) {
-        return this.slideRepository.getPublicSlides(userId,Number(skip) || 0, Number(take) || 10);
+        return this.slideRepository.getPublicSlides(userId, Number(skip) || 0, Number(take) || 10);
     }
 
     @UseGuards(JwtAuthGuard)
@@ -101,4 +87,20 @@ export class SlidesController {
             this.slidesService.makeMarkdownHandler(uid, subscriber);
         });
     }
+
+    @UseGuards(JwtAuthGuard)
+    @Get(':id')
+    async getSlideById(@Param('id') id: string, @Request() req: ExpressRequest) {
+        const slide = await this.slideRepository.findOneByUid(id);
+        if (!slide) {
+            throw new Error('幻灯片不存在');
+        }
+        const userId = (req.user as any)?.id;
+        // 只有自己或公开的可以查看
+        if (slide.userId !== userId && slide.visibility !== 'public') {
+            throw new Error('无权查看该幻灯片');
+        }
+        return slide;
+    }
+
 }

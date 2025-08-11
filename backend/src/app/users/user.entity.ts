@@ -1,5 +1,5 @@
-import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn, DeleteDateColumn } from 'typeorm';
-import { IsString, MinLength } from 'class-validator';
+import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn, DeleteDateColumn,OneToMany } from 'typeorm';
+import { Slide } from '../slides/slide.entity';
 
 @Entity('users')
 export class User {
@@ -24,15 +24,8 @@ export class User {
     @Column()
     password: string;
 
+    @OneToMany(() => Slide, slide => slide.user)
+    slides: Slide[];
 
-}
 
-export class CreateUserDto {
-    @IsString()
-    @MinLength(4)
-    username!: string;
-
-    @IsString()
-    @MinLength(6)
-    password!: string;
 }

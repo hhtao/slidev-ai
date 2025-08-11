@@ -1,4 +1,4 @@
-import { IsString, IsNotEmpty, IsOptional } from 'class-validator';
+import { IsString, IsNotEmpty, IsEnum } from 'class-validator';
 
 export class CreateSlideDto {
     @IsString()
@@ -6,10 +6,11 @@ export class CreateSlideDto {
     title!: string;
 
     @IsString()
-    @IsOptional()
-    outline?: string;
+    @IsNotEmpty()
+    content!: string;
 
     @IsString()
     @IsNotEmpty()
+    @IsEnum(['public', 'private'])
     visibility!: 'public' | 'private';
 }

@@ -36,7 +36,8 @@ export class SlidesService {
 
         return this.slidesRepository.create({
             title: createSlideDto.title,
-            content: createSlideDto.outline,
+            content: createSlideDto.content,
+            visibility: createSlideDto.visibility,
             uid,
             userId,
             processingStatus: 'pending'
