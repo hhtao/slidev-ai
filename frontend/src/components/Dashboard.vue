@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
+import { ref, onMounted,watch } from 'vue'
 import { useRouter } from 'vue-router'
 import axios from 'axios'
 
@@ -14,6 +14,7 @@ const router = useRouter()
 const slides = ref([])
 const loading = ref(true)
 const error = ref('')
+const visibility = ref('all') // 筛选框选项
 
 // Get token from localStorage
 const token = localStorage.getItem('token')
@@ -24,11 +25,18 @@ if (!token) {
 }
 
 const fetchSlides = async () => {
+    loading.value = true
+    error.value = ''
     try {
-        const response = await axios.get(`${API_BASE_URL}/slides`, {
+        const params: any = {}
+        if (visibility.value !== 'all') {
+            params.visibility = visibility.value
+        }
+        const response = await axios.get(`${API_BASE_URL}/slides/self`, {
             headers: {
                 Authorization: `Bearer ${token}`
-            }
+            },
+            params
         })
         slides.value = response.data
     } catch (err) {
@@ -61,12 +69,24 @@ const formatDate = (dateString: string) => {
 onMounted(() => {
     fetchSlides()
 })
+
+// 监听 visibility 变化自动刷新
+watch(visibility, () => {
+    fetchSlides()
+})
 </script>
 
 <template>
     <div class="dashboard p-4 mt-4">
         <div class="header flex justify-content-between align-items-center mb-4" v-if="slides.length > 0">
-            <Button @click="createNewSlide" label="Create New Slide" icon="pi pi-plus" />
+            <div class="flex gap-2 items-center">
+                <Button @click="createNewSlide" label="Create New Slide" icon="pi pi-plus" />
+                <select v-model="visibility" class="ml-4 p-2 border rounded">
+                    <option value="all">All</option>
+                    <option value="public">Public</option>
+                    <option value="private">Private</option>
+                </select>
+            </div>
         </div>
 
         <div v-if="loading" class="text-center p-4">
@@ -92,11 +112,19 @@ onMounted(() => {
                 <DataView :value="slides">
                     <template #list="slotProps">
                         <div class="grid grid-nogutter">
-                            <div v-for="(slide, index) in slotProps.items" :key="slide.id"
+                            <div v-for="(slide, _) in slotProps.items" :key="slide.id"
                                 class="col-12 md:col-6 lg:col-4 p-2">
                                 <Card class="h-full">
                                     <template #title>
-                                        <h3>{{ slide.title }}</h3>
+                                        <div class="flex items-center gap-2">
+                                            <h3>{{ slide.title }}</h3>
+                                            <span v-if="slide.visibility === 'public'" title="Public">
+                                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M2 12h20"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10"/></svg>
+                                            </span>
+                                            <span v-else title="Private">
+                                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+                                            </span>
+                                        </div>
                                     </template>
                                     <template #content>
                                         <p class="mb-3">Created: {{ formatDate(slide.createdAt) }}</p>
