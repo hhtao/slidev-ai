@@ -30,7 +30,7 @@ export class SlidesService {
      * @description 创建给定素材的幻灯片项目，并塞入数据库
      */
     async createSlide(userId: string, createSlideDto: CreateSlideDto, file?: MulterFile): Promise<Slide> {
-        const uid = uuidv4().replace(/-/g, '').substring(0, 16);
+        const uid = uuidv4().replace(/-/g, '')
 
         // TODO: 解析文件 file 并进入数据库
 
