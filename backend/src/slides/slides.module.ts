@@ -1,9 +1,9 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { Slide } from './slide.entity';
 import { SlidesService } from './slides.service';
 import { SlidesController } from './slides.controller';
 import { UsersModule } from '../users/users.module';
+import { Slide } from '@/databases/slide/slide.dto';
 
 @Module({
     imports: [TypeOrmModule.forFeature([Slide]), UsersModule],

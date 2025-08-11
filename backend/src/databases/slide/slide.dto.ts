@@ -1,5 +1,5 @@
 import { Entity, Column, PrimaryGeneratedColumn, ManyToOne, JoinColumn } from 'typeorm';
-import { User } from '../users/user.entity';
+import { User } from '../user/user.dto';
 
 @Entity()
 export class Slide {
@@ -19,7 +19,7 @@ export class Slide {
     updatedAt!: Date;
 
     @Column({ unique: true })
-    previewHash!: string;
+    uid!: string;
 
     @Column({ default: 'pending' })
     processingStatus!: string;

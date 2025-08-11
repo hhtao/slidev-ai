@@ -11,7 +11,7 @@ import { API_BASE_URL } from '@/utils/api'
 interface Slide {
   id: string
   title: string
-  previewHash: string
+  uid: string
   createdAt: string
   user?: {
     username: string
@@ -159,7 +159,7 @@ const loadMoreTrigger = (el: Element) => {
               <template #content>
                 <div class="flex gap-2">
                   <Button 
-                    @click="viewSlide(slide.previewHash)" 
+                    @click="viewSlide(slide.uid)" 
                     label="View" 
                     icon="pi pi-eye"
                     size="small" 

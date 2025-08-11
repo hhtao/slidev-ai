@@ -34,7 +34,7 @@ const router = createRouter({
       component: CreateSlide
     },
     {
-      path: '/slides/:slideId/process',
+      path: '/slides/process/:slideId',
       name: 'slide-processing',
       component: SlideProcessing,
       props: true

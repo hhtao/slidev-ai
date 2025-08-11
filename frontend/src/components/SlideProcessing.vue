@@ -35,7 +35,7 @@ const handleSSEEvent = (event: MessageEvent) => {
 
                 // 可以在这里添加跳转到预览页面的逻辑
                 // setTimeout(() => {
-                //   router.push(`/preview/${data.previewHash}`)
+                //   router.push(`/preview/${data.uid}`)
                 // }, 1000)
                 break
 
@@ -69,8 +69,8 @@ const handleSSEError = (event: Event) => {
 
 // 初始化SSE连接
 const initializeSSE = () => {
-    const slideId = route.params.slideId
-    if (!slideId) {
+    const uid = route.params.uid
+    if (!uid) {
         error.value = 'Invalid slide ID'
         return
     }
@@ -81,14 +81,13 @@ const initializeSSE = () => {
         return
     }
 
-    // 建立SSE连接
-    const url = `${API_BASE_URL}/slides/${slideId}/process`
+    const url = `${API_BASE_URL}/slides/process/${uid}`
     eventSource.value = new EventSource(url, {
         withCredentials: true
-    })
+    });
 
-    eventSource.value.addEventListener('message', handleSSEEvent)
-    eventSource.value.addEventListener('error', handleSSEError)
+    eventSource.value.addEventListener('message', handleSSEEvent);
+    eventSource.value.addEventListener('error', handleSSEError);
 }
 
 // 取消处理

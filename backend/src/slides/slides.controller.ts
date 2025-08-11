@@ -1,6 +1,5 @@
 import { Controller, Get, Post, Body, Param, UseGuards, Request, Query, UseInterceptors, UploadedFile, Sse } from '@nestjs/common';
 import { SlidesService } from './slides.service';
-import { CreateSlideDto } from './dto/create-slide.dto';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { Request as ExpressRequest } from 'express';
 import { FileInterceptor } from '@nestjs/platform-express';
@@ -8,6 +7,7 @@ import { diskStorage } from 'multer';
 import { extname } from 'path';
 import { Observable } from 'rxjs';
 import { Multer } from 'multer';
+import { CreateSlideDto } from '@/databases/slide/create-slide.dto';
 
 // 定义文件类型
 type MulterFile = Express.Multer.File;
@@ -56,14 +56,21 @@ export class SlidesController {
     @UseGuards(JwtAuthGuard)
     @Get(':id')
     async getSlideById(@Param('id') id: string) {
-        return this.slidesService.getSlideById(id);
+        return this.slidesService.getSlideByUid(id);
     }
 
     @UseGuards(JwtAuthGuard)
-    @Sse(':id/process')
+    @Sse('process/:id')
     processSlide(@Param('id') id: string): Observable<any> {
         return this.slidesService.processSlide(id);
     }
+
+    @UseGuards(JwtAuthGuard)
+    @Sse('process/make-slidev-outline/:id')
+    makeSlidevOutline(@Param('id') id: string): Observable<any> {
+        return this.slidesService.makeSlidevOutline(id);
+    }
+
 
     @Get('preview/:hash')
     async getSlideByHash(@Param('hash') hash: string) {

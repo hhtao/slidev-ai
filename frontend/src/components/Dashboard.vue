@@ -101,9 +101,9 @@ onMounted(() => {
                                     <template #content>
                                         <p class="mb-3">Created: {{ formatDate(slide.createdAt) }}</p>
                                         <div class="flex gap-2">
-                                            <Button @click="viewSlide(slide.previewHash)" label="View" icon="pi pi-eye"
+                                            <Button @click="viewSlide(slide.uid)" label="View" icon="pi pi-eye"
                                                 size="small" severity="success" />
-                                            <Button @click="editSlide(slide.previewHash)" label="Edit"
+                                            <Button @click="editSlide(slide.uid)" label="Edit"
                                                 icon="pi pi-pencil" size="small" severity="warning" />
                                         </div>
                                     </template>

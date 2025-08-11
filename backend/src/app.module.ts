@@ -5,11 +5,10 @@ import { AppService } from './app.service';
 import { SlidesModule } from './slides/slides.module';
 import { UsersModule } from './users/users.module';
 import { AuthModule } from './auth/auth.module';
-import { User } from './users/user.entity';
-import { Slide } from './slides/slide.entity';
 import { ConfigModule } from '@nestjs/config';
 import { ServeStaticModule } from '@nestjs/serve-static';
 import { join } from 'path';
+import { DatabasesModule } from './databases/databases.module';
 
 @Module({
     imports: [
@@ -17,13 +16,14 @@ import { join } from 'path';
         TypeOrmModule.forRoot({
             type: 'sqlite',
             database: 'database.sqlite',
-            entities: [User, Slide],
+            entities: [], // 由 feature module 注册
             synchronize: true,
         }),
         ServeStaticModule.forRoot({
             rootPath: join(__dirname, '..', 'uploads'),
             serveRoot: '/uploads/',
         }),
+        DatabasesModule,
         SlidesModule,
         UsersModule,
         AuthModule,

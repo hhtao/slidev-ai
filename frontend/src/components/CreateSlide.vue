@@ -84,7 +84,7 @@ const createSlide = async () => {
         });
 
         // Redirect to processing page after successful creation
-        router.push(`/slides/${response.data.id}/process`)
+        router.push(`${API_BASE_URL}/slides/${response.data.id}/process`)
     } catch (err: any) {
         console.error('Create slide error:', err)
         if (err.response && err.response.status === 401) {
