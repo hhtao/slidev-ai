@@ -20,8 +20,12 @@ export class SlideRepository {
         return this.slideRepository.find();
     }
 
-    async findOneByUid(uid: string): Promise<Slide | null> {
-        return this.slideRepository.findOne({ where: { uid } });
+    async findOneByShareId(shareId: string): Promise<Slide | null> {
+        return this.slideRepository.findOne({ where: { shareId } });
+    }
+
+     async findOneById(id: number): Promise<Slide | null> {
+        return this.slideRepository.findOne({ where: { id} });
     }
 
     /**
@@ -34,9 +38,9 @@ export class SlideRepository {
         return this.slideRepository.find({ where: { userId, visibility } });
     }
 
-    async update(uid: string, update: Partial<Slide>): Promise<Slide> {
-        await this.slideRepository.update(uid, update);
-        const updated = await this.findOneByUid(uid);
+    async update(id:number, update: Partial<Slide>): Promise<Slide> {
+        await this.slideRepository.update(id, update);
+        const updated = await this.findOneById(id);
         if (!updated) throw new NotFoundException('Slide not found');
         return updated;
     }
@@ -52,7 +56,7 @@ export class SlideRepository {
             .select([
                 'slide.id',
                 'slide.title',
-                'slide.uid',
+                'slide.shareId',
                 'slide.createdAt',
                 'user.username'
             ])

@@ -90,8 +90,8 @@ export class SlidesController {
 
     @UseGuards(JwtAuthGuard)
     @Get(':id')
-    async getSlideById(@Param('id') id: string, @Request() req: ExpressRequest) {
-        const slide = await this.slideRepository.findOneByUid(id);
+    async getSlideById(@Param('id') id: number, @Request() req: ExpressRequest) {
+        const slide = await this.slideRepository.findOneById(id);
         if (!slide) {
             throw new Error('幻灯片不存在');
         }
