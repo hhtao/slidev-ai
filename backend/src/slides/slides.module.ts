@@ -1,14 +1,13 @@
 import { Module } from '@nestjs/common';
-import { TypeOrmModule } from '@nestjs/typeorm';
-import { SlidesService } from './slides.service';
+import { SlideRepository } from '@/databases/slide';
 import { SlidesController } from './slides.controller';
-import { UsersModule } from '../users/users.module';
-import { Slide } from '@/databases/slide/slide.dto';
+import { SlidevMcpModule } from '@/mcp/slidev-mcp.module';
+import { SlidevMcpService } from '@/mcp/slidev-mcp.service';
 
 @Module({
-    imports: [TypeOrmModule.forFeature([Slide]), UsersModule],
-    providers: [SlidesService],
+    imports: [SlidevMcpModule],
+    providers: [SlideRepository, SlidevMcpService],
     controllers: [SlidesController],
-    exports: [SlidesService],
+    exports: [SlideRepository],
 })
 export class SlidesModule { }

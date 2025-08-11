@@ -4,7 +4,7 @@ import { Repository } from 'typeorm';
 import { User } from './user.dto';
 
 @Injectable()
-export class UserService {
+export class UserRepository {
     constructor(
         @InjectRepository(User)
         private readonly userRepository: Repository<User>,

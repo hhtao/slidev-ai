@@ -8,18 +8,29 @@ import { extname } from 'path';
 import { Observable } from 'rxjs';
 import { Multer } from 'multer';
 import { CreateSlideDto } from '@/databases/slide/create-slide.dto';
+import { SlideRepository } from '@/databases/slide';
 
 // 定义文件类型
 type MulterFile = Express.Multer.File;
 
 @Controller('slides')
 export class SlidesController {
-    constructor(private readonly slidesService: SlidesService) { }
+    constructor(
+        private readonly slidesService: SlidesService,
+        private slideRepository: SlideRepository,
+    ) { }
+
+    @UseGuards(JwtAuthGuard)
+    @Get(':uid')
+    async getSlideById(@Param('uid') uid: string) {
+        return this.slideRepository.findOneByUid(uid);
+    }
+
 
     @UseGuards(JwtAuthGuard)
     @Get()
     async getUserSlides(@Request() req: ExpressRequest) {
-        return this.slidesService.getUserSlides((req.user as any).id);
+        return this.slideRepository.findAllByUserId((req.user as any).id);
     }
 
     @Get('public')
@@ -27,7 +38,7 @@ export class SlidesController {
         @Query('skip') skip: number = 0,
         @Query('take') take: number = 10
     ) {
-        return this.slidesService.getPublicSlides(Number(skip) || 0, Number(take) || 10);
+        return this.slideRepository.getPublicSlides(Number(skip) || 0, Number(take) || 10);
     }
 
     @UseGuards(JwtAuthGuard)
@@ -54,26 +65,19 @@ export class SlidesController {
     }
 
     @UseGuards(JwtAuthGuard)
-    @Get(':id')
-    async getSlideById(@Param('id') id: string) {
-        return this.slidesService.getSlideByUid(id);
+    @Sse('process/make-outline/:uid')
+    makeOutline(@Param('uid') uid: string): Observable<any> {
+        return new Observable(subscriber => {
+            this.slidesService.makeOutlineHandler(uid, subscriber);
+        });
     }
+
 
     @UseGuards(JwtAuthGuard)
-    @Sse('process/:id')
-    processSlide(@Param('id') id: string): Observable<any> {
-        return this.slidesService.processSlide(id);
-    }
-
-    @UseGuards(JwtAuthGuard)
-    @Sse('process/make-slidev-outline/:id')
-    makeSlidevOutline(@Param('id') id: string): Observable<any> {
-        return this.slidesService.makeSlidevOutline(id);
-    }
-
-
-    @Get('preview/:hash')
-    async getSlideByHash(@Param('hash') hash: string) {
-        return this.slidesService.getSlideByHash(hash);
+    @Sse('process/make-markdown/:uid')
+    makeMarkdown(@Param('uid') uid: string): Observable<any> {
+        return new Observable(subscriber => {
+            this.slidesService.makeMarkdownHandler(uid, subscriber);
+        });
     }
 }

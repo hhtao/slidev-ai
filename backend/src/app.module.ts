@@ -16,7 +16,7 @@ import { DatabasesModule } from './databases/databases.module';
         TypeOrmModule.forRoot({
             type: 'sqlite',
             database: 'database.sqlite',
-            entities: [], // 由 feature module 注册
+            entities: [],
             synchronize: true,
         }),
         ServeStaticModule.forRoot({

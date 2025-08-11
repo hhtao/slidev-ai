@@ -1,25 +1,26 @@
 import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { UsersService } from '../users/users.service';
-import { CreateUserDto } from '../users/dto/create-user.dto';
 import * as bcrypt from 'bcryptjs';
+import { CreateUserDto } from '@/databases/user/create-user.dto';
+import { UserRepository } from '@/databases/user';
 
 @Injectable()
 export class AuthService {
     constructor(
-        private usersService: UsersService,
+        private userRepository: UserRepository,
         private jwtService: JwtService,
     ) { }
 
     async register(createUserDto: CreateUserDto): Promise<{ accessToken: string }> {
         // Check if user already exists
-        const existingUser = await this.usersService.findOneByUsername(createUserDto.username);
+        const existingUser = await this.userRepository.findOneByUsername(createUserDto.username);
         if (existingUser) {
             throw new UnauthorizedException('Username already exists');
         }
 
         // Create user
-        const user = await this.usersService.create(createUserDto);
+        const user = await this.userRepository.create(createUserDto);
 
         // Generate JWT token
         const payload = { username: user.username, sub: user.id };
@@ -29,7 +30,7 @@ export class AuthService {
     }
 
     async validateUser(username: string, pass: string): Promise<any> {
-        const user = await this.usersService.findOneByUsername(username);
+        const user = await this.userRepository.findOneByUsername(username);
         if (user && await bcrypt.compare(pass, user.password)) {
             const { password, ...result } = user;
             return result;
