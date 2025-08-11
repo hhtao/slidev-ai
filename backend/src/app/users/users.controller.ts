@@ -2,7 +2,8 @@ import { Controller, Get, Post, Body, Param, ParseIntPipe, NotFoundException } f
 import { UsersService } from './users.service';
 import { InjectRepository } from '@nestjs/typeorm';
 import { UserRepository } from '@/app/users/users.repository';
-import { CreateUserDto, User } from '@/app/users/user.entity';
+import { User } from '@/app/users/user.entity';
+import { CreateUserDto } from './user.dto';
 
 @Controller('users')
 export class UsersController {

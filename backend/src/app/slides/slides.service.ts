@@ -5,7 +5,8 @@ import { Observable, Subscriber } from 'rxjs';
 import { OmAgent } from 'openmcp-sdk/service/sdk';
 import { SlidevMcpService } from '@/app/mcp/slidev-mcp.service';
 import { SlideRepository } from './slide.repository';
-import { CreateSlideDto, Slide } from '@/app/slides/slide.entity';
+import { CreateSlideDto} from './slide.dto';
+import { Slide } from './slide.entity';
 
 // 定义文件类型
 type MulterFile = Express.Multer.File;
@@ -35,7 +36,8 @@ export class SlidesService {
 
         return this.slidesRepository.create({
             title: createSlideDto.title,
-            content: createSlideDto.outline,
+            content: createSlideDto.content,
+            visibility: createSlideDto.visibility,
             uid,
             userId,
             processingStatus: 'pending'

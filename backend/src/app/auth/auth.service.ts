@@ -1,4 +1,4 @@
-import { CreateUserDto } from '@/app/users/user.entity';
+import { CreateUserDto } from '@/app/users/user.dto';
 import { UserRepository } from '@/app/users/users.repository';
 import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
@@ -19,7 +19,10 @@ export class AuthService {
             throw new UnauthorizedException('Username already exists');
         }
 
-        // Create user
+        // 加密密码
+        const hashedPassword = await bcrypt.hash(createUserDto.password, 10);
+        createUserDto.password = hashedPassword;
+        // 创建用户
         const user = await this.userRepository.create(createUserDto);
 
         // Generate JWT token
