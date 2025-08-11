@@ -14,11 +14,12 @@ import { API_BASE_URL } from '@/utils/api'
 
 const router = useRouter()
 const title = ref('')
-const outline = ref('')
+const content = ref('')
 const file = ref<any>(null)
 const fileUpload = ref<any>(null)
 const loading = ref(false)
 const error = ref('')
+const visibility = ref('public')
 
 // Get token from localStorage
 const token = localStorage.getItem('token')
@@ -54,9 +55,9 @@ const createSlide = async () => {
         return
     }
 
-    // Either outline or file must be provided
-    if (!outline.value.trim() && !file.value) {
-        error.value = 'Please provide either a slide outline or upload a file'
+    // Either content or file must be provided
+    if (!content.value.trim() && !file.value) {
+        error.value = 'Please provide either a slide content or upload a file'
         return
     }
 
@@ -67,13 +68,14 @@ const createSlide = async () => {
         const formData = new FormData()
         formData.append('title', title.value)
         
-        if (outline.value.trim()) {
-            formData.append('outline', outline.value)
+        if (content.value.trim()) {
+            formData.append('content', content.value)
         }
         
         if (file.value) {
             formData.append('file', file.value)
         }
+        formData.append('visibility', visibility.value)
 
 
         const response = await axios.post(`${API_BASE_URL}/slides`, formData, {
@@ -116,7 +118,7 @@ const cancel = () => {
 
 // Add example outline to help users
 const addExample = () => {
-    outline.value = `Introduction to Slidev AI:
+    content.value = `Introduction to Slidev AI:
 - What is Slidev AI
 - Key features
 - Benefits of using AI for presentations
@@ -154,6 +156,14 @@ Getting started:
                             :disabled="loading"
                         />
                     </div>
+                    <div class="p-field mb-4">
+                        <label for="visibility" class="block mb-2">Visibility</label>
+                        <select id="visibility" v-model="visibility" class="w-full p-2 border rounded" :disabled="loading">
+                            <option value="public">Public</option>
+                            <option value="private">Private</option>
+                        </select>
+                        <small class="block mt-2 text-600">Choose whether your slide is public or private.</small>
+                    </div>
 
                     <div class="p-field mb-4">
                         <div class="flex justify-content-between align-items-center mb-2">
@@ -168,9 +178,9 @@ Getting started:
                             />
                         </div>
                         <Textarea 
-                            id="outline" 
-                            v-model="outline"
-                            placeholder="Enter your slide outline&#10;&#10;Example:&#10;Introduction&#10;- Main point 1&#10;- Main point 2&#10;Conclusion"
+                            id="content" 
+                            v-model="content"
+                            placeholder="Enter your slide content&#10;&#10;Example:&#10;Introduction&#10;- Main point 1&#10;- Main point 2&#10;Conclusion"
                             :autoResize="true" 
                             rows="10" 
                             class="w-full"
