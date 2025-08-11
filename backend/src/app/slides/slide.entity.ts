@@ -1,25 +1,28 @@
 import { IsString, IsNotEmpty, IsOptional } from 'class-validator';
-import { Entity, PrimaryGeneratedColumn, Column } from 'typeorm';
+import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn,UpdateDateColumn,DeleteDateColumn } from 'typeorm';
 
-@Entity()
+@Entity("slides")
 export class Slide {
     @PrimaryGeneratedColumn('uuid')
-    id!: string;
+    id: string;
+
+    @CreateDateColumn()
+    createdAt: Date;
+
+    @UpdateDateColumn()
+    updatedAt: Date;
+
+    @DeleteDateColumn({ nullable: true })
+    deletedAt?: Date;
 
     @Column()
-    title!: string;
+    title: string;
 
     @Column({ type: 'text' })
     content!: string;
 
-    @Column({ default: () => 'CURRENT_TIMESTAMP' })
-    createdAt!: Date;
-
-    @Column({ default: () => 'CURRENT_TIMESTAMP' })
-    updatedAt!: Date;
-
     @Column({ unique: true })
-    uid!: string;
+    uid: string;
 
     @Column({ default: 'pending' })
     processingStatus!: string;
