@@ -1,13 +1,14 @@
 import { Controller, Get, Post, Body, Param, ParseIntPipe, NotFoundException } from '@nestjs/common';
 import { UsersService } from './users.service';
-import { User } from '@/databases/user/user.dto';
-import { CreateUserDto } from '@/databases/user/create-user.dto';
-import { UserRepository } from '@/databases/user';
+import { InjectRepository } from '@nestjs/typeorm';
+import { UserRepository } from '@/databases/repository/user';
+import { CreateUserDto, User } from '@/databases/dto/user';
 
 @Controller('users')
 export class UsersController {
     constructor(
         private readonly usersService: UsersService,
+        @InjectRepository(UserRepository)
         private readonly userRepository: UserRepository
     ) { }
 

@@ -1,7 +1,7 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { Slide } from './slide.dto';
+import { Slide } from '../dto/slide';
 
 @Injectable()
 export class SlideRepository {

@@ -7,8 +7,9 @@ import { diskStorage } from 'multer';
 import { extname } from 'path';
 import { Observable } from 'rxjs';
 import { Multer } from 'multer';
-import { CreateSlideDto } from '@/databases/slide/create-slide.dto';
-import { SlideRepository } from '@/databases/slide';
+import { InjectRepository } from '@nestjs/typeorm';
+import { SlideRepository } from '@/databases/repository/slide';
+import { CreateSlideDto } from '@/databases/dto/slide';
 
 // 定义文件类型
 type MulterFile = Express.Multer.File;
@@ -17,7 +18,8 @@ type MulterFile = Express.Multer.File;
 export class SlidesController {
     constructor(
         private readonly slidesService: SlidesService,
-        private slideRepository: SlideRepository,
+        @InjectRepository(SlideRepository)
+        private readonly slideRepository: SlideRepository,
     ) { }
 
     @UseGuards(JwtAuthGuard)

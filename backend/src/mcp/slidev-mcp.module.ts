@@ -5,5 +5,6 @@ import { SlidevMcpService } from './slidev-mcp.service';
 @Module({
     imports: [ScheduleModule.forRoot()],
     providers: [SlidevMcpService],
+    exports: [SlidevMcpService],
 })
 export class SlidevMcpModule { }
