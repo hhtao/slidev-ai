@@ -1,6 +1,9 @@
 const path = require('path');
 
 module.exports = {
+//  optimization: {
+//     minimize: false,  // 禁用压缩
+//   },
   entry: './src/main.ts',
   target: 'node',
   mode: 'production',

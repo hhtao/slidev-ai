@@ -1,11 +1,10 @@
-import { SlideRepository } from '@/databases/repository/slide';
+import { SlideRepository } from '@/app/slides/slide.repository';
 import { Injectable, Inject, forwardRef } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 
 @Injectable()
 export class UsersService {
     constructor(
-        @InjectRepository(SlideRepository)
         private slidesRepository: SlideRepository,
     ) { }
 

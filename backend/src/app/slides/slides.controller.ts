@@ -8,8 +8,8 @@ import { extname } from 'path';
 import { Observable } from 'rxjs';
 import { Multer } from 'multer';
 import { InjectRepository } from '@nestjs/typeorm';
-import { SlideRepository } from '@/databases/repository/slide';
-import { CreateSlideDto } from '@/databases/dto/slide';
+import { SlideRepository } from '@/app/slides/slide.repository';
+import { CreateSlideDto } from './slide.entity';
 
 // 定义文件类型
 type MulterFile = Express.Multer.File;
@@ -18,7 +18,6 @@ type MulterFile = Express.Multer.File;
 export class SlidesController {
     constructor(
         private readonly slidesService: SlidesService,
-        @InjectRepository(SlideRepository)
         private readonly slideRepository: SlideRepository,
     ) { }
 
