@@ -1,12 +1,12 @@
 import { Injectable } from '@nestjs/common';
 import { v4 as uuidv4 } from 'uuid';
 import { Observable, Subscriber } from 'rxjs';
-import { Slide } from '@/databases/slide/slide.dto';
-import { CreateSlideDto } from '@/databases/slide/create-slide.dto';
-import { SlideRepository } from '@/databases/slide';
 
 import { OmAgent } from 'openmcp-sdk/service/sdk';
 import { SlidevMcpService } from '@/mcp/slidev-mcp.service';
+import { InjectRepository } from '@nestjs/typeorm';
+import { SlideRepository } from '@/databases/repository/slide';
+import { CreateSlideDto, Slide } from '@/databases/dto/slide';
 
 // 定义文件类型
 type MulterFile = Express.Multer.File;
@@ -22,6 +22,7 @@ interface SSEEvent {
 @Injectable()
 export class SlidesService {
     constructor(
+        @InjectRepository(SlideRepository)
         private readonly slidesRepository: SlideRepository,
         private readonly slidevMcpService: SlidevMcpService,
     ) { }

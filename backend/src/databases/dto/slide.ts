@@ -1,5 +1,5 @@
-import { Entity, Column, PrimaryGeneratedColumn, ManyToOne, JoinColumn } from 'typeorm';
-import { User } from '../user/user.dto';
+import { IsString, IsNotEmpty, IsOptional } from 'class-validator';
+import { Entity, PrimaryGeneratedColumn, Column } from 'typeorm';
 
 @Entity()
 export class Slide {
@@ -24,10 +24,17 @@ export class Slide {
     @Column({ default: 'pending' })
     processingStatus!: string;
 
-    @ManyToOne(() => User, user => user.slides, { onDelete: 'CASCADE' })
-    @JoinColumn({ name: 'userId' })
-    user!: User;
-
     @Column()
     userId!: string;
+}
+
+
+export class CreateSlideDto {
+    @IsString()
+    @IsNotEmpty()
+    title!: string;
+
+    @IsString()
+    @IsOptional()
+    outline?: string;
 }

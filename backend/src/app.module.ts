@@ -16,7 +16,7 @@ import { DatabasesModule } from './databases/databases.module';
         TypeOrmModule.forRoot({
             type: 'sqlite',
             database: 'database.sqlite',
-            entities: [],
+            autoLoadEntities: true,
             synchronize: true,
         }),
         ServeStaticModule.forRoot({
