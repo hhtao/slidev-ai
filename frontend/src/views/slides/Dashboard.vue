@@ -8,6 +8,7 @@ import Button from 'primevue/button'
 import Card from 'primevue/card'
 import DataView from 'primevue/dataview'
 import Message from 'primevue/message'
+import Dropdown from 'primevue/dropdown'
 import { API_BASE_URL } from '@/utils/api'
 
 const router = useRouter()
@@ -16,13 +17,12 @@ const loading = ref(true)
 const error = ref('')
 const visibility = ref('all') // 筛选框选项
 
-// Get token from localStorage
-const token = localStorage.getItem('token')
-
-// Redirect to login if no token
-if (!token) {
-    router.push('/login')
-}
+// Visibility filter options
+const visibilityOptions = [
+    { label: 'All', value: 'all' },
+    { label: 'Public', value: 'public' },
+    { label: 'Private', value: 'private' }
+];
 
 const fetchSlides = async () => {
     loading.value = true
@@ -33,9 +33,6 @@ const fetchSlides = async () => {
             params.visibility = visibility.value
         }
         const response = await axios.get(`${API_BASE_URL}/slides/self`, {
-            headers: {
-                Authorization: `Bearer ${token}`
-            },
             params
         })
         slides.value = response.data
@@ -48,7 +45,7 @@ const fetchSlides = async () => {
 }
 
 const createNewSlide = () => {
-    router.push('/create')
+    router.push('/slides/create')
 }
 
 const viewSlide = (hash: string) => {
@@ -81,11 +78,15 @@ watch(visibility, () => {
         <div class="header flex justify-content-between align-items-center mb-4" v-if="slides.length > 0">
             <div class="flex gap-2 items-center">
                 <Button @click="createNewSlide" label="Create New Slide" icon="pi pi-plus" />
-                <select v-model="visibility" class="ml-4 p-2 border rounded">
-                    <option value="all">All</option>
-                    <option value="public">Public</option>
-                    <option value="private">Private</option>
-                </select>
+                <Dropdown
+                    v-model="visibility"
+                    :options="visibilityOptions"
+                    optionLabel="label"
+                    optionValue="value"
+                    class="ml-4 w-12rem"
+                    :disabled="loading"
+                    placeholder="Filter"
+                />
             </div>
         </div>
 
@@ -129,9 +130,9 @@ watch(visibility, () => {
                                     <template #content>
                                         <p class="mb-3">Created: {{ formatDate(slide.createdAt) }}</p>
                                         <div class="flex gap-2">
-                                            <Button @click="viewSlide(slide.uid)" label="View" icon="pi pi-eye"
+                                            <Button @click="viewSlide(slide.id)" label="View" icon="pi pi-eye"
                                                 size="small" severity="success" />
-                                            <Button @click="editSlide(slide.uid)" label="Edit"
+                                            <Button @click="editSlide(slide.id)" label="Edit"
                                                 icon="pi pi-pencil" size="small" severity="warning" />
                                         </div>
                                     </template>

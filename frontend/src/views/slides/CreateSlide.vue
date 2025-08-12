@@ -9,6 +9,7 @@ import InputText from 'primevue/inputtext'
 import Textarea from 'primevue/textarea'
 import Card from 'primevue/card'
 import Message from 'primevue/message'
+import Dropdown from 'primevue/dropdown'
 import FileUpload from 'primevue/fileupload'
 import { API_BASE_URL } from '@/utils/api'
 
@@ -21,13 +22,11 @@ const loading = ref(false)
 const error = ref('')
 const visibility = ref('public')
 
-// Get token from localStorage
-const token = localStorage.getItem('token')
-
-// Redirect to login if no token
-if (!token) {
-    router.push('/login')
-}
+// Visibility options for the dropdown
+const visibilityOptions = ref([
+    { label: 'Public', value: 'public' },
+    { label: 'Private', value: 'private' }
+]);
 
 const onFileSelect = (event: any) => {
     // Get the first selected file
@@ -67,11 +66,11 @@ const createSlide = async () => {
     try {
         const formData = new FormData()
         formData.append('title', title.value)
-        
+
         if (content.value.trim()) {
             formData.append('content', content.value)
         }
-        
+
         if (file.value) {
             formData.append('file', file.value)
         }
@@ -80,19 +79,17 @@ const createSlide = async () => {
 
         const response = await axios.post(`${API_BASE_URL}/slides`, formData, {
             headers: {
-                'Content-Type': 'multipart/form-data',
-                'Authorization': `Bearer ${token}`
+                'Content-Type': 'multipart/form-data'
             }
         });
 
-        // Redirect to processing page after successful creation
-        router.push(`${API_BASE_URL}/slides/${response.data.id}/process`)
+        router.push(`/slides/process/${response.data.id}`)
     } catch (err: any) {
         console.error('Create slide error:', err)
         if (err.response && err.response.status === 401) {
             // Token is invalid or expired
             error.value = 'Authentication failed. Please log in again.'
-            localStorage.removeItem('token')
+
             // Add slight delay before redirecting to allow user to see error message
             setTimeout(() => {
                 router.push('/login')
@@ -147,80 +144,53 @@ Getting started:
                 <form @submit.prevent="createSlide">
                     <div class="p-field mb-4">
                         <label for="title" class="block mb-2">Slide Title</label>
-                        <InputText 
-                            id="title" 
-                            v-model="title" 
-                            type="text" 
-                            placeholder="Enter slide title"
-                            class="w-full"
-                            :disabled="loading"
-                        />
-                    </div>
-                    <div class="p-field mb-4">
-                        <label for="visibility" class="block mb-2">Visibility</label>
-                        <select id="visibility" v-model="visibility" class="w-full p-2 border rounded" :disabled="loading">
-                            <option value="public">Public</option>
-                            <option value="private">Private</option>
-                        </select>
-                        <small class="block mt-2 text-600">Choose whether your slide is public or private.</small>
+                        <InputText id="title" v-model="title" type="text" placeholder="Enter slide title" class="w-full"
+                            :disabled="loading" />
                     </div>
 
                     <div class="p-field mb-4">
-                        <div class="flex justify-content-between align-items-center mb-2">
-                            <label for="outline" class="block">Slide Outline</label>
+                        <div class="flex align-items-center justify-content-between mb-2 gap-2">
+                            <label for="outline" class="block m-0">Slide Outline</label>
                             <Button 
                                 type="button" 
                                 label="Add Example" 
                                 text 
                                 size="small" 
                                 @click="addExample"
-                                :disabled="loading"
+                                :disabled="loading" 
+                                class="flex-shrink-0"
                             />
                         </div>
-                        <Textarea 
-                            id="content" 
-                            v-model="content"
+                        <Textarea id="content" v-model="content"
                             placeholder="Enter your slide content&#10;&#10;Example:&#10;Introduction&#10;- Main point 1&#10;- Main point 2&#10;Conclusion"
-                            :autoResize="true" 
-                            rows="10" 
-                            class="w-full"
-                            :disabled="loading"
-                        />
+                            :autoResize="true" rows="10" class="w-full" :disabled="loading" />
                         <small class="block mt-2 text-600">
-                            Enter your slide outline. Use lines ending with ':' for section headers, and lines starting with '-' for bullet points.
+                            Enter your slide outline.
                         </small>
                     </div>
 
                     <div class="p-field mb-4">
                         <label class="block mb-2">Upload File (Optional)</label>
-                        <FileUpload 
-                            ref="fileUpload"
-                            mode="basic" 
-                            name="file" 
-                            :auto="false"
-                            accept=".pdf,.doc,.docx,.md,.markdown,.txt"
-                            :maxFileSize="5000000"
-                            @select="onFileSelect"
-                            :disabled="loading"
-                            :class="{ 'opacity-50 pointer-events-none': loading }"
-                            class="w-full"
-                        />
-                        <div v-if="file" class="mt-2 p-2 bg-primary-100 border-round flex align-items-center justify-content-between">
-                            <span class="font-medium">Selected file:</span> 
+                        <FileUpload ref="fileUpload" mode="basic" name="file" :auto="false"
+                            accept=".pdf,.doc,.docx,.md,.markdown,.txt" :maxFileSize="5000000" @select="onFileSelect"
+                            :disabled="loading" :class="{ 'opacity-50 pointer-events-none': loading }" class="w-full" />
+                        <div v-if="file"
+                            class="mt-2 p-2 bg-primary-100 border-round flex align-items-center justify-content-between">
+                            <span class="font-medium">Selected file:</span>
                             <span class="mr-2">{{ file.name }}</span>
-                            <Button 
-                                icon="pi pi-times" 
-                                rounded 
-                                text 
-                                severity="danger" 
-                                @click="removeFile"
-                                :disabled="loading"
-                                size="small"
-                            />
+                            <Button icon="pi pi-times" rounded text severity="danger" @click="removeFile"
+                                :disabled="loading" size="small" />
                         </div>
                         <small class="block mt-2 text-600">
                             Upload a PDF, Word document, or Markdown file as source material (optional, max 5MB)
                         </small>
+                    </div>
+
+                    <div class="p-field mb-4">
+                        <label for="visibility" class="block mb-2">Visibility</label>
+                        <Dropdown id="visibility" v-model="visibility" :options="visibilityOptions" optionLabel="label"
+                            optionValue="value" class="w-full" :disabled="loading" placeholder="Select visibility" />
+                        <small class="block mt-2 text-600">Choose whether your slide is public or private.</small>
                     </div>
 
                     <div v-if="error" class="mb-4">
@@ -228,19 +198,9 @@ Getting started:
                     </div>
 
                     <div class="flex justify-content-end gap-2">
-                        <Button 
-                            type="button" 
-                            @click="cancel" 
-                            label="Cancel" 
-                            severity="secondary" 
-                            :disabled="loading"
-                        />
-                        <Button 
-                            type="submit" 
-                            :label="loading ? 'Creating...' : 'Create Slide'" 
-                            :disabled="loading"
-                            icon="pi pi-check"
-                        />
+                        <Button type="button" @click="cancel" label="Cancel" severity="secondary" :disabled="loading" />
+                        <Button type="submit" :label="loading ? 'Creating...' : 'Create Slide'" :disabled="loading"
+                            icon="pi pi-check" />
                     </div>
                 </form>
             </template>

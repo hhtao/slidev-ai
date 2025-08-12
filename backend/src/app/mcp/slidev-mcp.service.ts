@@ -94,7 +94,7 @@ export class SlidevMcpService implements OnModuleInit {
                     command: 'mcp',
                     args: ['run', 'main.py'],
                     cwd: this.repoPath, // clone 下来的绝对路径
-                    description: ''
+                    description: 'slidev-mcp-academic'
                 }
             },
             defaultLLM: {

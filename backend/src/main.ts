@@ -3,6 +3,7 @@ import { AppModule } from './app.module';
 import { ValidationPipe } from '@nestjs/common';
 import { join } from 'path';
 import { existsSync, mkdirSync } from 'fs';
+import cookieParser from 'cookie-parser';
 
 async function bootstrap() {
     // 确保uploads目录存在
@@ -13,6 +14,7 @@ async function bootstrap() {
 
     const app = await NestFactory.create(AppModule);
     app.setGlobalPrefix('api');
+    app.use(cookieParser());
     app.useGlobalPipes(new ValidationPipe());
     app.enableCors({
         origin: 'http://localhost:3000',

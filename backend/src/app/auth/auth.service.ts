@@ -41,6 +41,11 @@ export class AuthService {
         return null;
     }
 
+    async validateUserById(id: number) {
+        const user = await this.userRepository.findOneById(id);
+        return user;
+    }
+
     async login(user: any): Promise<{ accessToken: string }> {
         const payload = { username: user.username, sub: user.id };
         return {
