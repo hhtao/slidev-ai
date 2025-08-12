@@ -1,5 +1,5 @@
 
-import { IsString, MinLength } from 'class-validator';
+import { IsString, MinLength,IsEnum } from 'class-validator';
 
 
 export class CreateUserDto {
@@ -14,4 +14,8 @@ export class CreateUserDto {
      @IsString()
     @MinLength(6)
     email!: string;
+
+    @IsString()
+    @IsEnum(['admin', 'user'])
+    role!: string;
 }
