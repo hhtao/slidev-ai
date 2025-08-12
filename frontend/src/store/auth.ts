@@ -1,48 +1,30 @@
 // stores/auth.ts
-import { API_BASE_URL } from '@/utils/api'
-import axios from 'axios'
+import { apiLogin,apiRegister } from '@/api/auth'
 import { defineStore } from 'pinia'
 import { ref } from 'vue'
 
-interface UserDTO {
-    username: string;
-    email: string;
-}
+import type { UserDTO} from '@/api/auth'
+import type { Result as ApiResult } from '@/api/base'
 
 export const useAuthStore = defineStore('auth', () => {
     const user = ref<UserDTO | null>(null);
-    const login = async (credentials?: { username: string; password: string }) => {
-        try {
-            const response = await axios.post(`${API_BASE_URL}/auth/login`, credentials)
-            if (response.data.success) {
-                user.value = response.data.user
-                return response;
-            }
-            return response;
-        } catch (error) {
-            console.error('Login failed:', error)
-            return { data: { success: false, message: 'Login failed', user: null } };
-        }
-    }
 
-    const register = async (userData: { username: string; email: string; password: string }) => {
-        try {
-            const response = await axios.post(`${API_BASE_URL}/auth/register`, userData)
-            if (response.data.success) {
-                user.value = response.data.user
-                return true;
-            }
-            return false;
-        } catch (error) {
-            console.error('Registration failed:', error);
-            return false;
-        }
-    }
+    const login = async (
+        credentials?: { username: string; password: string }
+    ): Promise<ApiResult<UserDTO>> => {
+        const res = await apiLogin(credentials);
+        if (res.success) user.value = res.data;
+        return res;
+    };
 
-    const logout = async () => {
-        user.value = null;
-        await axios.post(`${API_BASE_URL}/auth/logout`);
-    }
+    const register = async (
+        userData: { username: string; email: string; password: string }
+    ): Promise<ApiResult<UserDTO>> => {
+        const res = await apiRegister(userData);
+        if (!res.success) return { success: false, error: res.error, status: res.status };
+        // 注册成功后自动登录拿到 user
+        return await login({ username: userData.username, password: userData.password });
+    };
 
-    return { user, login, register, logout }
+    return { user, login, register };
 })

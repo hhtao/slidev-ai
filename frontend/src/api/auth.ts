@@ -1,0 +1,52 @@
+import http from './http';
+import { Result } from './base';
+
+export interface LoginDto {
+  username: string;
+  password: string;
+}
+
+export interface RegisterDto {
+  username: string;
+  email: string;
+  password: string;
+}
+
+export interface UserDTO {
+  username: string;
+  email: string;
+}
+
+
+
+export async function apiLogin(dto?: LoginDto): Promise<Result<UserDTO>> {
+  try {
+    const { data, status } = await http.post('/auth/login', dto);
+    if (data?.success && data?.user) {
+      return { success: true, data: data.user, message: data.message };
+    }
+    if (typeof data?.error === 'string') {
+      return { success: false, error: data.error, status };
+    }
+    return { success: false, error: data?.message || 'Login failed', status };
+  } catch (err: any) {
+    const status = err?.response?.status;
+    const msg = err?.response?.data?.message || err?.message || 'Login failed';
+    return { success: false, error: msg, status };
+  }
+}
+
+export async function apiRegister(dto: RegisterDto): Promise<Result<void>> {
+  try {
+    const res = await http.post('/auth/register', dto);
+    if (res.status >= 200 && res.status < 300) {
+      return { success: true, data: undefined };
+    }
+    return { success: false, error: 'Registration failed', status: res.status };
+  } catch (err: any) {
+    const status = err?.response?.status;
+    const msg = err?.response?.data?.message || err?.message || 'Registration failed';
+    return { success: false, error: msg, status };
+  }
+}
+

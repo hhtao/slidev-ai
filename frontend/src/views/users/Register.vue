@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, ref } from 'vue';
+import { ref } from 'vue';
 import { useRouter } from 'vue-router';
 import Button from 'primevue/button';
 import InputText from 'primevue/inputtext';
@@ -12,21 +12,21 @@ const router = useRouter();
 const authStore = useAuthStore();
 
 const username = ref('');
+const email = ref('');
 const password = ref('');
 const error = ref('');
 
-
-
 const handleSubmit = async () => {
-    const res = await authStore.login({
+    const res = await authStore.register({
         username: username.value,
+        email: email.value,
         password: password.value
     });
 
     if (res.success) {
         router.push('/dashboard');
     } else {
-        error.value = res.error || 'Login failed';
+        error.value = res.error || 'Registration failed';
     }
 }
 </script>
@@ -42,7 +42,7 @@ const handleSubmit = async () => {
 
                 <Card>
                     <template #title>
-                        <h2>Login</h2>
+                        <h2>Register</h2>
                     </template>
 
                     <template #content>
@@ -52,14 +52,18 @@ const handleSubmit = async () => {
                                 <InputText id="username" v-model="username" type="text" required class="w-full" />
                             </div>
 
-                           
+                            <div class="p-field mb-4">
+                                <label for="email" class="block mb-2">Email</label>
+                                <InputText id="email" v-model="email" type="email" required class="w-full" />
+                            </div>
+
                             <div class="p-field mb-4 w-100">
                                 <label for="password" class="block mb-2">Password</label>
                                 <Password id="password" v-model="password" :feedback="false" toggleMask required
                                     class="w-full" />
                             </div>
 
-                            <Button type="submit" label='Login' icon="pi pi-sign-in"
+                            <Button type="submit" label='Register' icon="pi pi-user-plus"
                                 class="w-full mt-4" />
 
                             <div v-if="error" class="mt-4">
@@ -69,8 +73,8 @@ const handleSubmit = async () => {
 
                         <div class="mt-4 text-center">
                             <p>
-                                Don't have an account?
-                                <Button @click="router.push('/register')" label='Register' link/>
+                                Already have an account?
+                                <Button @click="router.push('/login')" label='Login' link />
                             </p>
                         </div>
                     </template>
