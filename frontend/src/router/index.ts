@@ -13,6 +13,11 @@ const router = createRouter({
       component: () => import('@/views/users/Login.vue')
     },
     {
+      path: '/register',
+      name: 'register',
+      component: () => import('@/views/users/Register.vue')
+    },
+    {
       path: '/dashboard',
       name: 'dashboard',
       component: () => import('@/views/slides/Dashboard.vue')
@@ -21,6 +26,11 @@ const router = createRouter({
       path: '/public',
       name: 'public',
       component: () => import('@/views/public/PublicSlides.vue')
+    },
+    {
+      path: '/me',
+      name: 'me',
+      component: () => import('@/views/users/Profile.vue')
     },
     {
       path: '/slides/create',

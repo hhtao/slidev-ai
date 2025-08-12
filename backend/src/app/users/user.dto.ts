@@ -14,8 +14,4 @@ export class CreateUserDto {
      @IsString()
     @MinLength(6)
     email!: string;
-
-    @IsString()
-    @IsEnum(['admin', 'user'])
-    role!: string;
 }

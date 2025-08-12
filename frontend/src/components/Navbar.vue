@@ -77,7 +77,13 @@ const items = ref([
                         <i class="pi pi-github text-xl"></i>
                     </a>
                     <div v-if="authStore.user" class="h-[32px] flex items-center gap-2">
-                        <Avatar :label="authStore.user.username.charAt(0).toUpperCase()" shape="circle" />
+                            <Avatar
+                                :label="authStore.user.username.charAt(0).toUpperCase()"
+                                shape="circle"
+                                class="cursor-pointer"
+                                title="我的信息"
+                                @click="router.push('/me')"
+                            />
                         <Button label="Logout" @click="logout" icon="pi pi-sign-out" text size="small" />
                     </div>
                     <Button v-else label="Login" @click="router.push('/login')" icon="pi pi-sign-in" />

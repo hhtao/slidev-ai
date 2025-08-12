@@ -10,7 +10,7 @@ const authStore = useAuthStore();
 // Check if user is authenticated
 const checkAuth = async () => {
     const res = await authStore.login();
-    if (!res.data.success) {
+    if (!res.success) {
         router.push('/login');
     }
 }

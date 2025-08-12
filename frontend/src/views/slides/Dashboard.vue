@@ -75,7 +75,7 @@ watch(visibility, () => {
 
 <template>
     <div class="dashboard p-4 mt-4">
-        <div class="header flex justify-content-between align-items-center mb-4" v-if="slides.length > 0">
+        <div class="header flex justify-content-between align-items-center mb-4">
             <div class="flex gap-2 items-center">
                 <Button @click="createNewSlide" label="Create New Slide" icon="pi pi-plus" />
                 <Dropdown
@@ -101,11 +101,20 @@ watch(visibility, () => {
 
         <div v-else>
             <div v-if="slides.length === 0" class="text-center p-8">
-                <div class="no-slides-message">
+                <!-- 仅在 all 筛选下展示首次创建提示 -->
+                <div class="no-slides-message" v-if="visibility === 'all'">
                     <h2>Welcome to Slidev AI</h2>
                     <p class="my-4">Get started by creating your first presentation</p>
                     <Button @click="createNewSlide" label="Create Your First Slide" icon="pi pi-plus" class="mt-2"
                         size="large" />
+                </div>
+                <!-- 在 public/private 筛选为空时展示更贴切的提示 -->
+                <div class="no-slides-message" v-else>
+                    <h2>No slides found</h2>
+                    <p class="my-4">
+                        {{ visibility === 'public' ? 'You have no public slides yet.' : 'You have no private slides yet.' }}
+                    </p>
+                    <Button @click="createNewSlide" label="Create New Slide" icon="pi pi-plus" class="mt-2" size="large" />
                 </div>
             </div>
 
