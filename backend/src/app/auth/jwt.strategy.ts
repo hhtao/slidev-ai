@@ -11,7 +11,6 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
             // 自定义从 Cookie 提取 JWT
             jwtFromRequest: ExtractJwt.fromExtractors([
                 (request: Request) => {
-                    console.log(request.cookies);
                     return request.cookies?.jwt;
                 },
             ]),

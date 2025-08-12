@@ -77,6 +77,8 @@ ${slide.content}
         const { agent, loop } = await this.getAgentDependency();
 
         loop.registerOnToolCall(toolcall => {
+            console.log('toolcall', toolcall);
+            
             subscriber.next({
                 type: 'toolcall',
                 toolcall,
@@ -85,11 +87,24 @@ ${slide.content}
         });
 
         loop.registerOnToolCalled(toolcalled => {
+            console.log('toolcalled', toolcalled);
+            
             subscriber.next({
                 type: 'toolcalled',
                 data: toolcalled
             });
             return toolcalled;
+        });
+
+        loop.registerOnError(error => {
+            subscriber.error(error);
+            console.log('error', error);
+        });
+
+        loop.registerOnChunk(chunk => {
+            console.log(chunk);
+            
+            return chunk;
         });
 
         const usermcpPrompt = await agent.getPrompt('usermcp_guide_prompt', {});
@@ -101,7 +116,12 @@ ${slide.content}
             this.makeOutlinePrompt(slide)
         ];
 
-        await agent.ainvoke({ messages : prompts.join('\n\n') });
+        console.log('prompt: ', prompts.join('\n\n'));
+
+        const result = await agent.ainvoke({ messages : prompts.join('\n\n') });
+        
+        console.log('result', result);
+        
     }
 
     /**
