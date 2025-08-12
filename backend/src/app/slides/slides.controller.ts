@@ -1,7 +1,7 @@
-import { Controller, Get, Post, Body, Param, UseGuards, Request, Query, UseInterceptors, UploadedFile, Sse } from '@nestjs/common';
+import { Controller, Get, Post, Body, Param, UseGuards, Request, Query, UseInterceptors, UploadedFile, Sse, Res } from '@nestjs/common';
 import { SlidesService } from './slides.service';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
-import { Request as ExpressRequest } from 'express';
+import { Request as ExpressRequest, Response } from 'express';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { diskStorage } from 'multer';
 import { extname } from 'path';
@@ -73,7 +73,10 @@ export class SlidesController {
 
     @UseGuards(JwtAuthGuard)
     @Sse('process/make-outline/:id')
-    makeOutline(@Param('id') id: number): Observable<any> {
+    makeOutline(
+        @Param('id') id: number,
+        @Res() res: Response
+    ): Observable<any> {
         return new Observable(subscriber => {
             this.slidesService.makeOutlineHandler(id, subscriber);
         });
@@ -82,7 +85,9 @@ export class SlidesController {
 
     @UseGuards(JwtAuthGuard)
     @Sse('process/make-markdown/:id')
-    makeMarkdown(@Param('id') id: string): Observable<any> {
+    makeMarkdown(
+        @Param('id') id: string
+    ): Observable<any> {
         return new Observable(subscriber => {
             this.slidesService.makeMarkdownHandler(id, subscriber);
         });
