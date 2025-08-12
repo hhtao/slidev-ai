@@ -5,8 +5,9 @@ import { Observable, Subscriber } from 'rxjs';
 import { OmAgent } from 'openmcp-sdk/service/sdk';
 import { SlidevMcpService } from '@/app/mcp/slidev-mcp.service';
 import { SlideRepository } from './slide.repository';
-import { CreateSlideDto} from './slide.dto';
+import { CreateSlideDto } from './slide.dto';
 import { Slide } from './slide.entity';
+import { toSseData } from '@/utils/sse';
 
 // 定义文件类型
 type MulterFile = Express.Multer.File;
@@ -69,7 +70,7 @@ ${slide.content}
         const slide = await this.slidesRepository.findOneById(id);
 
         if (!slide) {
-            subscriber.next({ type: 'error', message: 'Slide not found' });
+            subscriber.next(toSseData({ type: 'error', message: 'Slide not found' }));
             subscriber.complete();
             return;
         }
@@ -77,33 +78,27 @@ ${slide.content}
         const { agent, loop } = await this.getAgentDependency();
 
         loop.registerOnToolCall(toolcall => {
-            console.log('toolcall', toolcall);
-            
-            subscriber.next({
+            subscriber.next(toSseData({
                 type: 'toolcall',
                 toolcall,
-            });
+            }));
             return toolcall;
         });
 
         loop.registerOnToolCalled(toolcalled => {
-            console.log('toolcalled', toolcalled);
-            
-            subscriber.next({
+            subscriber.next(toSseData({
                 type: 'toolcalled',
-                data: toolcalled
-            });
+                toolcalled,
+            }));
             return toolcalled;
         });
 
         loop.registerOnError(error => {
-            subscriber.error(error);
+            subscriber.next(toSseData({ error }));
             console.log('error', error);
         });
 
         loop.registerOnChunk(chunk => {
-            console.log(chunk);
-            
             return chunk;
         });
 
@@ -116,12 +111,9 @@ ${slide.content}
             this.makeOutlinePrompt(slide)
         ];
 
-        console.log('prompt: ', prompts.join('\n\n'));
+        const result = await agent.ainvoke({ messages: prompts.join('\n\n') });
 
-        const result = await agent.ainvoke({ messages : prompts.join('\n\n') });
-        
-        console.log('result', result);
-        
+        subscriber.next(toSseData({ done: true }));
     }
 
     /**
@@ -136,7 +128,7 @@ ${slide.content}
         });
 
         loop.registerOnToolCalled(toolcalled => {
-            
+
 
             return toolcalled;
         });
