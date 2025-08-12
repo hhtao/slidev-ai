@@ -1,4 +1,4 @@
-import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn, DeleteDateColumn,OneToMany } from 'typeorm';
+import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn, DeleteDateColumn,OneToMany,Check } from 'typeorm';
 import { Slide } from '../slides/slide.entity';
 
 @Entity('users')
@@ -26,6 +26,10 @@ export class User {
 
     @OneToMany(() => Slide, slide => slide.user)
     slides: Slide[];
+
+    @Column({default:'user'})
+    @Check(`"role" IN ('admin', 'user')`)
+    role: string;
 
 
 }
