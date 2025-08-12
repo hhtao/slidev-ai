@@ -1,5 +1,5 @@
 // stores/auth.ts
-import { apiLogin,apiRegister } from '@/api/auth'
+import { apiLogin, apiLogout, apiRegister } from '@/api/auth'
 import { defineStore } from 'pinia'
 import { ref } from 'vue'
 
@@ -26,5 +26,11 @@ export const useAuthStore = defineStore('auth', () => {
         return await login({ username: userData.username, password: userData.password });
     };
 
-    return { user, login, register };
+    const logout = async (): Promise<ApiResult<void>> => {
+        const res = await apiLogout();
+        if (res.success) user.value = null;
+        return res;
+    };
+
+    return { user, login, register, logout };
 })

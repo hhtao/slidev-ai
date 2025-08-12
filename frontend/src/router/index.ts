@@ -28,6 +28,11 @@ const router = createRouter({
       component: () => import('@/views/public/PublicSlides.vue')
     },
     {
+      path: '/me',
+      name: 'me',
+      component: () => import('@/views/users/Profile.vue')
+    },
+    {
       path: '/slides/create',
       name: 'create-slide',
       component: () => import('@/views/slides/CreateSlide.vue')

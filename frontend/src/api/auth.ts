@@ -50,3 +50,13 @@ export async function apiRegister(dto: RegisterDto): Promise<Result<void>> {
   }
 }
 
+export async function apiLogout(): Promise<Result<void>> {
+  try {
+    await http.post('/auth/logout');
+    return { success: true, data: undefined };
+  } catch (err: any) {
+    const status = err?.response?.status;
+    const msg = err?.response?.data?.message || err?.message || 'Logout failed';
+    return { success: false, error: msg, status };
+  }
+}
