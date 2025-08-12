@@ -1,38 +1,24 @@
 <script setup lang="ts">
-import { useRouter } from 'vue-router'
-import { onMounted } from 'vue'
-import Navbar from './components/Navbar.vue'
+import { useRouter } from 'vue-router';
+import { onMounted } from 'vue';
+import Navbar from './components/Navbar.vue';
+import { useAuthStore } from './store/auth';
 
-const router = useRouter()
+const router = useRouter();
+const authStore = useAuthStore();
 
 // Check if user is authenticated
-const checkAuth = () => {
-    const token = localStorage.getItem('token')
-    const publicPages = ['/login']
-    const authRequired = !publicPages.includes(router.currentRoute.value.path)
-
-    if (authRequired && !token) {
-        router.push('/login')
+const checkAuth = async () => {
+    const res = await authStore.login();
+    if (!res.data.success) {
+        router.push('/login');
     }
 }
 
 // Check auth on mount
 onMounted(() => {
-    checkAuth()
-})
-
-// Watch for route changes
-router.beforeEach((to, from, next) => {
-    const token = localStorage.getItem('token')
-    const publicPages = ['/login']
-    const authRequired = !publicPages.includes(to.path)
-
-    if (authRequired && !token) {
-        next('/login')
-    } else {
-        next()
-    }
-})
+    checkAuth();
+});
 </script>
 
 <template>

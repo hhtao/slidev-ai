@@ -72,19 +72,19 @@ export class SlidesController {
     }
 
     @UseGuards(JwtAuthGuard)
-    @Sse('process/make-outline/:uid')
-    makeOutline(@Param('uid') uid: string): Observable<any> {
+    @Sse('process/make-outline/:id')
+    makeOutline(@Param('id') id: number): Observable<any> {
         return new Observable(subscriber => {
-            this.slidesService.makeOutlineHandler(uid, subscriber);
+            this.slidesService.makeOutlineHandler(id, subscriber);
         });
     }
 
 
     @UseGuards(JwtAuthGuard)
-    @Sse('process/make-markdown/:uid')
-    makeMarkdown(@Param('uid') uid: string): Observable<any> {
+    @Sse('process/make-markdown/:id')
+    makeMarkdown(@Param('id') id: string): Observable<any> {
         return new Observable(subscriber => {
-            this.slidesService.makeMarkdownHandler(uid, subscriber);
+            this.slidesService.makeMarkdownHandler(id, subscriber);
         });
     }
 

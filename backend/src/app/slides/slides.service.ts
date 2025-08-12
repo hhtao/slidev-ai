@@ -30,15 +30,12 @@ export class SlidesService {
      * @description 创建给定素材的幻灯片项目，并塞入数据库
      */
     async createSlide(userId: string, createSlideDto: CreateSlideDto, file?: MulterFile): Promise<Slide> {
-        const shareId = uuidv4().replace(/-/g, '')
-
         // TODO: 解析文件 file 并进入数据库
 
         return this.slidesRepository.create({
             title: createSlideDto.title,
             content: createSlideDto.content,
             visibility: createSlideDto.visibility,
-            shareId,
             userId,
             processingStatus: 'pending'
         });
@@ -52,31 +49,65 @@ export class SlidesService {
         return { agent, loop };
     }
 
+    makeOutlinePrompt(slide: Slide) {
+        return `
+## 标题
+${slide.title}
+
+## 内容
+${slide.content}
+
+## 输出
+请使用 markdown 格式生成幻灯片的大纲，请勿输出其他内容。
+`;
+    }
+
     /**
      * @description 创建 outline 任务，并返回中途进度
      */
-    async makeOutlineHandler(uid: string, subscriber: Subscriber<any>) {
+    async makeOutlineHandler(id: number, subscriber: Subscriber<any>) {
+        const slide = await this.slidesRepository.findOneById(id);
+
+        if (!slide) {
+            subscriber.next({ type: 'error', message: 'Slide not found' });
+            subscriber.complete();
+            return;
+        }
+
         const { agent, loop } = await this.getAgentDependency();
 
         loop.registerOnToolCall(toolcall => {
-
+            subscriber.next({
+                type: 'toolcall',
+                toolcall,
+            });
             return toolcall;
         });
 
         loop.registerOnToolCalled(toolcalled => {
-            
-
+            subscriber.next({
+                type: 'toolcalled',
+                data: toolcalled
+            });
             return toolcalled;
         });
 
+        const usermcpPrompt = await agent.getPrompt('usermcp_guide_prompt', {});
+        const slidevPrompt = await agent.getPrompt('guide_prompt', {});
 
-        subscriber.next('');
+        const prompts = [
+            usermcpPrompt,
+            slidevPrompt,
+            this.makeOutlinePrompt(slide)
+        ];
+
+        await agent.ainvoke({ messages : prompts.join('\n\n') });
     }
 
     /**
      * @description 创建 markdown 任务，并返回中途进度
      */
-    async makeMarkdownHandler(uid: string, subscriber: Subscriber<any>) {
+    async makeMarkdownHandler(id: string, subscriber: Subscriber<any>) {
         const { agent, loop } = await this.getAgentDependency();
 
         loop.registerOnToolCall(toolcall => {

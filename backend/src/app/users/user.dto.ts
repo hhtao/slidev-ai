@@ -13,5 +13,5 @@ export class CreateUserDto {
 
      @IsString()
     @MinLength(6)
-    pemail!: string;
+    email!: string;
 }

@@ -26,6 +26,4 @@ export class User {
 
     @OneToMany(() => Slide, slide => slide.user)
     slides: Slide[];
-
-
 }

@@ -20,9 +20,6 @@ export class Slide {
     @Column({ type: 'text' })
     content!: string;
 
-    @Column({ unique: true })
-    shareId: string;
-
     @Column({ default: 'pending' })
     processingStatus!: string;
 

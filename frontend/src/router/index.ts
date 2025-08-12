@@ -1,10 +1,4 @@
-import { createRouter, createWebHistory } from 'vue-router'
-import Auth from '../components/Auth.vue'
-import Dashboard from '../components/Dashboard.vue'
-import CreateSlide from '../components/CreateSlide.vue'
-import Preview from '../components/Preview.vue'
-import PublicSlides from '../components/PublicSlides.vue'
-import SlideProcessing from '../components/SlideProcessing.vue'
+import { createRouter, createWebHistory } from 'vue-router';
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -16,33 +10,33 @@ const router = createRouter({
     {
       path: '/login',
       name: 'login',
-      component: Auth
+      component: () => import('@/views/users/Login.vue')
     },
     {
       path: '/dashboard',
       name: 'dashboard',
-      component: Dashboard
+      component: () => import('@/views/slides/Dashboard.vue')
     },
     {
       path: '/public',
       name: 'public',
-      component: PublicSlides
+      component: () => import('@/views/public/PublicSlides.vue')
     },
     {
-      path: '/create',
-      name: 'create',
-      component: CreateSlide
+      path: '/slides/create',
+      name: 'create-slide',
+      component: () => import('@/views/slides/CreateSlide.vue')
     },
     {
-      path: '/slides/process/:slideId',
+      path: '/slides/process/:id',
       name: 'slide-processing',
-      component: SlideProcessing,
+      component: () => import('@/views/slides/process/index.vue'),
       props: true
     },
     {
       path: '/preview/:hash',
       name: 'preview',
-      component: Preview
+      component: () => import('@/views/slides/Preview.vue')
     }
   ]
 })

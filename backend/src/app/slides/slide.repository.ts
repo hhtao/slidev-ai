@@ -20,12 +20,8 @@ export class SlideRepository {
         return this.slideRepository.find();
     }
 
-    async findOneByShareId(shareId: string): Promise<Slide | null> {
-        return this.slideRepository.findOne({ where: { shareId } });
-    }
-
      async findOneById(id: number): Promise<Slide | null> {
-        return this.slideRepository.findOne({ where: { id} });
+        return this.slideRepository.findOne({ where: { id } });
     }
 
     /**
@@ -56,7 +52,6 @@ export class SlideRepository {
             .select([
                 'slide.id',
                 'slide.title',
-                'slide.shareId',
                 'slide.createdAt',
                 'user.username'
             ])

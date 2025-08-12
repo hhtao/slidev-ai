@@ -1,30 +1,14 @@
 <script setup lang="ts">
-import { ref, onMounted, watch } from 'vue'
-import { useRouter } from 'vue-router'
+import { ref, onMounted } from 'vue';
+import { useRouter } from 'vue-router';
+import Menubar from 'primevue/menubar';
+import Button from 'primevue/button';
+import Avatar from 'primevue/avatar';
+import { useAuthStore } from '@/store/auth';
 
-// PrimeVue components
-import Menubar from 'primevue/menubar'
-import Button from 'primevue/button'
-import Avatar from 'primevue/avatar'
-
-const router = useRouter()
-const user = ref<any>(null)
-const darkMode = ref(false)
-
-// Check if user is logged in
-const checkAuthStatus = () => {
-    const token = localStorage.getItem('token')
-    if (token) {
-        // In a real app, you would decode the token or fetch user data from the server
-        // For now, we'll just set a placeholder
-        user.value = {
-            username: 'User',
-            avatar: null
-        }
-    } else {
-        user.value = null
-    }
-}
+const router = useRouter();
+const darkMode = ref(false);
+const authStore = useAuthStore();
 
 // Toggle dark mode
 const toggleDarkMode = () => {
@@ -34,10 +18,8 @@ const toggleDarkMode = () => {
 }
 
 // Logout function
-const logout = () => {
-    localStorage.removeItem('token')
-    user.value = null
-    router.push('/login')
+const logout = async () => {
+    await authStore.logout();
 }
 
 // Initialize dark mode from localStorage or system preference
@@ -53,14 +35,8 @@ onMounted(() => {
             document.documentElement.classList.add('my-app-dark')
         }
     }
+});
 
-    checkAuthStatus()
-})
-
-// Watch for route changes to update auth status
-watch(() => router.currentRoute.value, () => {
-    checkAuthStatus()
-})
 
 // Define menu items
 const items = ref([
@@ -74,7 +50,7 @@ const items = ref([
     {
         label: 'My Slides',
         icon: 'pi pi-folder',
-        visible: () => user.value !== null,
+        visible: () => authStore.user !== null,
         command: () => {
             router.push('/dashboard')
         }
@@ -87,7 +63,8 @@ const items = ref([
     <div class="navbar">
         <Menubar :model="items">
             <template #start>
-                <div class="flex align-items-center">
+                <div class="flex align-items-center gap-2">
+                    <img src="/favicon.svg" alt="logo" class="w-8 h-8" />
                     <span class="font-bold text-2xl">slidev-ai</span>
                 </div>
             </template>
@@ -99,8 +76,8 @@ const items = ref([
                         class="p-button p-button-text p-button-rounded h-[var(--p-button-icon-only-width)]">
                         <i class="pi pi-github text-xl"></i>
                     </a>
-                    <div v-if="user" class="h-[32px] flex items-center gap-2">
-                        <Avatar :label="user.username.charAt(0).toUpperCase()" shape="circle" />
+                    <div v-if="authStore.user" class="h-[32px] flex items-center gap-2">
+                        <Avatar :label="authStore.user.username.charAt(0).toUpperCase()" shape="circle" />
                         <Button label="Logout" @click="logout" icon="pi pi-sign-out" text size="small" />
                     </div>
                     <Button v-else label="Login" @click="router.push('/login')" icon="pi pi-sign-in" />
