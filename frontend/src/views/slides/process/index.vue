@@ -43,6 +43,7 @@ const initializeSSE = () => {
     eventSource.value.onmessage = (event) => {        
         try {
             const data = JSON.parse(event.data);
+            console.log(data);
 
             if (data.type === 'toolcall') {
                 // 新操作，加入队列

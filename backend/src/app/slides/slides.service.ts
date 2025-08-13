@@ -58,8 +58,7 @@ ${slide.title}
 ## 内容
 ${slide.content}
 
-## 输出
-请使用 markdown 格式生成幻灯片的大纲，请勿输出其他内容。
+请帮我制作 slidev ppt 的大纲。
 `;
     }
 
@@ -77,19 +76,30 @@ ${slide.content}
 
         const { agent, loop } = await this.getAgentDependency();
 
+        const saveOutlineIds = new Set();
+
         loop.registerOnToolCall(toolcall => {
             subscriber.next(toSseData({
                 type: 'toolcall',
                 toolcall,
             }));
+            if (toolcall.function.name === 'slidev_save_outline') {
+                saveOutlineIds.add(toolcall.id);
+            }
             return toolcall;
         });
 
         loop.registerOnToolCalled(toolcalled => {
+
+            if (saveOutlineIds.has(toolcalled.id)) {
+                loop.abort();
+            }
+            
             subscriber.next(toSseData({
                 type: 'toolcalled',
                 toolcalled,
             }));
+
             return toolcalled;
         });
 
@@ -98,20 +108,16 @@ ${slide.content}
             console.log('error', error);
         });
 
-        loop.registerOnChunk(chunk => {
-            return chunk;
-        });
-
         const usermcpPrompt = await agent.getPrompt('usermcp_guide_prompt', {});
-        const slidevPrompt = await agent.getPrompt('guide_prompt', {});
+        const outlinePrompt = await agent.getPrompt('outline_generate_prompt', {});
 
         const prompts = [
             usermcpPrompt,
-            slidevPrompt,
+            outlinePrompt,
             this.makeOutlinePrompt(slide)
         ];
 
-        const result = await agent.ainvoke({ messages: prompts.join('\n\n') });
+        await agent.ainvoke({ messages: prompts.join('\n\n') });
 
         subscriber.next(toSseData({ done: true }));
     }
