@@ -5,6 +5,7 @@ import Card from 'primevue/card';
 import Message from 'primevue/message';
 import Button from 'primevue/button';
 import { API_BASE_URL } from '@/utils/api';
+import { OutlineItem } from './dto';
 
 const route = useRoute();
 const router = useRouter();
@@ -43,15 +44,22 @@ const initializeSSE = () => {
     eventSource.value.onmessage = (event) => {        
         try {
             const data = JSON.parse(event.data);
-            console.log(data);
-
+            
             if (data.type === 'toolcall') {
-                // 新操作，加入队列
+                const toolcall = data.toolcall;
+                
                 messages.value.push({
                     type: 'toolcall',
-                    name: data.toolcall.function.name,
+                    name: toolcall.function.name,
                     status: 'pending'
                 });
+                                
+                if (toolcall.function.name === 'slidev_save_outline') {    
+                    const outlines = JSON.parse(toolcall.function.arguments).outline.outlines as OutlineItem[];
+                    // ...
+                    
+                }
+
             } else if (data.type === 'toolcalled') {
                 // 标记最后一个未完成的 toolcall 为 done
                 for (let i = messages.value.length - 1; i >= 0; i--) {
