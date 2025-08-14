@@ -63,6 +63,41 @@ ${slide.content}
     }
 
     /**
+     * 保存幻灯片的大纲数据
+     */
+    async saveOutlines(id: number, userId: string, outlines: any): Promise<void> {
+        const slide = await this.slidesRepository.findOneById(id);
+        
+        if (!slide) {
+            throw new Error('Slide not found');
+        }
+        
+        if (slide.userId !== userId) {
+            throw new Error('Unauthorized');
+        }
+        
+        // 将outlines对象转换为JSON字符串存储
+        await this.slidesRepository.update(id, { outlines: JSON.stringify(outlines) });
+    }
+
+    /**
+     * 检查幻灯片是否已经生成了大纲
+     */
+    async hasOutlines(id: number, userId: string): Promise<boolean> {
+        const slide = await this.slidesRepository.findOneById(id);
+        
+        if (!slide) {
+            throw new Error('Slide not found');
+        }
+        
+        if (slide.userId !== userId && slide.visibility !== 'public') {
+            throw new Error('Unauthorized');
+        }
+        
+        return !!slide.outlines;
+    }
+
+    /**
      * @description 创建 outline 任务，并返回中途进度
      */
     async makeOutlineHandler(id: number, subscriber: Subscriber<any>) {

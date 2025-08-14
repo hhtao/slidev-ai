@@ -14,6 +14,11 @@ import { CreateSlideDto } from './slide.dto';
 // 定义文件类型
 type MulterFile = Express.Multer.File;
 
+// 定义outlines数据结构
+interface OutlinesDto {
+    outlines: any;
+}
+
 @Controller('slides')
 export class SlidesController {
     constructor(
@@ -69,6 +74,33 @@ export class SlidesController {
         @UploadedFile() file: MulterFile
     ) {
         return this.slidesService.createSlide((req.user as any).id, createSlideDto, file);
+    }
+
+    /**
+     * 保存幻灯片的大纲数据
+     */
+    @UseGuards(JwtAuthGuard)
+    @Post(':id/outlines')
+    async saveOutlines(
+        @Param('id') id: number,
+        @Body() outlinesDto: OutlinesDto,
+        @Request() req: ExpressRequest
+    ) {
+        const userId = (req.user as any).id;
+        return this.slidesService.saveOutlines(id, userId, outlinesDto.outlines);
+    }
+
+    /**
+     * 检查幻灯片是否已经生成了大纲
+     */
+    @UseGuards(JwtAuthGuard)
+    @Get(':id/has-outlines')
+    async hasOutlines(
+        @Param('id') id: number,
+        @Request() req: ExpressRequest
+    ) {
+        const userId = (req.user as any).id;
+        return this.slidesService.hasOutlines(id, userId);
     }
 
     @UseGuards(JwtAuthGuard)

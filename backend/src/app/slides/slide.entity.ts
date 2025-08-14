@@ -1,5 +1,6 @@
 import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn, DeleteDateColumn, Check, ManyToOne, JoinColumn } from 'typeorm';
 import { User } from '../users/user.entity';
+
 @Entity("slides")
 export class Slide {
     @PrimaryGeneratedColumn()
@@ -30,9 +31,10 @@ export class Slide {
     @Check(`"visibility" IN ('public', 'private')`)
     visibility: string;
 
+    @Column({ type: 'text', nullable: true })
+    outlines: string;
 
     @ManyToOne(() => User, user => user.slides)
     @JoinColumn({ name: 'userId' })
     user: User;
 }
-
