@@ -6,6 +6,7 @@ import router from './router'
 
 // PrimeVue imports
 import PrimeVue from 'primevue/config'
+import ToastService from 'primevue/toastservice';
 import { definePreset } from '@primeuix/themes'
 import Aura from '@primeuix/themes/aura'
 
@@ -45,6 +46,7 @@ app.use(PrimeVue, {
         }
     }
 });
+app.use(ToastService);
 
 // Register PrimeVue components
 app.component('Menubar', Menubar)
