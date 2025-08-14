@@ -34,15 +34,15 @@ const messages = ref<MessageItem[]>([]);
 
 // Computed properties
 const outlineGenerated = computed<boolean>(() => {
-    return outlines.value.length > 0 && outlines.value.some(outline => 
-        outline.title.trim() !== '' || outline.content.trim() !== ''
+    return outlines.value.length > 0 && outlines.value.some(outline =>
+        outline.group.trim() !== '' || outline.content.trim() !== ''
     );
 });
 
 const processingProgress = computed<number>(() => {
     const total = messages.value.length;
-    const completed = messages.value.filter(m => 
-        m.type === 'toolcalled' || 
+    const completed = messages.value.filter(m =>
+        m.type === 'toolcalled' ||
         (m.type === 'toolcall' && m.status === 'done')
     ).length;
     return total > 0 ? Math.round((completed / total) * 100) : 0;
@@ -51,7 +51,7 @@ const processingProgress = computed<number>(() => {
 // Methods
 const handleSSEError = (event: Event) => {
     console.error('SSE connection error:', event);
-    
+
     if (connectionRetries.value < MAX_RETRIES) {
         connectionRetries.value++;
         toast.add({
@@ -63,17 +63,17 @@ const handleSSEError = (event: Event) => {
         setTimeout(initializeSSE, 2000 * connectionRetries.value);
         return;
     }
-    
+
     error.value = 'Failed to establish connection after multiple attempts. Please try again later.';
     isProcessing.value = false;
-    
+
     messages.value.push({
         type: 'error',
         status: 'failed',
         error: error.value,
         timestamp: Date.now()
     });
-    
+
     toast.add({
         severity: 'error',
         summary: 'Connection Failed',
@@ -83,13 +83,22 @@ const handleSSEError = (event: Event) => {
 };
 
 const updateOutlines = (newOutlines: OutlineItem[]) => {
-    if (Array.isArray(newOutlines)) {
-        outlines.value = newOutlines.map(outline => ({
-            title: outline.title || '',
-            content: outline.content || ''
-        }));
+    outlines.value = newOutlines;
+};
+
+// 添加对EditableOutline组件的引用
+const editableOutlineRef = ref<InstanceType<typeof EditableOutline> | null>(null);
+
+// 添加collapseAll方法
+const collapseAllPanels = () => {
+    if (editableOutlineRef.value && editableOutlineRef.value.collapseAll) {
+        editableOutlineRef.value.collapseAll();
     }
 };
+
+const gotoGenMarkdown = () => {
+    collapseAllPanels();
+}
 
 const initializeSSE = () => {
     const id = route.params.id;
@@ -105,11 +114,11 @@ const initializeSSE = () => {
         });
 
         eventSource.value.addEventListener('error', handleSSEError);
-        
-        eventSource.value.onmessage = (event) => {        
+
+        eventSource.value.onmessage = (event) => {
             try {
                 const data = JSON.parse(event.data);
-                
+
                 if (data.type === 'toolcall') {
                     const toolcall = data.toolcall;
                     const message: MessageItem = {
@@ -118,9 +127,9 @@ const initializeSSE = () => {
                         status: 'pending',
                         timestamp: Date.now()
                     };
-                    
+
                     messages.value.push(message);
-                                    
+
                     if (toolcall.function?.name === 'slidev_save_outline') {
                         try {
                             const parsedArgs = JSON.parse(toolcall.function.arguments);
@@ -145,13 +154,6 @@ const initializeSSE = () => {
 
                 if (data.done) {
                     isProcessing.value = false;
-                    messages.value.push({ 
-                        type: 'done',
-                        timestamp: Date.now()
-                    });
-                    if (eventSource.value) {
-                        eventSource.value.close();
-                    }
                     toast.add({
                         severity: 'success',
                         summary: 'Processing Complete',
@@ -217,13 +219,8 @@ watch(error, (newError) => {
             <template #title>
                 <div class="flex justify-between items-center">
                     <h1>Presentation Outline Generator</h1>
-                    <Button 
-                        icon="pi pi-times" 
-                        outlined 
-                        @click="cancelProcessing" 
-                        severity="secondary"
-                        aria-label="Cancel processing"
-                    />
+                    <Button icon="pi pi-times" outlined @click="cancelProcessing" severity="secondary"
+                        aria-label="Cancel processing" />
                 </div>
             </template>
 
@@ -237,34 +234,22 @@ watch(error, (newError) => {
                     <div v-if="isProcessing && !outlineGenerated"
                         class="flex flex-col items-center justify-center py-10 space-y-4">
                         <ProgressSpinner />
-                        <div class="w-full bg-gray-200 rounded-full h-2.5 dark:bg-gray-700">
-                            <div 
-                                class="bg-blue-600 h-2.5 rounded-full" 
-                                :style="{ width: `${processingProgress}%` }"
-                            ></div>
-                        </div>
-                        <p class="mt-2 text-sm text-gray-600">
-                            Progress: {{ processingProgress }}%
-                        </p>
                         <p class="mt-2 text-center">
                             Generating outline...
-                            <span class="block text-sm text-gray-500">Please wait while we process your presentation</span>
+                            <span class="block text-sm text-gray-500">Please wait while we process your
+                                presentation</span>
                         </p>
                     </div>
 
                     <!-- Message stream with timestamps -->
                     <div class="mb-6 space-y-3">
-                        <div 
-                            v-for="(message, index) in messages" 
-                            :key="index" 
-                            class="p-3 rounded transition-all"
+                        <div v-for="(message, index) in messages" :key="index" class="p-3 rounded transition-all"
                             :class="{
                                 'bg-blue-50 border-l-4 border-blue-500': message.type === 'toolcall' && message.status === 'pending',
                                 'bg-green-50 border-l-4 border-green-500': message.type === 'toolcalled',
                                 'bg-purple-50 border-l-4 border-purple-500': message.type === 'done',
                                 'bg-red-50 border-l-4 border-red-500': message.type === 'error'
-                            }"
-                        >
+                            }">
                             <div class="flex justify-between items-start">
                                 <div>
                                     <span v-if="message.type === 'toolcall'" class="font-medium">
@@ -275,10 +260,6 @@ watch(error, (newError) => {
                                     <span v-else-if="message.type === 'toolcalled'" class="font-medium">
                                         <i class="pi pi-check-circle mr-2"></i>
                                         Tool response received
-                                    </span>
-                                    <span v-else-if="message.type === 'done'" class="font-medium">
-                                        <i class="pi pi-check-circle mr-2"></i>
-                                        Process completed!
                                     </span>
                                     <span v-else-if="message.type === 'error'" class="font-medium text-red-600">
                                         <i class="pi pi-exclamation-triangle mr-2"></i>
@@ -295,57 +276,32 @@ watch(error, (newError) => {
                         </div>
                     </div>
 
-                    <!-- Editable outline section -->
-                    <div v-if="outlineGenerated" class="animate-fade-in">
-                        <div class="flex justify-between items-center mb-4">
-                            <h2 class="text-xl font-bold">Presentation Outline</h2>
-                            <span class="text-sm text-gray-500">
-                                {{ outlines.length }} {{ outlines.length === 1 ? 'slide' : 'slides' }}
-                            </span>
-                        </div>
-                        <EditableOutline 
-                            :outlines="outlines" 
-                            @update:outlines="updateOutlines" 
-                        />
+                    <!-- 显示可编辑的大纲 -->
+                    <div v-if="outlineGenerated">
+                        <h2 class="text-xl font-bold mb-4">Generated Outline</h2>
+                        <EditableOutline ref="editableOutlineRef" :outlines="outlines" @update:outlines="updateOutlines"
+                            @collapse-all="() => { }" />
                     </div>
 
                     <!-- Empty state -->
                     <div v-if="!isProcessing && !outlineGenerated" class="text-center py-10">
                         <i class="pi pi-inbox text-4xl text-gray-400 mb-4"></i>
                         <p class="text-gray-600">Processing completed but no outline was generated.</p>
-                        <Button 
-                            label="Try Again" 
-                            icon="pi pi-refresh" 
-                            class="mt-4" 
-                            @click="initializeSSE"
-                        />
+                        <Button label="Try Again" icon="pi pi-refresh" class="mt-4" @click="initializeSSE" />
                     </div>
                 </div>
             </template>
 
             <template #footer>
                 <div class="flex justify-between items-center">
-                    <Button 
-                        label="Cancel" 
-                        icon="pi pi-times" 
-                        @click="cancelProcessing" 
-                        severity="secondary"
-                        :disabled="!isProcessing"
-                    />
+                    <Button label="Cancel" icon="pi pi-times" @click="cancelProcessing" severity="secondary"
+                        :disabled="!isProcessing" />
                     <div class="flex space-x-2">
-                        <Button 
-                            label="Save Draft" 
-                            icon="pi pi-save" 
-                            severity="info"
+                        <Button label="Save Draft" icon="pi pi-save" severity="info"
+                            :disabled="isProcessing || !outlineGenerated" />
+                        <Button label="Continue to Markdown" icon="pi pi-arrow-right" icon-pos="right"
                             :disabled="isProcessing || !outlineGenerated"
-                        />
-                        <Button 
-                            label="Continue to Markdown" 
-                            icon="pi pi-arrow-right" 
-                            iconPos="right"
-                            :disabled="isProcessing || !outlineGenerated"
-                            @click="() => router.push(`/slides/${route.params.id}/process/markdown`)"
-                        />
+                            @click="gotoGenMarkdown" />
                     </div>
                 </div>
             </template>
@@ -359,7 +315,14 @@ watch(error, (newError) => {
 }
 
 @keyframes fadeIn {
-    from { opacity: 0; transform: translateY(10px); }
-    to { opacity: 1; transform: translateY(0); }
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
 }
 </style>
