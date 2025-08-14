@@ -168,4 +168,9 @@ watch(visibility, () => {
     border-radius: 8px;
     background-color: #f8f9fa;
 }
+
+.my-app-dark .no-slides-message {
+    background-color: #222222;
+    color: #ffffff;
+}
 </style>

@@ -8,6 +8,10 @@ import { extname } from 'path';
 import { Observable } from 'rxjs';
 import { SlideRepository } from '@/app/slides/slide.repository';
 import { CreateSlideDto, OutlinesDto, SlidevProjectDto } from './slide.dto';
+import { SlidevManagerService } from './slidev-manager.service';
+import httpProxy from 'http-proxy';
+
+const proxy = httpProxy.createProxyServer();
 
 // 定义文件类型
 type MulterFile = Express.Multer.File;
@@ -17,6 +21,7 @@ type MulterFile = Express.Multer.File;
 export class SlidesController {
     constructor(
         private readonly slidesService: SlidesService,
+        private readonly slidevManager: SlidevManagerService,
         private readonly slideRepository: SlideRepository,
     ) { }
 
@@ -146,6 +151,37 @@ export class SlidesController {
             throw new Error('无权查看该幻灯片');
         }
         return slide;
+    }
+
+
+    @Get('preview/:id')
+    async previewSlidev(
+        @Param('id') id: number,
+        @Request() req: ExpressRequest,
+        @Res() res: Response,
+    ) {
+        const userId = (req.user as any).id;
+        const slide = await this.slideRepository.findOneById(id);
+
+        if (!slide) {
+            throw new Error('Slide not found');
+        }
+
+        // 计算Markdown文件绝对路径
+        const absolutePath = this.slidesService.getSlidePrjAbsolutePath(slide);
+
+        if (!absolutePath) {
+            throw new Error('Slidev project not found');
+        }
+
+        // 启动或获取Slidev实例
+        const port = await this.slidevManager.startSlidev(id, absolutePath);
+
+        // 代理请求到Slidev服务
+        proxy.web(req, res, {
+            target: `http://localhost:${port}`,
+            ignorePath: true,
+        });
     }
 
 }

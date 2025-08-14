@@ -8,6 +8,7 @@ import { SlideRepository } from './slide.repository';
 import { CreateSlideDto, SlidevProjectDto } from './slide.dto';
 import { Slide, SlidevProject } from './slide.entity';
 import { toSseData } from '@/utils/sse';
+import path from 'path';
 
 // 定义文件类型
 type MulterFile = Express.Multer.File;
@@ -246,4 +247,24 @@ export class SlidesService {
         subscriber.next(toSseData({ done: true }));
     }
 
+
+    getSlidePrjAbsolutePath(slide: Slide): string | null {
+        const projectData = slide.project;
+        if (!projectData) {
+            return null;
+        }
+        
+        const slidePath = projectData.slides_path;
+        if (!slidePath) {
+            return null;
+        }
+        
+        // 如果路径以 .slidev-mcp 开头，则将其解析为相对于项目根目录的绝对路径
+        if (slidePath.startsWith('.slidev-mcp')) {
+            return path.join(process.cwd(), slidePath);
+        }
+        
+        // 对于其他路径，保持原有逻辑（直接返回 null，需要进一步实现）
+        return null;
+    }
 }

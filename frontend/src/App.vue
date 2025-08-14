@@ -74,11 +74,6 @@ a {
     color: #e0e0e0;
 }
 
-.my-app-dark .p-inputtext {
-    background: #3c3c3c;
-    border: 1px solid #555;
-    color: #e0e0e0;
-}
 
 .my-app-dark .p-button {
     color: #fff;

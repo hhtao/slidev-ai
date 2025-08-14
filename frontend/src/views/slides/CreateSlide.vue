@@ -83,7 +83,7 @@ const createSlide = async () => {
             }
         });
 
-        router.push(`/slides/process/${response.data.id}`)
+        router.push(`/slides/process?id=${response.data.id}&stage=outline`)
     } catch (err: any) {
         console.error('Create slide error:', err)
         if (err.response && err.response.status === 401) {
