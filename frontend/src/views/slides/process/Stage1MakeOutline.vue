@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref, onMounted, onUnmounted, computed, watch } from 'vue';
-import { useRoute, useRouter } from 'vue-router';
+import { useRouter } from 'vue-router';
 import Card from 'primevue/card';
 import Message from 'primevue/message';
 import Button from 'primevue/button';
@@ -20,7 +20,6 @@ const emit = defineEmits<{
     (e: 'update:outlines', outlines: OutlineItem[]): void;
 }>();
 
-const route = useRoute();
 const router = useRouter();
 const toast = useToast();
 
@@ -47,15 +46,6 @@ const outlineGenerated = computed<boolean>(() => {
     return outlines.value.length > 0 && outlines.value.some(outline =>
         outline.group.trim() !== '' || outline.content.trim() !== ''
     );
-});
-
-const processingProgress = computed<number>(() => {
-    const total = messages.value.length;
-    const completed = messages.value.filter(m =>
-        m.type === 'toolcalled' ||
-        (m.type === 'toolcall' && m.status === 'done')
-    ).length;
-    return total > 0 ? Math.round((completed / total) * 100) : 0;
 });
 
 // Methods

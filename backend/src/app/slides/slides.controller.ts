@@ -6,23 +6,12 @@ import { FileInterceptor } from '@nestjs/platform-express';
 import { diskStorage } from 'multer';
 import { extname } from 'path';
 import { Observable } from 'rxjs';
-import { Multer } from 'multer';
-import { InjectRepository } from '@nestjs/typeorm';
 import { SlideRepository } from '@/app/slides/slide.repository';
-import { CreateSlideDto } from './slide.dto';
+import { CreateSlideDto, OutlinesDto, SlidevProjectDto } from './slide.dto';
 
 // 定义文件类型
 type MulterFile = Express.Multer.File;
 
-// 定义outlines数据结构
-interface OutlinesDto {
-    outlines: any;
-}
-
-// 定义 slidesPath 数据结构
-interface SlidesPathDto {
-    slidesPath: string;
-}
 
 @Controller('slides')
 export class SlidesController {
@@ -99,14 +88,14 @@ export class SlidesController {
      * 保存幻灯片的 slides_path
      */
     @UseGuards(JwtAuthGuard)
-    @Post(':id/slides-path')
+    @Post(':id/save-slides-prj-meta')
     async saveSlidesPath(
         @Param('id') id: number,
-        @Body() slidesPathDto: SlidesPathDto,
+        @Body() projectData: SlidevProjectDto,
         @Request() req: ExpressRequest
     ) {
         const userId = (req.user as any).id;
-        return this.slidesService.saveSlidesPath(id, userId, slidesPathDto.slidesPath);
+        return this.slidesService.saveSlidesPath(id, userId, projectData);
     }
 
     /**

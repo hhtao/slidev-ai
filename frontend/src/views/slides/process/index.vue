@@ -4,6 +4,7 @@ import { useRoute, useRouter } from 'vue-router';
 import MakeOutline from './Stage1MakeOutline.vue';
 import MakeMarkdown from './Stage2MakeMarkdown.vue';
 import { OutlineItem, SlidevProjectSchema } from './dto';
+import axios from 'axios';
 
 const route = useRoute();
 const router = useRouter();
@@ -38,7 +39,7 @@ const handleStageComplete = () => {
         router.push(`/slides/process?id=${idValue}&stage=markdown`);
     } else if (stage.value === 'markdown') {
         // markdown阶段完成，跳转到dashboard
-        // router.push('/dashboard');
+        // 保存 
     }
 };
 </script>

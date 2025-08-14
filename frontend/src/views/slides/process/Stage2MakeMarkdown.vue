@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref, onMounted, onUnmounted } from 'vue';
-import { useRoute, useRouter } from 'vue-router';
+import { useRouter } from 'vue-router';
 import Card from 'primevue/card';
 import Message from 'primevue/message';
 import Button from 'primevue/button';
@@ -8,6 +8,7 @@ import ProgressSpinner from 'primevue/progressspinner';
 import { API_BASE_URL } from '@/utils/api';
 import { useToast } from 'primevue/usetoast';
 import { SlidevProjectSchema } from './dto';
+import axios from 'axios';
 
 const props = defineProps<{
     id: string | string[] | null | undefined
@@ -18,7 +19,6 @@ const emit = defineEmits<{
     (e: 'update:data', data: SlidevProjectSchema): void;
 }>();
 
-const route = useRoute();
 const router = useRouter();
 const toast = useToast();
 
@@ -73,6 +73,69 @@ const handleSSEError = (event: Event) => {
     });
 };
 
+const saveProjectData = async (projectData: any) => {
+    const res = await axios.post(`${API_BASE_URL}/slides/${props.id}/save-slides-prj-meta`, projectData);
+    
+};
+
+const handleSSEMessage = async (event: MessageEvent, toolcallMapper: Map<string, { index: number }>) => {
+    try {
+        const data = JSON.parse(event.data);
+
+        if (data.type === 'toolcall') {
+            const toolcall = data.toolcall;
+            const message: MessageItem = {
+                type: 'toolcall',
+                name: toolcall.function?.name,
+                status: 'pending',
+                timestamp: Date.now()
+            };
+
+            toolcallMapper.set(toolcall.id, { index: messages.value.length });
+            messages.value.push(message);
+
+        } else if (data.type === 'toolcalled') {
+            // Mark the last pending toolcall as done
+            const toolcalled = data.toolcalled;
+            if (toolcallMapper.has(toolcalled.id)) {
+                const { index } = toolcallMapper.get(toolcalled.id)!;
+                messages.value[index].status = 'done';
+                messages.value[index].timestamp = Date.now();
+
+                if (messages.value[index].name === 'slidev_export_project') {
+                    const projectData = JSON.parse(toolcalled.content[0]?.text || {}) as SlidevProjectSchema;
+                    emit('update:data', projectData);
+                }
+            }
+        }
+
+        if (data.done) {
+            isProcessing.value = false;
+            toast.add({
+                severity: 'success',
+                summary: 'Processing Complete',
+                detail: 'Markdown generation finished successfully',
+                life: 3000
+            });
+
+            // 保存
+
+
+
+            // 触发完成事件
+            emit('complete');
+        }
+    } catch (parseError) {
+        console.error('Error parsing SSE message:', parseError);
+        messages.value.push({
+            type: 'error',
+            status: 'failed',
+            error: 'Failed to parse server message',
+            timestamp: Date.now()
+        });
+    }
+}
+
 const initializeSSE = () => {
     const id = props.id;
     if (!id || Array.isArray(id)) {
@@ -81,7 +144,6 @@ const initializeSSE = () => {
     }
 
     try {
-
         const toolcallMapper = new Map();
 
         const url = `${API_BASE_URL}/slides/process/make-markdown/${id}`;
@@ -90,61 +152,8 @@ const initializeSSE = () => {
         });
 
         eventSource.value.addEventListener('error', handleSSEError);
+        eventSource.value.addEventListener('message', event => handleSSEMessage(event, toolcallMapper));
 
-        eventSource.value.onmessage = (event) => {
-            try {
-                const data = JSON.parse(event.data);
-
-                console.log(data);
-
-                if (data.type === 'toolcall') {
-                    const toolcall = data.toolcall;
-                    const message: MessageItem = {
-                        type: 'toolcall',
-                        name: toolcall.function?.name,
-                        status: 'pending',
-                        timestamp: Date.now()
-                    };
-
-                    toolcallMapper.set(toolcall.id, { index: messages.value.length });
-                    messages.value.push(message);
-
-                } else if (data.type === 'toolcalled') {
-                    // Mark the last pending toolcall as done
-                    const toolcalled = data.toolcalled;
-                    if (toolcallMapper.has(toolcalled.id)) {
-                        const { index } = toolcallMapper.get(toolcalled.id);
-                        messages.value[index].status = 'done';
-                        messages.value[index].timestamp = Date.now();
-
-                        if (messages.value[index].name === 'slidev_export_project') {
-                            const projectData = JSON.parse(toolcalled.content[0]?.text || {}) as SlidevProjectSchema;
-                            emit('update:data', projectData);
-                        }
-                    }
-                }
-
-                if (data.done) {
-                    isProcessing.value = false;
-                    toast.add({
-                        severity: 'success',
-                        summary: 'Processing Complete',
-                        detail: 'Markdown generation finished successfully',
-                        life: 3000
-                    });
-                    // 触发完成事件
-                    emit('complete');
-                }
-            } catch (parseError) {
-                console.error('Error parsing SSE message:', parseError);
-                messages.value.push({
-                    type: 'error',
-                    status: 'failed',
-                    error: 'Failed to parse server message',
-                    timestamp: Date.now()
-                });
-            }
-        };
     } catch (setupError) {
         error.value = 'Failed to initialize connection';
         console.error('SSE setup error:', setupError);
@@ -215,7 +224,8 @@ onUnmounted(() => {
                                 <div class="flex justify-between items-start">
                                     <div>
                                         <span v-if="message.type === 'toolcall'" class="font-medium">
-                                            <i class="pi pi-cog mr-2 animate-spin" v-if="message.status === 'pending'"></i>
+                                            <i class="pi pi-cog mr-2 animate-spin"
+                                                v-if="message.status === 'pending'"></i>
                                             <i class="pi pi-check mr-2" v-else-if="message.status === 'done'"></i>
                                             {{ message.name || 'Unknown tool' }}
                                         </span>

@@ -5,8 +5,8 @@ import { Observable, Subscriber } from 'rxjs';
 import { OmAgent } from 'openmcp-sdk/service/sdk';
 import { SlidevMcpService } from '@/app/mcp/slidev-mcp.service';
 import { SlideRepository } from './slide.repository';
-import { CreateSlideDto } from './slide.dto';
-import { Slide } from './slide.entity';
+import { CreateSlideDto, SlidevProjectDto } from './slide.dto';
+import { Slide, SlidevProject } from './slide.entity';
 import { toSseData } from '@/utils/sse';
 
 // 定义文件类型
@@ -53,7 +53,7 @@ export class SlidesService {
     /**
      * 保存幻灯片的 slides_path
      */
-    async saveSlidesPath(id: number, userId: string, slidesPath: string) {
+    async saveSlidesPath(id: number, userId: string, projectData: SlidevProjectDto) {
         const slide = await this.slidesRepository.findOneById(id);
         
         if (!slide) {
@@ -63,15 +63,18 @@ export class SlidesService {
         if (slide.userId !== userId) {
             throw new Error('Unauthorized');
         }
-        
-        // 更新 processingStatus 为 completed
+
+        // 创建SlidevProject实体
+        const project = new SlidevProject();
+        project.name = projectData.name;
+        project.home = projectData.home;
+        project.slides_path = projectData.slides_path;
+
+        // 标记为完成，并插入 projectData
         await this.slidesRepository.update(id, { 
             processingStatus: 'completed',
-            // 这里可以根据需要保存 slidesPath 到特定字段，如果需要的话
+            project: project
         });
-        
-        // 这里可以添加具体的 slidesPath 处理逻辑
-        // 具体实现将由你来完成
         
         return { success: true };
     }
