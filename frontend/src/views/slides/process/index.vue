@@ -56,27 +56,37 @@ const handleStageComplete = () => {
         </div>
     </div>
 
-    <MakeOutline v-else-if="stage === 'outline'" :id="id as any" @update:outlines="handleOutlinesUpdate"
-        @complete="handleStageComplete" />
+    <transition name="fade" mode="out-in">
+        <MakeOutline v-if="stage === 'outline'" key="outline" :id="id as any" @update:outlines="handleOutlinesUpdate"
+            @complete="handleStageComplete" />
 
-    <MakeMarkdown v-else-if="stage === 'markdown'" :id="id as any" @complete="handleStageComplete" />
+        <MakeMarkdown v-else-if="stage === 'markdown'" key="markdown" :id="id as any" @complete="handleStageComplete" />
 
-    <div v-else class="p-4 max-w-4xl mx-auto">
-        <div class="bg-red-50 border-l-4 border-red-500 p-4 rounded">
-            <div class="flex">
-                <div class="flex-shrink-0">
-                    <i class="pi pi-exclamation-triangle text-red-500"></i>
-                </div>
-                <div class="ml-3">
-                    <p class="text-sm text-red-700">
-                        Invalid stage. Valid stages are 'outline' and 'markdown'.
-                    </p>
+        <div v-else class="p-4 max-w-4xl mx-auto" key="error">
+            <div class="bg-red-50 border-l-4 border-red-500 p-4 rounded">
+                <div class="flex">
+                    <div class="flex-shrink-0">
+                        <i class="pi pi-exclamation-triangle text-red-500"></i>
+                    </div>
+                    <div class="ml-3">
+                        <p class="text-sm text-red-700">
+                            Invalid stage. Valid stages are 'outline' and 'markdown'.
+                        </p>
+                    </div>
                 </div>
             </div>
         </div>
-    </div>
+    </transition>
 </template>
 
 <style scoped>
-/* 全局的动画样式可以在这里定义 */
+.fade-enter-active,
+.fade-leave-active {
+    transition: opacity 0.3s ease;
+}
+
+.fade-enter-from,
+.fade-leave-to {
+    opacity: 0;
+}
 </style>

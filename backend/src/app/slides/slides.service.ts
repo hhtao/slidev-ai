@@ -118,9 +118,11 @@ ${slide.content}
                 type: 'toolcall',
                 toolcall,
             }));
+
             if (toolcall.function.name === 'slidev_save_outline') {
                 saveOutlineIds.add(toolcall.id);
             }
+            
             return toolcall;
         });
 
@@ -164,13 +166,20 @@ ${slide.content}
         const { agent, loop } = await this.getAgentDependency();
 
         loop.registerOnToolCall(toolcall => {
+            subscriber.next(toSseData({
+                type: 'toolcall',
+                toolcall,
+            }));
 
             return toolcall;
         });
 
         loop.registerOnToolCalled(toolcalled => {
 
-
+            subscriber.next(toSseData({
+                type: 'toolcalled',
+                toolcalled,
+            }));
             return toolcalled;
         });
 

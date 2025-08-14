@@ -286,45 +286,49 @@ watch(error, (newError) => {
 
                     <!-- Message stream with timestamps -->
                     <div class="mb-6 space-y-3">
-                        <div v-for="(message, index) in messages" :key="index"
-                            class="p-3 rounded transition-all animate-fade-in" :class="{
-                                'bg-blue-50 border-l-4 border-blue-500': message.type === 'toolcall' && message.status === 'pending',
-                                'bg-green-50 border-l-4 border-green-500': message.type === 'toolcalled',
-                                'bg-purple-50 border-l-4 border-purple-500': message.type === 'done',
-                                'bg-red-50 border-l-4 border-red-500': message.type === 'error'
-                            }">
-                            <div class="flex justify-between items-start">
-                                <div>
-                                    <span v-if="message.type === 'toolcall'" class="font-medium">
-                                        <i class="pi pi-cog mr-2 animate-spin" v-if="message.status === 'pending'"></i>
-                                        <i class="pi pi-check mr-2" v-else-if="message.status === 'done'"></i>
-                                        {{ message.name || 'Unknown tool' }}
-                                    </span>
-                                    <span v-else-if="message.type === 'toolcalled'" class="font-medium">
-                                        <i class="pi pi-check-circle mr-2"></i>
-                                        Tool response received
-                                    </span>
-                                    <span v-else-if="message.type === 'error'" class="font-medium text-red-600">
-                                        <i class="pi pi-exclamation-triangle mr-2"></i>
-                                        Error: {{ message.error || 'Unknown error' }}
+                        <transition-group name="message" tag="div" class="space-y-3">
+                            <div v-for="(message, index) in messages" :key="index"
+                                class="p-3 rounded transition-all animate-fade-in" :class="{
+                                    'bg-blue-50 border-l-4 border-blue-500': message.type === 'toolcall' && message.status === 'pending',
+                                    'bg-green-50 border-l-4 border-green-500': message.type === 'toolcalled',
+                                    'bg-purple-50 border-l-4 border-purple-500': message.type === 'done',
+                                    'bg-red-50 border-l-4 border-red-500': message.type === 'error'
+                                }">
+                                <div class="flex justify-between items-start">
+                                    <div>
+                                        <span v-if="message.type === 'toolcall'" class="font-medium">
+                                            <i class="pi pi-cog mr-2 animate-spin" v-if="message.status === 'pending'"></i>
+                                            <i class="pi pi-check mr-2" v-else-if="message.status === 'done'"></i>
+                                            {{ message.name || 'Unknown tool' }}
+                                        </span>
+                                        <span v-else-if="message.type === 'toolcalled'" class="font-medium">
+                                            <i class="pi pi-check-circle mr-2"></i>
+                                            Tool response received
+                                        </span>
+                                        <span v-else-if="message.type === 'error'" class="font-medium text-red-600">
+                                            <i class="pi pi-exclamation-triangle mr-2"></i>
+                                            Error: {{ message.error || 'Unknown error' }}
+                                        </span>
+                                    </div>
+                                    <span class="text-xs text-gray-500">
+                                        {{ formatTimestamp(message.timestamp) }}
                                     </span>
                                 </div>
-                                <span class="text-xs text-gray-500">
-                                    {{ formatTimestamp(message.timestamp) }}
-                                </span>
+                                <div v-if="message.status === 'pending'" class="mt-1">
+                                    <ProgressSpinner style="width: 20px; height: 20px" />
+                                </div>
                             </div>
-                            <div v-if="message.status === 'pending'" class="mt-1">
-                                <ProgressSpinner style="width: 20px; height: 20px" />
-                            </div>
-                        </div>
+                        </transition-group>
                     </div>
 
                     <!-- 显示可编辑的大纲 -->
-                    <div v-if="outlineGenerated">
-                        <h2 class="text-xl font-bold mb-4">Generated Outline</h2>
-                        <EditableOutline ref="editableOutlineRef" :outlines="outlines" @update:outlines="updateOutlines"
-                            @collapse-all="() => { }" />
-                    </div>
+                    <transition name="fade" appear>
+                        <div v-if="outlineGenerated" class="outline-container">
+                            <h2 class="text-xl font-bold mb-4">Generated Outline</h2>
+                            <EditableOutline ref="editableOutlineRef" :outlines="outlines" @update:outlines="updateOutlines"
+                                @collapse-all="() => { }" />
+                        </div>
+                    </transition>
 
                     <!-- Empty state -->
                     <div v-if="!isProcessing && !outlineGenerated" class="text-center py-10">
@@ -366,5 +370,22 @@ watch(error, (newError) => {
         opacity: 1;
         transform: translateY(0);
     }
+}
+
+.message-enter-active {
+    transition: all 0.3s ease;
+}
+
+.message-enter-from {
+    opacity: 0;
+    transform: translateY(-10px);
+}
+
+.fade-enter-active {
+    transition: opacity 0.5s ease;
+}
+
+.fade-enter-from {
+    opacity: 0;
 }
 </style>
