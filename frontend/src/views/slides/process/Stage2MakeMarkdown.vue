@@ -7,6 +7,7 @@ import Button from 'primevue/button';
 import ProgressSpinner from 'primevue/progressspinner';
 import { API_BASE_URL } from '@/utils/api';
 import { useToast } from 'primevue/usetoast';
+import { SlidevProjectSchema } from './dto';
 
 const props = defineProps<{
     id: string | string[] | null | undefined
@@ -14,6 +15,7 @@ const props = defineProps<{
 
 const emit = defineEmits<{
     (e: 'complete'): void;
+    (e: 'update:data', data: SlidevProjectSchema): void;
 }>();
 
 const route = useRoute();
@@ -79,6 +81,9 @@ const initializeSSE = () => {
     }
 
     try {
+
+        const toolcallMapper = new Map();
+
         const url = `${API_BASE_URL}/slides/process/make-markdown/${id}`;
         eventSource.value = new EventSource(url, {
             withCredentials: true
@@ -90,6 +95,8 @@ const initializeSSE = () => {
             try {
                 const data = JSON.parse(event.data);
 
+                console.log(data);
+
                 if (data.type === 'toolcall') {
                     const toolcall = data.toolcall;
                     const message: MessageItem = {
@@ -99,15 +106,20 @@ const initializeSSE = () => {
                         timestamp: Date.now()
                     };
 
+                    toolcallMapper.set(toolcall.id, { index: messages.value.length });
                     messages.value.push(message);
 
                 } else if (data.type === 'toolcalled') {
                     // Mark the last pending toolcall as done
-                    for (let i = messages.value.length - 1; i >= 0; i--) {
-                        if (messages.value[i].type === 'toolcall' && messages.value[i].status === 'pending') {
-                            messages.value[i].status = 'done';
-                            messages.value[i].timestamp = Date.now();
-                            break;
+                    const toolcalled = data.toolcalled;
+                    if (toolcallMapper.has(toolcalled.id)) {
+                        const { index } = toolcallMapper.get(toolcalled.id);
+                        messages.value[index].status = 'done';
+                        messages.value[index].timestamp = Date.now();
+
+                        if (messages.value[index].name === 'slidev_export_project') {
+                            const projectData = JSON.parse(toolcalled.content[0]?.text || {}) as SlidevProjectSchema;
+                            emit('update:data', projectData);
                         }
                     }
                 }

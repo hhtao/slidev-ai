@@ -322,13 +322,11 @@ watch(error, (newError) => {
                     </div>
 
                     <!-- 显示可编辑的大纲 -->
-                    <transition name="fade" appear>
-                        <div v-if="outlineGenerated" class="outline-container">
-                            <h2 class="text-xl font-bold mb-4">Generated Outline</h2>
-                            <EditableOutline ref="editableOutlineRef" :outlines="outlines" @update:outlines="updateOutlines"
-                                @collapse-all="() => { }" />
-                        </div>
-                    </transition>
+                    <div v-if="outlineGenerated">
+                        <h2 class="text-xl font-bold mb-4">Generated Outline</h2>
+                        <EditableOutline ref="editableOutlineRef" :outlines="outlines" @update:outlines="updateOutlines"
+                            @collapse-all="() => { }" />
+                    </div>
 
                     <!-- Empty state -->
                     <div v-if="!isProcessing && !outlineGenerated" class="text-center py-10">
@@ -379,13 +377,5 @@ watch(error, (newError) => {
 .message-enter-from {
     opacity: 0;
     transform: translateY(-10px);
-}
-
-.fade-enter-active {
-    transition: opacity 0.5s ease;
-}
-
-.fade-enter-from {
-    opacity: 0;
 }
 </style>

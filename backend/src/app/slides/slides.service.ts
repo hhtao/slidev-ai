@@ -50,11 +50,36 @@ export class SlidesService {
         return { agent, loop };
     }
 
+    /**
+     * 保存幻灯片的 slides_path
+     */
+    async saveSlidesPath(id: number, userId: string, slidesPath: string) {
+        const slide = await this.slidesRepository.findOneById(id);
+        
+        if (!slide) {
+            throw new Error('Slide not found');
+        }
+        
+        if (slide.userId !== userId) {
+            throw new Error('Unauthorized');
+        }
+        
+        // 更新 processingStatus 为 completed
+        await this.slidesRepository.update(id, { 
+            processingStatus: 'completed',
+            // 这里可以根据需要保存 slidesPath 到特定字段，如果需要的话
+        });
+        
+        // 这里可以添加具体的 slidesPath 处理逻辑
+        // 具体实现将由你来完成
+        
+        return { success: true };
+    }
 
     /**
      * 保存幻灯片的大纲数据
      */
-    async saveOutlines(id: number, userId: string, outlines: any): Promise<void> {
+    async saveOutlines(id: number, userId: string, outlines: any) {
         const slide = await this.slidesRepository.findOneById(id);
         
         if (!slide) {
@@ -66,7 +91,9 @@ export class SlidesService {
         }
         
         // 将outlines对象转换为JSON字符串存储
-        await this.slidesRepository.update(id, { outlines: JSON.stringify(outlines) });
+        this.slidesRepository.update(id, { outlines: JSON.stringify(outlines) });
+        
+        return { success: true }
     }
 
     /**
@@ -171,18 +198,27 @@ export class SlidesService {
             return;
         }
 
-        loop.registerOnToolCall(toolcall => {
+        const saveOutlineIds = new Set();
 
+        loop.registerOnToolCall(toolcall => {
             subscriber.next(toSseData({
                 type: 'toolcall',
                 toolcall,
             }));
 
+            if (toolcall.function.name === 'slidev_export_project') {
+                saveOutlineIds.add(toolcall.id);
+            }
+
             return toolcall;
         });
 
         loop.registerOnToolCalled(toolcalled => {
-
+            
+            if (saveOutlineIds.has(toolcalled.id)) {
+                loop.abort();
+            }
+            
             subscriber.next(toSseData({
                 type: 'toolcalled',
                 toolcalled,

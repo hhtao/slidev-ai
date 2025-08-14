@@ -3,7 +3,7 @@ import { ref, computed } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import MakeOutline from './Stage1MakeOutline.vue';
 import MakeMarkdown from './Stage2MakeMarkdown.vue';
-import { OutlineItem } from './dto';
+import { OutlineItem, SlidevProjectSchema } from './dto';
 
 const route = useRoute();
 const router = useRouter();
@@ -14,6 +14,7 @@ const stage = computed(() => route.query.stage || 'outline');
 
 // 处理大纲数据
 const outlines = ref<OutlineItem[]>([]);
+const projectData = ref<SlidevProjectSchema | null>(null);
 
 // 验证参数
 const isValid = computed(() => {
@@ -22,6 +23,10 @@ const isValid = computed(() => {
 
 const handleOutlinesUpdate = (newOutlines: OutlineItem[]) => {
     outlines.value = newOutlines;
+};
+
+const handleSlidevProjectDataUpdate = (newProjectData: SlidevProjectSchema) => {
+    projectData.value = newProjectData;
 };
 
 const handleStageComplete = () => {
@@ -33,7 +38,7 @@ const handleStageComplete = () => {
         router.push(`/slides/process?id=${idValue}&stage=markdown`);
     } else if (stage.value === 'markdown') {
         // markdown阶段完成，跳转到dashboard
-        router.push('/dashboard');
+        // router.push('/dashboard');
     }
 };
 </script>
@@ -57,10 +62,16 @@ const handleStageComplete = () => {
     </div>
 
     <transition name="fade" mode="out-in">
-        <MakeOutline v-if="stage === 'outline'" key="outline" :id="id as any" @update:outlines="handleOutlinesUpdate"
-            @complete="handleStageComplete" />
+        <MakeOutline
+            v-if="stage === 'outline'" key="outline" :id="id as any"
+            @update:outlines="handleOutlinesUpdate"
+            @complete="handleStageComplete"
+        />
 
-        <MakeMarkdown v-else-if="stage === 'markdown'" key="markdown" :id="id as any" @complete="handleStageComplete" />
+        <MakeMarkdown v-else-if="stage === 'markdown'" key="markdown" :id="id as any"
+            @update:data="handleSlidevProjectDataUpdate"
+            @complete="handleStageComplete"
+        />
 
         <div v-else class="p-4 max-w-4xl mx-auto" key="error">
             <div class="bg-red-50 border-l-4 border-red-500 p-4 rounded">

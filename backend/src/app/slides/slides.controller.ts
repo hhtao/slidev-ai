@@ -19,6 +19,11 @@ interface OutlinesDto {
     outlines: any;
 }
 
+// 定义 slidesPath 数据结构
+interface SlidesPathDto {
+    slidesPath: string;
+}
+
 @Controller('slides')
 export class SlidesController {
     constructor(
@@ -88,6 +93,20 @@ export class SlidesController {
     ) {
         const userId = (req.user as any).id;
         return this.slidesService.saveOutlines(id, userId, outlinesDto.outlines);
+    }
+
+    /**
+     * 保存幻灯片的 slides_path
+     */
+    @UseGuards(JwtAuthGuard)
+    @Post(':id/slides-path')
+    async saveSlidesPath(
+        @Param('id') id: number,
+        @Body() slidesPathDto: SlidesPathDto,
+        @Request() req: ExpressRequest
+    ) {
+        const userId = (req.user as any).id;
+        return this.slidesService.saveSlidesPath(id, userId, slidesPathDto.slidesPath);
     }
 
     /**
