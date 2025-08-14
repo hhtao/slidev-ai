@@ -219,8 +219,6 @@ watch(error, (newError) => {
             <template #title>
                 <div class="flex justify-between items-center">
                     <h1>Presentation Outline Generator</h1>
-                    <Button icon="pi pi-times" outlined @click="cancelProcessing" severity="secondary"
-                        aria-label="Cancel processing" />
                 </div>
             </template>
 
