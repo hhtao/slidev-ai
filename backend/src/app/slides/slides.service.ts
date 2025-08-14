@@ -50,17 +50,6 @@ export class SlidesService {
         return { agent, loop };
     }
 
-    makeOutlinePrompt(slide: Slide) {
-        return `
-## 标题
-${slide.title}
-
-## 内容
-${slide.content}
-
-请帮我制作 slidev ppt 的大纲。
-`;
-    }
 
     /**
      * 保存幻灯片的大纲数据
@@ -146,12 +135,14 @@ ${slide.content}
         });
 
         const usermcpPrompt = await agent.getPrompt('usermcp_guide_prompt', {});
-        const outlinePrompt = await agent.getPrompt('outline_generate_prompt', {});
+        const outlinePrompt = await agent.getPrompt('outline_generate_prompt', {
+            title: slide.title,
+            content: slide.content,
+        });
 
         const prompts = [
             usermcpPrompt,
             outlinePrompt,
-            this.makeOutlinePrompt(slide)
         ];
 
         await agent.ainvoke({ messages: prompts.join('\n\n') });
@@ -162,10 +153,26 @@ ${slide.content}
     /**
      * @description 创建 markdown 任务，并返回中途进度
      */
-    async makeMarkdownHandler(id: string, subscriber: Subscriber<any>) {
+    async makeMarkdownHandler(id: number, subscriber: Subscriber<any>) {
         const { agent, loop } = await this.getAgentDependency();
 
+        const slide = await this.slidesRepository.findOneById(id);
+
+        if (!slide) {
+            subscriber.next(toSseData({ type: 'error', message: 'Slide not found' }));
+            subscriber.complete();
+            return;
+        }
+
+        const outlines = slide.outlines || '';
+        if (outlines.length === 0) {
+            subscriber.next(toSseData({ type: 'message', message: 'Outline not found' }));
+            subscriber.complete();
+            return;
+        }
+
         loop.registerOnToolCall(toolcall => {
+
             subscriber.next(toSseData({
                 type: 'toolcall',
                 toolcall,
@@ -183,7 +190,21 @@ ${slide.content}
             return toolcalled;
         });
 
-        subscriber.next('');
+        const usermcpPrompt = await agent.getPrompt('usermcp_guide_prompt', {});
+        const slidevPrompt = await agent.getPrompt('slidev_generate_with_specific_outlines_prompt', {
+            outlines: outlines,
+            title: slide.title,
+            content: slide.content,
+        });
+
+        const prompts = [
+            usermcpPrompt,
+            slidevPrompt,
+        ];
+
+        await agent.ainvoke({ messages: prompts.join('\n\n') });
+
+        subscriber.next(toSseData({ done: true }));
     }
 
 }

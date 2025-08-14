@@ -118,7 +118,7 @@ export class SlidesController {
     @UseGuards(JwtAuthGuard)
     @Sse('process/make-markdown/:id')
     makeMarkdown(
-        @Param('id') id: string
+        @Param('id') id: number
     ): Observable<any> {
         return new Observable(subscriber => {
             this.slidesService.makeMarkdownHandler(id, subscriber);
