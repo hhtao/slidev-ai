@@ -11,11 +11,16 @@ export class SlidevManagerService implements OnApplicationShutdown {
     async startSlidev(id: number, filePath: string): Promise<number> {
         // 检查是否已存在实例
         const existing = this.instances.get(id);
-        if (existing) return existing.port;
+        
+        console.log('cache', existing);
+        
+        if (existing) {
+            return existing.port;
+        }
 
         // 获取可用端口
         const port = await this.findAvailablePort();        
-        const process = await this.spawnSlidevProcess(id, filePath, port);
+        const process = await this.spawnSlidevProcess(id, filePath, port);        
 
         // 存储实例信息
         const instance = { port, process };
@@ -65,9 +70,28 @@ export class SlidevManagerService implements OnApplicationShutdown {
         });
     }
 
-    onApplicationShutdown() {
+    // 获取所有正在使用的端口
+    getUsedPorts(): number[] {
+        return Array.from(this.usedPorts);
+    }
+
+    // 终止所有Slidev进程
+    killAllProcesses() {
+        console.log('正在终止所有Slidev进程...');
         for (const instance of this.instances.values()) {
-            instance.process.kill();
+            try {
+                instance.process.kill();
+            } catch (error) {
+                console.error(`终止进程时出错 (port: ${instance.port}):`, error);
+            }
         }
+        
+        // 清空实例和端口记录
+        this.instances.clear();
+        this.usedPorts.clear();
+    }
+
+    onApplicationShutdown() {
+        this.killAllProcesses();
     }
 }

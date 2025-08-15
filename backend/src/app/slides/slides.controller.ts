@@ -156,8 +156,6 @@ export class SlidesController {
     @Get('preview-id/:id')
     async getPreviewId(
         @Param('id') id: number,
-        @Request() req: ExpressRequest,
-        @Res() res: Response,
     ) {
         // const userId = (req.user as any).id;
         const slide = await this.slideRepository.findOneById(id);
@@ -178,6 +176,8 @@ export class SlidesController {
 
         // 启动或获取Slidev实例
         const port = await this.slidevManager.startSlidev(id, absolutePath);
+
+        console.log('get process, port is', port);
 
         return {
             port,

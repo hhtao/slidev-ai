@@ -172,6 +172,39 @@ const cancelProcessing = () => {
     router.push('/dashboard');
 };
 
+// 新增方法：获取预览端口并跳转到新窗口
+const previewSlide = async () => {
+    try {
+        const id = props.id;
+        if (!id || Array.isArray(id)) {
+            toast.add({
+                severity: 'error',
+                summary: 'Invalid ID',
+                detail: 'Slide ID is invalid',
+                life: 3000
+            });
+            return;
+        }
+
+        const response = await axios.get(`${API_BASE_URL}/slides/preview-id/${id}`);
+        const port = response.data.port;
+        
+        // 在新窗口中打开预览页面
+        window.open(`http://localhost:${port}/`, '_blank');
+        
+        // 返回仪表板
+        router.push('/dashboard');
+    } catch (error) {
+        console.error('Error getting preview port:', error);
+        toast.add({
+            severity: 'error',
+            summary: 'Preview Error',
+            detail: 'Failed to get preview port. Please try again.',
+            life: 5000
+        });
+    }
+};
+
 const formatTimestamp = (timestamp?: number) => {
     if (!timestamp) return '';
     return new Date(timestamp).toLocaleTimeString();
@@ -256,8 +289,10 @@ onUnmounted(() => {
                     <div v-if="!isProcessing" class="text-center py-10">
                         <i class="pi pi-check-circle text-4xl text-green-500 mb-4"></i>
                         <p class="text-gray-600">Markdown generation completed successfully!</p>
-                        <Button label="Go to Dashboard" icon="pi pi-home" class="mt-4"
-                            @click="() => router.push('/dashboard')" />
+                        <div class="flex justify-center gap-2 mt-4">
+                            <Button label="Preview Slides" icon="pi pi-eye" class="mr-2" @click="previewSlide" />
+                            <Button label="Go to Dashboard" icon="pi pi-home" @click="() => router.push('/dashboard')" />
+                        </div>
                     </div>
                 </div>
             </template>
