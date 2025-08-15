@@ -153,14 +153,13 @@ export class SlidesController {
         return slide;
     }
 
-
-    @Get('preview/:id')
-    async previewSlidev(
+    @Get('preview-id/:id')
+    async getPreviewId(
         @Param('id') id: number,
         @Request() req: ExpressRequest,
         @Res() res: Response,
     ) {
-        const userId = (req.user as any).id;
+        // const userId = (req.user as any).id;
         const slide = await this.slideRepository.findOneById(id);
 
         if (!slide) {
@@ -170,6 +169,9 @@ export class SlidesController {
         // 计算Markdown文件绝对路径
         const absolutePath = this.slidesService.getSlidePrjAbsolutePath(slide);
 
+        console.log('get path', absolutePath);
+
+
         if (!absolutePath) {
             throw new Error('Slidev project not found');
         }
@@ -177,10 +179,61 @@ export class SlidesController {
         // 启动或获取Slidev实例
         const port = await this.slidevManager.startSlidev(id, absolutePath);
 
+        return {
+            port,
+        };
+    }
+
+    @Get('preview/:id')
+    async previewSlidev(
+        @Param('id') id: number,
+        @Request() req: ExpressRequest,
+        @Res() res: Response,
+    ) {
+        //TODO: finish this
+
+        // const userId = (req.user as any).id;
+        const slide = await this.slideRepository.findOneById(id);
+
+        if (!slide) {
+            throw new Error('Slide not found');
+        }
+
+        // 计算Markdown文件绝对路径
+        const absolutePath = this.slidesService.getSlidePrjAbsolutePath(slide);
+
+        console.log('get path', absolutePath);
+
+
+        if (!absolutePath) {
+            throw new Error('Slidev project not found');
+        }
+
+        // 启动或获取Slidev实例
+        const port = await this.slidevManager.startSlidev(id, absolutePath);
+
+        console.log('launch at port', port);
+
+
+        proxy.on('proxyReq', (proxyReq, req, res, options) => {
+            // 浏览器原始请求路径
+            const incoming = req.url;
+            // 最终发送到目标的路径
+            const targetHost = proxyReq.getHeader('host');
+            const targetPath = proxyReq.path;
+
+            console.log(`[Proxy] ${req.method} ${incoming} -> http://${targetHost}${targetPath}`);
+        });
+
+        proxy.on('proxyRes', (proxyRes, req, res) => {
+            console.log(`[ProxyRes] ${req.url} -> status ${proxyRes.statusCode}`);
+        });
+
         // 代理请求到Slidev服务
         proxy.web(req, res, {
             target: `http://localhost:${port}`,
-            ignorePath: true,
+            changeOrigin: true,
+            ws: true,
         });
     }
 

@@ -253,7 +253,7 @@ export class SlidesService {
         
         // 如果路径以 .slidev-mcp 开头，则将其解析为相对于项目根目录的绝对路径
         if (slidePath.startsWith('.slidev-mcp')) {
-            return path.join(process.cwd(), slidePath);
+            return path.join(process.cwd(), 'slidev-mcp', slidePath);
         }
         
         // 对于其他路径，保持原有逻辑（直接返回 null，需要进一步实现）

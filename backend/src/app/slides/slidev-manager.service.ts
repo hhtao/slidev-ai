@@ -1,9 +1,7 @@
-// src/slidev/slidev-manager.service.ts
 import { Injectable, OnApplicationShutdown } from '@nestjs/common';
 import * as net from 'net';
 import { spawn, ChildProcess } from 'child_process';
-
-
+import waitOn from 'wait-on';
 
 @Injectable()
 export class SlidevManagerService implements OnApplicationShutdown {
@@ -16,8 +14,8 @@ export class SlidevManagerService implements OnApplicationShutdown {
         if (existing) return existing.port;
 
         // 获取可用端口
-        const port = await this.findAvailablePort();
-        const process = this.spawnSlidevProcess(filePath, port);
+        const port = await this.findAvailablePort();        
+        const process = await this.spawnSlidevProcess(id, filePath, port);
 
         // 存储实例信息
         const instance = { port, process };
@@ -37,14 +35,18 @@ export class SlidevManagerService implements OnApplicationShutdown {
         return this.instances.get(id)?.port || null;
     }
 
-    private spawnSlidevProcess(filePath: string, port: number): ChildProcess {
-        return spawn('slidev', [filePath, '--port', port.toString()], {
+    private async spawnSlidevProcess(id: number, filePath: string, port: number): Promise<ChildProcess> {
+        const proc = spawn('slidev', [filePath, '--port', port.toString(), '--base', `/api/slides/preview/${id}/`], {
             detached: true,
-            stdio: 'ignore',
+            stdio: 'inherit',
         });
+
+        await waitOn({ resources: [`tcp:localhost:${port}`], timeout: 10000 });
+        return proc;
     }
 
-    private async findAvailablePort(start = 3000): Promise<number> {
+    private async findAvailablePort(start = 5000): Promise<number> {
+        // TODO: FIXME
         for (let port = start; port < 65535; port++) {
             if (this.usedPorts.has(port)) continue;
             if (await this.isPortAvailable(port)) return port;
