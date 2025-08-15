@@ -5,13 +5,12 @@ import { SlidevMcpService } from '@/app/mcp/slidev-mcp.service';
 import { SlidesService } from './slides.service';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { Slide } from './slide.entity';
-import { SlidevProject } from './slide.entity';
 import { SlideRepository } from './slide.repository';
 import { SlidevManagerService } from './slidev-manager.service';
 @Module({
     imports: [
         SlidevMcpModule,
-        TypeOrmModule.forFeature([Slide, SlidevProject]),
+        TypeOrmModule.forFeature([Slide]),
     ],
     providers: [
         SlidevMcpService,

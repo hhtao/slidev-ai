@@ -112,7 +112,7 @@ const gotoGenMarkdown = async () => {
             outlines: JSON.stringify(outlines.value)
         });
 
-        if (!res.data.ok) {
+        if (!res.data.success) {
             throw new Error('Failed to save outlines');
         }
 

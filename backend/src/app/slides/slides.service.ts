@@ -6,7 +6,7 @@ import { OmAgent } from 'openmcp-sdk/service/sdk';
 import { SlidevMcpService } from '@/app/mcp/slidev-mcp.service';
 import { SlideRepository } from './slide.repository';
 import { CreateSlideDto, SlidevProjectDto } from './slide.dto';
-import { Slide, SlidevProject } from './slide.entity';
+import { Slide } from './slide.entity';
 import { toSseData } from '@/utils/sse';
 import path from 'path';
 
@@ -54,7 +54,7 @@ export class SlidesService {
     /**
      * 保存幻灯片的 slides_path
      */
-    async saveSlidesPath(id: number, userId: string, projectData: SlidevProjectDto) {
+    async saveSlidesPath(id: number, userId: string, slidevData: SlidevProjectDto) {
         const slide = await this.slidesRepository.findOneById(id);
         
         if (!slide) {
@@ -65,16 +65,12 @@ export class SlidesService {
             throw new Error('Unauthorized');
         }
 
-        // 创建SlidevProject实体
-        const project = new SlidevProject();
-        project.name = projectData.name;
-        project.home = projectData.home;
-        project.slides_path = projectData.slides_path;
-
-        // 标记为完成，并插入 projectData
+        // 标记为完成，并插入 slidevData
         await this.slidesRepository.update(id, { 
             processingStatus: 'completed',
-            project: project
+            slidevName: slidevData.name,
+            slidevHome: slidevData.home,
+            slidevEntryFile: slidevData.slides_path,
         });
         
         return { success: true };
@@ -249,12 +245,8 @@ export class SlidesService {
 
 
     getSlidePrjAbsolutePath(slide: Slide): string | null {
-        const projectData = slide.project;
-        if (!projectData) {
-            return null;
-        }
-        
-        const slidePath = projectData.slides_path;
+
+        const slidePath = slide.slidevEntryFile;
         if (!slidePath) {
             return null;
         }

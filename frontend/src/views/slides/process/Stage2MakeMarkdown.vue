@@ -75,7 +75,15 @@ const handleSSEError = (event: Event) => {
 
 const saveProjectData = async (projectData: any) => {
     const res = await axios.post(`${API_BASE_URL}/slides/${props.id}/save-slides-prj-meta`, projectData);
-    
+
+    if (!res.data.success) {
+        toast.add({
+            severity: 'error',
+            summary: 'Save Failed',
+            detail: res.data.error,
+            life: 5000
+        });
+    }
 };
 
 const handleSSEMessage = async (event: MessageEvent, toolcallMapper: Map<string, { index: number }>) => {
@@ -104,6 +112,7 @@ const handleSSEMessage = async (event: MessageEvent, toolcallMapper: Map<string,
 
                 if (messages.value[index].name === 'slidev_export_project') {
                     const projectData = JSON.parse(toolcalled.content[0]?.text || {}) as SlidevProjectSchema;
+                    await saveProjectData(projectData);
                     emit('update:data', projectData);
                 }
             }
@@ -117,10 +126,6 @@ const handleSSEMessage = async (event: MessageEvent, toolcallMapper: Map<string,
                 detail: 'Markdown generation finished successfully',
                 life: 3000
             });
-
-            // 保存
-
-
 
             // 触发完成事件
             emit('complete');
@@ -216,8 +221,6 @@ onUnmounted(() => {
                         <transition-group name="message" tag="div" class="space-y-3">
                             <div v-for="(message, index) in messages" :key="index"
                                 class="p-3 rounded transition-all animate-fade-in" :class="{
-                                    'bg-blue-50 border-l-4 border-blue-500': message.type === 'toolcall' && message.status === 'pending',
-                                    'bg-green-50 border-l-4 border-green-500': message.type === 'toolcalled',
                                     'bg-purple-50 border-l-4 border-purple-500': message.type === 'done',
                                     'bg-red-50 border-l-4 border-red-500': message.type === 'error'
                                 }">

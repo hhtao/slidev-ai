@@ -3,6 +3,7 @@ import { useRouter } from 'vue-router';
 import { onMounted } from 'vue';
 import Navbar from './components/Navbar.vue';
 import { useAuthStore } from './store/auth';
+import Toast from 'primevue/toast';
 
 const router = useRouter();
 const authStore = useAuthStore();
@@ -23,6 +24,7 @@ onMounted(() => {
 
 <template>
     <div id="app">
+        <Toast />
         <Navbar />
         <router-view />
     </div>
