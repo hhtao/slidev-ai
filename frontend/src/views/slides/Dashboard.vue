@@ -1,15 +1,14 @@
 <script setup lang="ts">
 import { ref, onMounted,watch } from 'vue'
 import { useRouter } from 'vue-router'
-import axios from 'axios'
 
-// PrimeVue components
 import Button from 'primevue/button'
 import Card from 'primevue/card'
 import DataView from 'primevue/dataview'
 import Message from 'primevue/message'
 import Dropdown from 'primevue/dropdown'
 import { API_BASE_URL } from '@/utils/api'
+import axios from 'axios'
 
 const router = useRouter()
 const slides = ref([])

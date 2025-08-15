@@ -64,6 +64,13 @@ const collapseAll = () => {
     emit('collapse-all');
 };
 
+// 展开所有面板
+const expandAll = () => {
+    Object.keys(expandedGroups.value).forEach(group => {
+        expandedGroups.value[group] = true;
+    });
+};
+
 // 更新特定组的展开状态
 const updateGroupExpanded = (group: string, expanded: boolean) => {
     expandedGroups.value[group] = expanded;
@@ -88,7 +95,7 @@ computed(() => {
 initializeExpandedGroups();
 
 defineExpose({
-    collapseAll
+    collapseAll, expandAll
 });
 </script>
 

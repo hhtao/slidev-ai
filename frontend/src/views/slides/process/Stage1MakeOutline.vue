@@ -5,14 +5,14 @@ import Card from 'primevue/card';
 import Message from 'primevue/message';
 import Button from 'primevue/button';
 import ProgressSpinner from 'primevue/progressspinner';
-import { API_BASE_URL } from '@/utils/api';
-import { OutlineItem } from './dto';
+import { MessageItem, OutlineItem } from './dto';
 import EditableOutline from './EditableOutline.vue';
 import { useToast } from 'primevue/usetoast';
-import axios from 'axios';
+import { useSlidesStore } from '@/store/slide';
+import { API_BASE_URL } from '@/utils/api';
 
 const props = defineProps<{
-    id: string | string[] | null | undefined
+    id: number;
 }>();
 
 const emit = defineEmits<{
@@ -22,6 +22,7 @@ const emit = defineEmits<{
 
 const router = useRouter();
 const toast = useToast();
+const slidesStore = useSlidesStore();
 
 // State management
 const error = ref<string>('');
@@ -30,14 +31,6 @@ const isProcessing = ref<boolean>(true);
 const outlines = ref<OutlineItem[]>([]);
 const connectionRetries = ref<number>(0);
 const MAX_RETRIES = 3;
-
-type MessageItem = {
-    type: 'toolcall' | 'toolcalled' | 'done' | 'error';
-    name?: string;
-    status?: 'pending' | 'done' | 'failed';
-    timestamp?: number;
-    error?: string;
-};
 
 const messages = ref<MessageItem[]>([]);
 
@@ -90,17 +83,55 @@ const updateOutlines = (newOutlines: OutlineItem[]) => {
 // 添加对EditableOutline组件的引用
 const editableOutlineRef = ref<InstanceType<typeof EditableOutline> | null>(null);
 
-// 添加collapseAll方法
 const collapseAllPanels = () => {
     if (editableOutlineRef.value && editableOutlineRef.value.collapseAll) {
         editableOutlineRef.value.collapseAll();
     }
 };
 
+const expandAllPanels = () => {
+    if (editableOutlineRef.value && editableOutlineRef.value.expandAll) {
+        editableOutlineRef.value.expandAll();
+    }
+};
+
+const saveOutlines = async () => {
+    const id = props.id;
+    if (!id) {
+        error.value = 'Invalid slide ID';
+        return;
+    }
+
+    try {
+        await slidesStore.saveOutlines(id, outlines.value);
+        toast.add({
+            severity: 'success',
+            summary: 'Save Outlines Successfully',
+            life: 3000,
+        });
+    } catch (error) {
+        console.error('Error saving outlines:', error);
+        toast.add({
+            severity: 'error',
+            summary: 'Error',
+            detail: 'Failed to save outlines:' + error,
+            life: 5000
+        });        
+    }
+
+}
+
 const gotoGenMarkdown = async () => {
     collapseAllPanels();
+    await saveOutlines();
 
-    // 保存outlines到后端
+    setTimeout(() => {
+        emit('complete');
+    }, 500);
+};
+
+// 检查slide是否已经有outlines数据
+const checkExistingOutlines = async () => {
     const id = props.id;
     if (!id || Array.isArray(id)) {
         error.value = 'Invalid slide ID';
@@ -108,33 +139,108 @@ const gotoGenMarkdown = async () => {
     }
 
     try {
-        const res = await axios.post(`${API_BASE_URL}/slides/${id}/outlines`, {
-            outlines: JSON.stringify(outlines.value)
-        });
+        // 获取slide数据
+        const slideId = parseInt(Array.isArray(id) ? id[0] : id);
+        const slideData = await slidesStore.getSlideById(slideId);
 
-        if (!res.data.success) {
-            throw new Error('Failed to save outlines');
+        if (!slideData) {
+            error.value = 'Failed to fetch slide data';
+            return;
+        }        
+
+        // 检查是否有现成的outlines
+        if (slideData.outlines) {
+            try {
+                let parsedOutlines = JSON.parse(slideData.outlines);
+                if (typeof parsedOutlines === 'string') {
+                    parsedOutlines = JSON.parse(parsedOutlines);
+                }
+                
+                if (parsedOutlines && Array.isArray(parsedOutlines) && parsedOutlines.length > 0) {
+                    updateOutlines(parsedOutlines);
+                    isProcessing.value = false;
+                    toast.add({
+                        severity: 'success',
+                        summary: 'Loaded Existing Outline',
+                        detail: 'Using previously generated outline',
+                        life: 3000
+                    });
+                    return true;
+                }
+            } catch (parseError) {
+                console.error('Error parsing existing outlines:', parseError);
+            }
         }
 
-        // 触发完成事件
-        emit('complete');
+        // 如果没有现成的outlines，则初始化SSE
+        // initializeSSE();
+        return false;
     } catch (err) {
-        console.error('Error saving outlines:', err);
-        toast.add({
-            severity: 'error',
-            summary: 'Error',
-            detail: 'Failed to save outlines',
-            life: 5000
+        console.error('Error fetching slide data:', err);
+        error.value = 'Failed to fetch slide data';
+        return false;
+    }
+};
+
+const handleSSEMessage = async (event: MessageEvent, toolcallMapper: Map<string, { index: number }>) => {
+    try {
+        const data = JSON.parse(event.data);
+
+        if (data.type === 'toolcall') {
+            const toolcall = data.toolcall;
+            const message: MessageItem = {
+                type: 'toolcall',
+                name: toolcall.function?.name,
+                status: 'pending',
+                timestamp: Date.now()
+            };
+
+            messages.value.push(message);
+
+            if (toolcall.function?.name === 'slidev_save_outline') {
+                try {
+                    const parsedArgs = JSON.parse(toolcall.function.arguments);
+                    if (parsedArgs?.outline?.outlines) {
+                        updateOutlines(parsedArgs.outline.outlines);
+                    }
+                } catch (parseError) {
+                    console.error('Error parsing outline:', parseError);
+                }
+            }
+
+        } else if (data.type === 'toolcalled') {
+            // Mark the last pending toolcall as done
+            for (let i = messages.value.length - 1; i >= 0; i--) {
+                if (messages.value[i].type === 'toolcall' && messages.value[i].status === 'pending') {
+                    messages.value[i].status = 'done';
+                    messages.value[i].timestamp = Date.now();
+                    break;
+                }
+            }
+        }
+
+        if (data.done) {
+            isProcessing.value = false;
+            toast.add({
+                severity: 'success',
+                summary: 'Processing Complete',
+                detail: 'Outline generation finished successfully',
+                life: 3000
+            });
+        }
+    } catch (parseError) {
+        console.error('Error parsing SSE message:', parseError);
+        messages.value.push({
+            type: 'error',
+            status: 'failed',
+            error: 'Failed to parse server message',
+            timestamp: Date.now()
         });
     }
-}
+};
 
 const initializeSSE = () => {
     const id = props.id;
-    if (!id || Array.isArray(id)) {
-        error.value = 'Invalid slide ID';
-        return;
-    }
     if (!id || Array.isArray(id)) {
         error.value = 'Invalid slide ID';
         return;
@@ -146,64 +252,9 @@ const initializeSSE = () => {
             withCredentials: true
         });
 
+        const toolcallMapper = new Map();
         eventSource.value.addEventListener('error', handleSSEError);
-
-        eventSource.value.onmessage = (event) => {
-            try {
-                const data = JSON.parse(event.data);
-
-                if (data.type === 'toolcall') {
-                    const toolcall = data.toolcall;
-                    const message: MessageItem = {
-                        type: 'toolcall',
-                        name: toolcall.function?.name,
-                        status: 'pending',
-                        timestamp: Date.now()
-                    };
-
-                    messages.value.push(message);
-
-                    if (toolcall.function?.name === 'slidev_save_outline') {
-                        try {
-                            const parsedArgs = JSON.parse(toolcall.function.arguments);
-                            if (parsedArgs?.outline?.outlines) {
-                                updateOutlines(parsedArgs.outline.outlines);
-                            }
-                        } catch (parseError) {
-                            console.error('Error parsing outline:', parseError);
-                        }
-                    }
-
-                } else if (data.type === 'toolcalled') {
-                    // Mark the last pending toolcall as done
-                    for (let i = messages.value.length - 1; i >= 0; i--) {
-                        if (messages.value[i].type === 'toolcall' && messages.value[i].status === 'pending') {
-                            messages.value[i].status = 'done';
-                            messages.value[i].timestamp = Date.now();
-                            break;
-                        }
-                    }
-                }
-
-                if (data.done) {
-                    isProcessing.value = false;
-                    toast.add({
-                        severity: 'success',
-                        summary: 'Processing Complete',
-                        detail: 'Outline generation finished successfully',
-                        life: 3000
-                    });
-                }
-            } catch (parseError) {
-                console.error('Error parsing SSE message:', parseError);
-                messages.value.push({
-                    type: 'error',
-                    status: 'failed',
-                    error: 'Failed to parse server message',
-                    timestamp: Date.now()
-                });
-            }
-        };
+        eventSource.value.addEventListener('message', event => handleSSEMessage(event, toolcallMapper))
     } catch (setupError) {
         error.value = 'Failed to initialize connection';
         console.error('SSE setup error:', setupError);
@@ -224,7 +275,7 @@ const formatTimestamp = (timestamp?: number) => {
 
 // Lifecycle hooks
 onMounted(() => {
-    initializeSSE();
+    checkExistingOutlines();
 });
 
 onUnmounted(() => {
@@ -279,15 +330,14 @@ watch(error, (newError) => {
                         <transition-group name="message" tag="div" class="space-y-3">
                             <div v-for="(message, index) in messages" :key="index"
                                 class="p-3 rounded transition-all animate-fade-in" :class="{
-                                    'bg-blue-50 border-l-4 border-blue-500': message.type === 'toolcall' && message.status === 'pending',
-                                    'bg-green-50 border-l-4 border-green-500': message.type === 'toolcalled',
                                     'bg-purple-50 border-l-4 border-purple-500': message.type === 'done',
                                     'bg-red-50 border-l-4 border-red-500': message.type === 'error'
                                 }">
                                 <div class="flex justify-between items-start">
                                     <div>
                                         <span v-if="message.type === 'toolcall'" class="font-medium">
-                                            <i class="pi pi-cog mr-2 animate-spin" v-if="message.status === 'pending'"></i>
+                                            <i class="pi pi-cog mr-2 animate-spin"
+                                                v-if="message.status === 'pending'"></i>
                                             <i class="pi pi-check mr-2" v-else-if="message.status === 'done'"></i>
                                             {{ message.name || 'Unknown tool' }}
                                         </span>
@@ -333,7 +383,7 @@ watch(error, (newError) => {
                         :disabled="!isProcessing" />
                     <div class="flex space-x-2">
                         <Button label="Save Draft" icon="pi pi-save" severity="info"
-                            :disabled="isProcessing || !outlineGenerated" />
+                            :disabled="isProcessing || !outlineGenerated" @click="saveOutlines"/>
                         <Button label="Continue to Markdown" icon="pi pi-arrow-right" icon-pos="right"
                             :disabled="isProcessing || !outlineGenerated" @click="gotoGenMarkdown" />
                     </div>

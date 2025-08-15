@@ -5,13 +5,14 @@ import Card from 'primevue/card';
 import Message from 'primevue/message';
 import Button from 'primevue/button';
 import ProgressSpinner from 'primevue/progressspinner';
-import { API_BASE_URL } from '@/utils/api';
 import { useToast } from 'primevue/usetoast';
-import { SlidevProjectSchema } from './dto';
+import { MessageItem, SlidevProjectSchema } from './dto';
+import { useSlidesStore } from '@/store/slide';
 import axios from 'axios';
+import { API_BASE_URL } from '@/utils/api';
 
 const props = defineProps<{
-    id: string | string[] | null | undefined
+    id: number
 }>();
 
 const emit = defineEmits<{
@@ -21,6 +22,7 @@ const emit = defineEmits<{
 
 const router = useRouter();
 const toast = useToast();
+const slidesStore = useSlidesStore();
 
 // State management
 const error = ref<string>('');
@@ -29,13 +31,6 @@ const isProcessing = ref<boolean>(true);
 const connectionRetries = ref<number>(0);
 const MAX_RETRIES = 3;
 
-type MessageItem = {
-    type: 'toolcall' | 'toolcalled' | 'done' | 'error';
-    name?: string;
-    status?: 'pending' | 'done' | 'failed';
-    timestamp?: number;
-    error?: string;
-};
 
 const messages = ref<MessageItem[]>([]);
 
@@ -139,23 +134,74 @@ const handleSSEMessage = async (event: MessageEvent, toolcallMapper: Map<string,
             timestamp: Date.now()
         });
     }
-}
+};
 
-const initializeSSE = () => {
+// 检查slide是否已经有slidev项目数据
+const checkExistingSlidevProject = async () => {
     const id = props.id;
     if (!id || Array.isArray(id)) {
         error.value = 'Invalid slide ID';
         return;
     }
 
-    try {
-        const toolcallMapper = new Map();
 
+    try {
+        const slideId = parseInt(Array.isArray(id) ? id[0] : id);
+        const slideData = await slidesStore.getSlideById(slideId);
+
+        if (!slideData) {
+            error.value = 'Failed to fetch slide data';
+            return;
+        }
+
+        // 检查是否有现成的slidev项目数据
+        if (slideData.slidevName && slideData.slidevHome && slideData.slidevEntryFile) {
+            // 构造项目数据对象
+            const projectData: SlidevProjectSchema = {
+                name: slideData.slidevName,
+                home: slideData.slidevHome,
+                slides_path: slideData.slidevEntryFile
+            };
+
+            // 发出事件通知父组件
+            emit('update:data', projectData);
+
+            // 显示成功消息
+            isProcessing.value = false;
+            toast.add({
+                severity: 'success',
+                summary: 'Loaded Existing Project',
+                detail: 'Using previously generated Slidev project',
+                life: 3000
+            });
+
+            return true;
+        }
+
+        // 如果没有现成的slidev项目数据，则初始化SSE
+        // initializeSSE();
+        return false;
+    } catch (err) {
+        console.error('Error fetching slide data:', err);
+        error.value = 'Failed to fetch slide data';
+        return false;
+    }
+}
+
+const initializeSSE = () => {
+    const id = props.id;
+    if (!id) {
+        error.value = 'Invalid slide ID';
+        return;
+    }
+
+    try {
         const url = `${API_BASE_URL}/slides/process/make-markdown/${id}`;
         eventSource.value = new EventSource(url, {
             withCredentials: true
         });
 
+        const toolcallMapper = new Map();
         eventSource.value.addEventListener('error', handleSSEError);
         eventSource.value.addEventListener('message', event => handleSSEMessage(event, toolcallMapper));
 
@@ -172,36 +218,32 @@ const cancelProcessing = () => {
     router.push('/dashboard');
 };
 
-// 新增方法：获取预览端口并跳转到新窗口
 const previewSlide = async () => {
-    try {
-        const id = props.id;
-        if (!id || Array.isArray(id)) {
-            toast.add({
-                severity: 'error',
-                summary: 'Invalid ID',
-                detail: 'Slide ID is invalid',
-                life: 3000
-            });
-            return;
-        }
+    const id = props.id;
+    if (!id) {
+        toast.add({
+            severity: 'error',
+            summary: 'Invalid ID',
+            detail: 'Slide ID is invalid',
+            life: 3000
+        });
+        return;
+    }
 
+    try {
         const response = await axios.get(`${API_BASE_URL}/slides/preview-id/${id}`);
         const port = response.data.port;
         
         // 在新窗口中打开预览页面
         window.open(`http://localhost:${port}/`, '_blank');
         
-        // 返回仪表板
-        router.push('/dashboard');
     } catch (error) {
         console.error('Error getting preview port:', error);
         toast.add({
             severity: 'error',
-            summary: 'Preview Error',
-            detail: 'Failed to get preview port. Please try again.',
-            life: 5000
-        });
+            summary: 'Error',
+            detail: 'Error getting preview port: ' + error
+        })
     }
 };
 
@@ -212,7 +254,7 @@ const formatTimestamp = (timestamp?: number) => {
 
 // Lifecycle hooks
 onMounted(() => {
-    initializeSSE();
+    checkExistingSlidevProject();
 });
 
 onUnmounted(() => {
@@ -291,7 +333,8 @@ onUnmounted(() => {
                         <p class="text-gray-600">Markdown generation completed successfully!</p>
                         <div class="flex justify-center gap-2 mt-4">
                             <Button label="Preview Slides" icon="pi pi-eye" class="mr-2" @click="previewSlide" />
-                            <Button label="Go to Dashboard" icon="pi pi-home" @click="() => router.push('/dashboard')" />
+                            <Button label="Go to Dashboard" icon="pi pi-home"
+                                @click="() => router.push('/dashboard')" />
                         </div>
                     </div>
                 </div>

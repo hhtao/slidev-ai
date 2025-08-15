@@ -4,13 +4,12 @@ import { useRoute, useRouter } from 'vue-router';
 import MakeOutline from './Stage1MakeOutline.vue';
 import MakeMarkdown from './Stage2MakeMarkdown.vue';
 import { OutlineItem, SlidevProjectSchema } from './dto';
-import axios from 'axios';
 
 const route = useRoute();
 const router = useRouter();
 
 // 获取查询参数
-const id = computed(() => route.query.id);
+const id = computed(() => parseInt(route.query.id + ''));
 const stage = computed(() => route.query.stage || 'outline');
 
 // 处理大纲数据

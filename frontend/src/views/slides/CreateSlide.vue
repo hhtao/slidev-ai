@@ -1,17 +1,16 @@
 <script setup lang="ts">
-import { ref } from 'vue'
-import { useRouter } from 'vue-router'
-import axios from 'axios'
+import { ref } from 'vue';
+import { useRouter } from 'vue-router';
 
-// PrimeVue components
-import Button from 'primevue/button'
-import InputText from 'primevue/inputtext'
-import Textarea from 'primevue/textarea'
-import Card from 'primevue/card'
-import Message from 'primevue/message'
-import Dropdown from 'primevue/dropdown'
-import FileUpload from 'primevue/fileupload'
-import { API_BASE_URL } from '@/utils/api'
+import Button from 'primevue/button';
+import InputText from 'primevue/inputtext';
+import Textarea from 'primevue/textarea';
+import Card from 'primevue/card';
+import Message from 'primevue/message';
+import Dropdown from 'primevue/dropdown';
+import FileUpload from 'primevue/fileupload';
+import { API_BASE_URL } from '@/utils/api';
+import axios from 'axios';
 
 const router = useRouter()
 const title = ref('')
