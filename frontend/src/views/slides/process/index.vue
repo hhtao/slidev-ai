@@ -1,8 +1,9 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
-import MakeOutline from './Stage1MakeOutline.vue';
-import MakeMarkdown from './Stage2MakeMarkdown.vue';
+import StageUserInput from './Stage1UserInput.vue';  
+import StageMakeOutline from './Stage2MakeOutline.vue';
+import StageMakeMarkdown from './Stage3MakeMarkdown.vue';
 import { OutlineItem, SlidevProjectSchema } from './dto';
 
 const route = useRoute();
@@ -62,13 +63,15 @@ const handleStageComplete = () => {
     </div>
 
     <transition name="fade" mode="out-in">
-        <MakeOutline
-            v-if="stage === 'outline'" key="outline" :id="id as any"
+
+        <StageMakeOutline
+            v-if="stage === 'outline'" key="outline" :id="id"
             @update:outlines="handleOutlinesUpdate"
             @complete="handleStageComplete"
         />
 
-        <MakeMarkdown v-else-if="stage === 'markdown'" key="markdown" :id="id as any"
+        <StageMakeOutline
+            v-else-if="stage === 'markdown'" key="markdown" :id="id"
             @update:data="handleSlidevProjectDataUpdate"
             @complete="handleStageComplete"
         />

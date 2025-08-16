@@ -1,23 +1,24 @@
 <script setup lang="ts">
-import { ref, onMounted, onUnmounted } from 'vue';
+import { ref, onMounted, onUnmounted, computed, watch } from 'vue';
 import { useRouter } from 'vue-router';
 import Card from 'primevue/card';
 import Message from 'primevue/message';
 import Button from 'primevue/button';
 import ProgressSpinner from 'primevue/progressspinner';
+import { MessageItem, OutlineItem } from './dto';
+import EditableOutline from './EditableOutline.vue';
 import { useToast } from 'primevue/usetoast';
-import { MessageItem, SlidevProjectSchema } from './dto';
 import { useSlidesStore } from '@/store/slide';
-import axios from 'axios';
 import { API_BASE_URL } from '@/utils/api';
+import ProcessSteps from '@/components/ProcessSteps.vue';
 
 const props = defineProps<{
-    id: number
+    id: number;
 }>();
 
 const emit = defineEmits<{
     (e: 'complete'): void;
-    (e: 'update:data', data: SlidevProjectSchema): void;
+    (e: 'update:outlines', outlines: OutlineItem[]): void;
 }>();
 
 const router = useRouter();
@@ -28,11 +29,18 @@ const slidesStore = useSlidesStore();
 const error = ref<string>('');
 const eventSource = ref<EventSource | null>(null);
 const isProcessing = ref<boolean>(true);
+const outlines = ref<OutlineItem[]>([]);
 const connectionRetries = ref<number>(0);
 const MAX_RETRIES = 3;
 
-
 const messages = ref<MessageItem[]>([]);
+
+// Computed properties
+const outlineGenerated = computed<boolean>(() => {
+    return outlines.value.length > 0 && outlines.value.some(outline =>
+        outline.group.trim() !== '' || outline.content.trim() !== ''
+    );
+});
 
 // Methods
 const handleSSEError = (event: Event) => {
@@ -68,16 +76,110 @@ const handleSSEError = (event: Event) => {
     });
 };
 
-const saveProjectData = async (projectData: any) => {
-    const res = await axios.post(`${API_BASE_URL}/slides/${props.id}/save-slides-prj-meta`, projectData);
+const updateOutlines = (newOutlines: OutlineItem[]) => {
+    outlines.value = newOutlines;
+    emit('update:outlines', newOutlines);
+};
 
-    if (!res.data.success) {
+// 添加对EditableOutline组件的引用
+const editableOutlineRef = ref<InstanceType<typeof EditableOutline> | null>(null);
+
+const collapseAllPanels = () => {
+    if (editableOutlineRef.value && editableOutlineRef.value.collapseAll) {
+        editableOutlineRef.value.collapseAll();
+    }
+};
+
+const expandAllPanels = () => {
+    if (editableOutlineRef.value && editableOutlineRef.value.expandAll) {
+        editableOutlineRef.value.expandAll();
+    }
+};
+
+const saveOutlines = async () => {
+    const id = props.id;
+    if (!id) {
+        error.value = 'Invalid slide ID';
+        return;
+    }
+
+    try {
+        await slidesStore.saveOutlines(id, outlines.value);
+        toast.add({
+            severity: 'success',
+            summary: 'Save Outlines Successfully',
+            life: 3000,
+        });
+    } catch (error) {
+        console.error('Error saving outlines:', error);
         toast.add({
             severity: 'error',
-            summary: 'Save Failed',
-            detail: res.data.error,
+            summary: 'Error',
+            detail: 'Failed to save outlines:' + error,
             life: 5000
-        });
+        });        
+    }
+
+}
+
+const gotoGenMarkdown = async () => {
+    collapseAllPanels();
+    await saveOutlines();
+
+    setTimeout(() => {
+        emit('complete');
+    }, 500);
+};
+
+// 检查slide是否已经有outlines数据
+const checkExistingOutlines = async () => {
+    const id = props.id;
+    if (!id || Array.isArray(id)) {
+        error.value = 'Invalid slide ID';
+        return;
+    }
+
+    try {
+        // 获取slide数据
+        const slideId = parseInt(Array.isArray(id) ? id[0] : id);
+        const slideData = await slidesStore.getSlideById(slideId);
+
+        if (!slideData) {
+            error.value = 'Failed to fetch slide data';
+            return;
+        }        
+
+        // 检查是否有现成的outlines
+        if (slideData.outlines) {
+            try {
+                let parsedOutlines = JSON.parse(slideData.outlines);
+                if (typeof parsedOutlines === 'string') {
+                    parsedOutlines = JSON.parse(parsedOutlines);
+                }
+                
+                if (parsedOutlines && Array.isArray(parsedOutlines) && parsedOutlines.length > 0) {
+                    updateOutlines(parsedOutlines);
+                    isProcessing.value = false;
+                    toast.add({
+                        severity: 'success',
+                        summary: 'Loaded Existing Outline',
+                        detail: 'Using previously generated outline',
+                        life: 3000
+                    });
+                    return true;
+                }
+            } catch (parseError) {
+                console.error('Error parsing existing outlines:', parseError);
+            }
+        }
+
+        // 如果没有现成的outlines，则初始化SSE
+        // initializeSSE();
+        return false;
+    } catch (err) {
+        console.error('Error fetching slide data:', err);
+        error.value = 'Failed to fetch slide data';
+        return false;
     }
 };
 
@@ -94,21 +196,26 @@ const handleSSEMessage = async (event: MessageEvent, toolcallMapper: Map<string,
                 timestamp: Date.now()
             };
 
-            toolcallMapper.set(toolcall.id, { index: messages.value.length });
             messages.value.push(message);
+
+            if (toolcall.function?.name === 'slidev_save_outline') {
+                try {
+                    const parsedArgs = JSON.parse(toolcall.function.arguments);
+                    if (parsedArgs?.outline?.outlines) {
+                        updateOutlines(parsedArgs.outline.outlines);
+                    }
+                } catch (parseError) {
+                    console.error('Error parsing outline:', parseError);
+                }
+            }
 
         } else if (data.type === 'toolcalled') {
             // Mark the last pending toolcall as done
-            const toolcalled = data.toolcalled;
-            if (toolcallMapper.has(toolcalled.id)) {
-                const { index } = toolcallMapper.get(toolcalled.id)!;
-                messages.value[index].status = 'done';
-                messages.value[index].timestamp = Date.now();
-
-                if (messages.value[index].name === 'slidev_export_project') {
-                    const projectData = JSON.parse(toolcalled.content[0]?.text || {}) as SlidevProjectSchema;
-                    await saveProjectData(projectData);
-                    emit('update:data', projectData);
+            for (let i = messages.value.length - 1; i >= 0; i--) {
+                if (messages.value[i].type === 'toolcall' && messages.value[i].status === 'pending') {
+                    messages.value[i].status = 'done';
+                    messages.value[i].timestamp = Date.now();
+                    break;
                 }
             }
         }
@@ -118,12 +225,9 @@ const handleSSEMessage = async (event: MessageEvent, toolcallMapper: Map<string,
             toast.add({
                 severity: 'success',
                 summary: 'Processing Complete',
-                detail: 'Markdown generation finished successfully',
+                detail: 'Outline generation finished successfully',
                 life: 3000
             });
-
-            // 触发完成事件
-            emit('complete');
         }
     } catch (parseError) {
         console.error('Error parsing SSE message:', parseError);
@@ -136,75 +240,22 @@ const handleSSEMessage = async (event: MessageEvent, toolcallMapper: Map<string,
     }
 };
 
-// 检查slide是否已经有slidev项目数据
-const checkExistingSlidevProject = async () => {
+const initializeSSE = () => {
     const id = props.id;
     if (!id || Array.isArray(id)) {
         error.value = 'Invalid slide ID';
         return;
     }
 
-
     try {
-        const slideId = parseInt(Array.isArray(id) ? id[0] : id);
-        const slideData = await slidesStore.getSlideById(slideId);
-
-        if (!slideData) {
-            error.value = 'Failed to fetch slide data';
-            return;
-        }
-
-        // 检查是否有现成的slidev项目数据
-        if (slideData.slidevName && slideData.slidevHome && slideData.slidevEntryFile) {
-            // 构造项目数据对象
-            const projectData: SlidevProjectSchema = {
-                name: slideData.slidevName,
-                home: slideData.slidevHome,
-                slides_path: slideData.slidevEntryFile
-            };
-
-            // 发出事件通知父组件
-            emit('update:data', projectData);
-
-            // 显示成功消息
-            isProcessing.value = false;
-            toast.add({
-                severity: 'success',
-                summary: 'Loaded Existing Project',
-                detail: 'Using previously generated Slidev project',
-                life: 3000
-            });
-
-            return true;
-        }
-
-        // 如果没有现成的slidev项目数据，则初始化SSE
-        // initializeSSE();
-        return false;
-    } catch (err) {
-        console.error('Error fetching slide data:', err);
-        error.value = 'Failed to fetch slide data';
-        return false;
-    }
-}
-
-const initializeSSE = () => {
-    const id = props.id;
-    if (!id) {
-        error.value = 'Invalid slide ID';
-        return;
-    }
-
-    try {
-        const url = `${API_BASE_URL}/slides/process/make-markdown/${id}`;
+        const url = `${API_BASE_URL}/slides/process/make-outline/${id}`;
         eventSource.value = new EventSource(url, {
             withCredentials: true
         });
 
         const toolcallMapper = new Map();
         eventSource.value.addEventListener('error', handleSSEError);
-        eventSource.value.addEventListener('message', event => handleSSEMessage(event, toolcallMapper));
-
+        eventSource.value.addEventListener('message', event => handleSSEMessage(event, toolcallMapper))
     } catch (setupError) {
         error.value = 'Failed to initialize connection';
         console.error('SSE setup error:', setupError);
@@ -218,35 +269,6 @@ const cancelProcessing = () => {
     router.push('/dashboard');
 };
 
-const previewSlide = async () => {
-    const id = props.id;
-    if (!id) {
-        toast.add({
-            severity: 'error',
-            summary: 'Invalid ID',
-            detail: 'Slide ID is invalid',
-            life: 3000
-        });
-        return;
-    }
-
-    try {
-        const response = await axios.get(`${API_BASE_URL}/slides/preview-id/${id}`);
-        const port = response.data.port;
-        
-        // 在新窗口中打开预览页面
-        window.open(`http://localhost:${port}/`, '_blank');
-        
-    } catch (error) {
-        console.error('Error getting preview port:', error);
-        toast.add({
-            severity: 'error',
-            summary: 'Error',
-            detail: 'Error getting preview port: ' + error
-        })
-    }
-};
-
 const formatTimestamp = (timestamp?: number) => {
     if (!timestamp) return '';
     return new Date(timestamp).toLocaleTimeString();
@@ -254,7 +276,7 @@ const formatTimestamp = (timestamp?: number) => {
 
 // Lifecycle hooks
 onMounted(() => {
-    checkExistingSlidevProject();
+    checkExistingOutlines();
 });
 
 onUnmounted(() => {
@@ -262,14 +284,27 @@ onUnmounted(() => {
         eventSource.value.close();
     }
 });
+
+// Watchers
+watch(error, (newError) => {
+    if (newError) {
+        toast.add({
+            severity: 'error',
+            summary: 'Error',
+            detail: newError,
+            life: 5000
+        });
+    }
+});
 </script>
 
 <template>
     <div class="p-4 max-w-4xl mx-auto">
+        <ProcessSteps />
         <Card>
             <template #title>
                 <div class="flex justify-between items-center">
-                    <h1>Markdown Generator</h1>
+                    <h1>Presentation Outline Generator</h1>
                     <Button icon="pi pi-times" outlined @click="cancelProcessing" severity="secondary"
                         aria-label="Cancel processing" />
                 </div>
@@ -282,10 +317,11 @@ onUnmounted(() => {
 
                 <div v-else>
                     <!-- Processing state with progress -->
-                    <div v-if="isProcessing" class="flex flex-col items-center justify-center py-10 space-y-4">
+                    <div v-if="isProcessing && !outlineGenerated"
+                        class="flex flex-col items-center justify-center py-10 space-y-4">
                         <ProgressSpinner />
                         <p class="mt-2 text-center">
-                            Generating markdown...
+                            Generating outline...
                             <span class="block text-sm text-gray-500">Please wait while we process your
                                 presentation</span>
                         </p>
@@ -327,15 +363,18 @@ onUnmounted(() => {
                         </transition-group>
                     </div>
 
+                    <!-- 显示可编辑的大纲 -->
+                    <div v-if="outlineGenerated">
+                        <h2 class="text-xl font-bold mb-4">Generated Outline</h2>
+                        <EditableOutline ref="editableOutlineRef" :outlines="outlines" @update:outlines="updateOutlines"
+                            @collapse-all="() => { }" />
+                    </div>
+
                     <!-- Empty state -->
-                    <div v-if="!isProcessing" class="text-center py-10">
-                        <i class="pi pi-check-circle text-4xl text-green-500 mb-4"></i>
-                        <p class="text-gray-600">Markdown generation completed successfully!</p>
-                        <div class="flex justify-center gap-2 mt-4">
-                            <Button label="Preview Slides" icon="pi pi-eye" class="mr-2" @click="previewSlide" />
-                            <Button label="Go to Dashboard" icon="pi pi-home"
-                                @click="() => router.push('/dashboard')" />
-                        </div>
+                    <div v-if="!isProcessing && !outlineGenerated" class="text-center py-10">
+                        <i class="pi pi-inbox text-4xl text-gray-400 mb-4"></i>
+                        <p class="text-gray-600">Processing completed but no outline was generated.</p>
+                        <Button label="Try Again" icon="pi pi-refresh" class="mt-4" @click="initializeSSE" />
                     </div>
                 </div>
             </template>
@@ -344,6 +383,12 @@ onUnmounted(() => {
                 <div class="flex justify-between items-center">
                     <Button label="Cancel" icon="pi pi-times" @click="cancelProcessing" severity="secondary"
                         :disabled="!isProcessing" />
+                    <div class="flex space-x-2">
+                        <Button label="Save Draft" icon="pi pi-save" severity="info"
+                            :disabled="isProcessing || !outlineGenerated" @click="saveOutlines"/>
+                        <Button label="Continue to Markdown" icon="pi pi-arrow-right" icon-pos="right"
+                            :disabled="isProcessing || !outlineGenerated" @click="gotoGenMarkdown" />
+                    </div>
                 </div>
             </template>
         </Card>
