@@ -53,15 +53,14 @@ const createNewSlide = () => {
     router.push('/slides/process?stage=input')
 }
 
-const viewSlide = (hash: string) => {
-    window.open(`${API_BASE_URL}/slides/preview/${hash}`, '_blank')
+const viewSlide = (id: string) => {
+    window.open(`${API_BASE_URL}/slides/preview/${id}`, '_blank')
 }
 
 
-const editSlide = (hash: string) => {
-    // For now, we'll just open the preview
-    // In a full implementation, this would open an editor
-    window.open(`${API_BASE_URL}/slides/preview/${hash}`, '_blank')
+const editSlide = (id: string) => {
+    // 路由跳转到 /slides/process?stage=input&id=id
+    router.push(`/slides/process?stage=input&id=${id}`);
 }
 
 const deleteSlide = async (id: string,title:string) => {
