@@ -12,9 +12,15 @@ import FileUpload from 'primevue/fileupload';
 import ProcessSteps from '@/components/ProcessSteps.vue';
 import { API_BASE_URL } from '@/utils/api';
 import axios from 'axios';
+import { useSlidesStore } from '@/store/slide';
+import { useToast } from 'primevue';
 
 const emit = defineEmits<{
-  (e: 'complete', slideId: number): void;
+    (e: 'complete', slideId: number): void;
+}>();
+
+const props = defineProps<{
+    id: number;
 }>();
 
 const router = useRouter()
@@ -25,6 +31,9 @@ const fileUpload = ref<any>(null)
 const loading = ref(false)
 const error = ref('')
 const visibility = ref('public')
+
+const toast = useToast();
+const slidesStore = useSlidesStore();
 
 // Visibility options for the dropdown
 const visibilityOptions = ref([
@@ -133,9 +142,37 @@ Getting started:
 `
 }
 
+const initForm = async () => {
+    try {
+        const slide = await slidesStore.getSlideById(props.id);
+
+        if (slide) {
+            title.value = slide.title || '';
+            content.value = slide.content || '';
+            visibility.value = slide.visibility || 'public';
+            file.value = null;
+
+            toast.add({
+                severity: 'success',
+                summary: 'Success',
+                detail: 'Slide loaded successfully',
+                life: 5000
+            })
+        }
+    } catch (error) {
+        console.error('Failed to init form:', error);
+        toast.add({
+            severity: 'error',
+            summary: 'Error',
+            detail: 'Failed to load slide:' + error,
+            life: 5000
+        });
+    }
+}
+
 onMounted(() => {
-  // 组件挂载时可以执行一些初始化操作
-})
+    initForm();
+});
 </script>
 
 <template>
@@ -159,15 +196,8 @@ onMounted(() => {
                     <div class="p-field mb-4">
                         <div class="flex align-items-center justify-content-between mb-2 gap-2">
                             <label for="outline" class="block m-0">Slide Outline</label>
-                            <Button 
-                                type="button" 
-                                label="Add Example" 
-                                text 
-                                size="small" 
-                                @click="addExample"
-                                :disabled="loading" 
-                                class="flex-shrink-0"
-                            />
+                            <Button type="button" label="Add Example" text size="small" @click="addExample"
+                                :disabled="loading" class="flex-shrink-0" />
                         </div>
                         <Textarea id="content" v-model="content"
                             placeholder="Enter your slide content&#10;&#10;Example:&#10;Introduction&#10;- Main point 1&#10;- Main point 2&#10;Conclusion"
@@ -206,9 +236,10 @@ onMounted(() => {
                     </div>
 
                     <div class="flex justify-content-end gap-2">
-                        <Button type="button" @click="$router.push('/dashboard')" label="Cancel" severity="secondary" :disabled="loading" />
-                        <Button type="submit" :label="loading ? 'Creating...' : 'Continue to Outline'" :disabled="loading"
-                            icon="pi pi-arrow-right" iconPos="right" />
+                        <Button type="button" @click="$router.push('/dashboard')" label="Cancel" severity="secondary"
+                            :disabled="loading" />
+                        <Button type="submit" :label="loading ? 'Creating...' : 'Continue to Outline'"
+                            :disabled="loading" icon="pi pi-arrow-right" iconPos="right" />
                     </div>
                 </form>
             </template>

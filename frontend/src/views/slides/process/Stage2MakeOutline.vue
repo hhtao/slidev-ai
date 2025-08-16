@@ -134,16 +134,15 @@ const gotoGenMarkdown = async () => {
 // 检查slide是否已经有outlines数据
 const checkExistingOutlines = async () => {
     const id = props.id;
-    if (!id || Array.isArray(id)) {
+    if (!id) {
         error.value = 'Invalid slide ID';
         return;
     }
 
     try {
         // 获取slide数据
-        const slideId = parseInt(Array.isArray(id) ? id[0] : id);
-        const slideData = await slidesStore.getSlideById(slideId);
-
+        const slideData = await slidesStore.getSlideById(id);
+        
         if (!slideData) {
             error.value = 'Failed to fetch slide data';
             return;
@@ -153,6 +152,8 @@ const checkExistingOutlines = async () => {
         if (slideData.outlines) {
             try {
                 let parsedOutlines = JSON.parse(slideData.outlines);
+                console.log(parsedOutlines);
+                
                 if (typeof parsedOutlines === 'string') {
                     parsedOutlines = JSON.parse(parsedOutlines);
                 }
@@ -174,7 +175,7 @@ const checkExistingOutlines = async () => {
         }
 
         // 如果没有现成的outlines，则初始化SSE
-        // initializeSSE();
+        initializeSSE();
         return false;
     } catch (err) {
         console.error('Error fetching slide data:', err);

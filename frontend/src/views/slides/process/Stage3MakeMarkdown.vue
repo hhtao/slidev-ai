@@ -72,6 +72,8 @@ const handleSSEError = (event: Event) => {
 const saveProjectData = async (projectData: any) => {
     const res = await axios.post(`${API_BASE_URL}/slides/${props.id}/save-slides-prj-meta`, projectData);
 
+    console.log('save prj data', res);
+
     if (!res.data.success) {
         toast.add({
             severity: 'error',
@@ -101,6 +103,8 @@ const handleSSEMessage = async (event: MessageEvent, toolcallMapper: Map<string,
         } else if (data.type === 'toolcalled') {
             // Mark the last pending toolcall as done
             const toolcalled = data.toolcalled;
+            console.log(toolcalled);
+            
             if (toolcallMapper.has(toolcalled.id)) {
                 const { index } = toolcallMapper.get(toolcalled.id)!;
                 messages.value[index].status = 'done';
@@ -140,20 +144,22 @@ const handleSSEMessage = async (event: MessageEvent, toolcallMapper: Map<string,
 // 检查slide是否已经有slidev项目数据
 const checkExistingSlidevProject = async () => {
     const id = props.id;
-    if (!id || Array.isArray(id)) {
+    if (!id) {
         error.value = 'Invalid slide ID';
         return;
     }
 
 
     try {
-        const slideId = parseInt(Array.isArray(id) ? id[0] : id);
-        const slideData = await slidesStore.getSlideById(slideId);
+        const slideData = await slidesStore.getSlideById(id);
 
         if (!slideData) {
             error.value = 'Failed to fetch slide data';
             return;
         }
+
+        console.log(slideData);
+        
 
         // 检查是否有现成的slidev项目数据
         if (slideData.slidevName && slideData.slidevHome && slideData.slidevEntryFile) {
@@ -177,11 +183,10 @@ const checkExistingSlidevProject = async () => {
             });
 
             return true;
+        } else {
+            initializeSSE();
+            return false;
         }
-
-        // 如果没有现成的slidev项目数据，则初始化SSE
-        // initializeSSE();
-        return false;
     } catch (err) {
         console.error('Error fetching slide data:', err);
         error.value = 'Failed to fetch slide data';
@@ -234,10 +239,10 @@ const previewSlide = async () => {
     try {
         const response = await axios.get(`${API_BASE_URL}/slides/preview-id/${id}`);
         const port = response.data.port;
-        
+
         // 在新窗口中打开预览页面
         window.open(`http://localhost:${port}/`, '_blank');
-        
+
     } catch (error) {
         console.error('Error getting preview port:', error);
         toast.add({

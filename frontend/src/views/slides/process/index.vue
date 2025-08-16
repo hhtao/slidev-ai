@@ -48,8 +48,7 @@ const handleStageComplete = (slideId?: number) => {
             router.push(`/slides/process?id=${idValue}&stage=markdown`);
         }
     } else if (stage.value === 'markdown') {
-        // markdown阶段完成，跳转到dashboard
-        router.push('/dashboard');
+        // router.push('/dashboard');
     }
 };
 </script>
@@ -76,6 +75,7 @@ const handleStageComplete = (slideId?: number) => {
         <StageUserInput
             v-if="stage === 'input'" 
             key="input" 
+            :id="id"
             @complete="handleStageComplete"
         />
 
