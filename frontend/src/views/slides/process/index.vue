@@ -11,7 +11,7 @@ const router = useRouter();
 
 // 获取查询参数
 const id = computed(() => parseInt(route.query.id + ''));
-const stage = computed(() => route.query.stage || 'outline');
+const stage = computed(() => route.query.stage || 'input');
 
 // 处理大纲数据
 const outlines = ref<OutlineItem[]>([]);
@@ -19,6 +19,11 @@ const projectData = ref<SlidevProjectSchema | null>(null);
 
 // 验证参数
 const isValid = computed(() => {
+    // 对于input阶段，不需要id参数
+    if (stage.value === 'input') {
+        return true;
+    }
+    // 对于其他阶段，需要有效的id参数
     return id.value && !Array.isArray(id.value);
 });
 
@@ -30,16 +35,21 @@ const handleSlidevProjectDataUpdate = (newProjectData: SlidevProjectSchema) => {
     projectData.value = newProjectData;
 };
 
-const handleStageComplete = () => {
-    const idValue = id.value;
-    if (!idValue || Array.isArray(idValue)) return;
-
-    if (stage.value === 'outline') {
+const handleStageComplete = (slideId?: number) => {
+    if (stage.value === 'input') {
+        // input阶段完成，跳转到outline阶段
+        if (slideId) {
+            router.push(`/slides/process?id=${slideId}&stage=outline`);
+        }
+    } else if (stage.value === 'outline') {
         // 从outline阶段切换到markdown阶段
-        router.push(`/slides/process?id=${idValue}&stage=markdown`);
+        const idValue = id.value;
+        if (idValue && !Array.isArray(idValue)) {
+            router.push(`/slides/process?id=${idValue}&stage=markdown`);
+        }
     } else if (stage.value === 'markdown') {
         // markdown阶段完成，跳转到dashboard
-        // 保存 
+        router.push('/dashboard');
     }
 };
 </script>
@@ -63,15 +73,24 @@ const handleStageComplete = () => {
     </div>
 
     <transition name="fade" mode="out-in">
-
-        <StageMakeOutline
-            v-if="stage === 'outline'" key="outline" :id="id"
-            @update:outlines="handleOutlinesUpdate"
+        <StageUserInput
+            v-if="stage === 'input'" 
+            key="input" 
             @complete="handleStageComplete"
         />
 
         <StageMakeOutline
-            v-else-if="stage === 'markdown'" key="markdown" :id="id"
+            v-else-if="stage === 'outline'" 
+            key="outline" 
+            :id="id"
+            @update:outlines="handleOutlinesUpdate"
+            @complete="handleStageComplete"
+        />
+
+        <StageMakeMarkdown
+            v-else-if="stage === 'markdown'" 
+            key="markdown" 
+            :id="id"
             @update:data="handleSlidevProjectDataUpdate"
             @complete="handleStageComplete"
         />
@@ -84,7 +103,7 @@ const handleStageComplete = () => {
                     </div>
                     <div class="ml-3">
                         <p class="text-sm text-red-700">
-                            Invalid stage. Valid stages are 'outline' and 'markdown'.
+                            Invalid stage. Valid stages are 'input', 'outline' and 'markdown'.
                         </p>
                     </div>
                 </div>

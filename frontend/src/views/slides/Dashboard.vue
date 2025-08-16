@@ -44,7 +44,7 @@ const fetchSlides = async () => {
 }
 
 const createNewSlide = () => {
-    router.push('/slides/create')
+    router.push('/slides/process?stage=input')
 }
 
 const viewSlide = (hash: string) => {
