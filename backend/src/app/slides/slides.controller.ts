@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Param, UseGuards, Request, Query, UseInterceptors, UploadedFile, Sse, Res } from '@nestjs/common';
+import { Controller, Get, Post,Delete, Body, Param, UseGuards, Request, Query, UseInterceptors, UploadedFile, Sse, Res } from '@nestjs/common';
 import { SlidesService } from './slides.service';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { Request as ExpressRequest, Response } from 'express';
@@ -73,6 +73,27 @@ export class SlidesController {
         @UploadedFile() file: MulterFile
     ) {
         return this.slidesService.createSlide((req.user as any).id, createSlideDto, file);
+    }
+
+    /**
+     * 删除幻灯片，只有本人可以删除
+     */
+    @UseGuards(JwtAuthGuard)
+    @Delete(':id')
+    async deleteSlide(
+        @Param('id') id: string,
+        @Request() req: ExpressRequest
+    ): Promise<{ success: boolean }> {
+        const userId = (req.user as any).id;
+        const slide = await this.slideRepository.findOneById(Number(id));
+        if (!slide) {
+            throw new Error('幻灯片不存在');
+        }
+        if (slide.userId !== userId) {
+            throw new Error('无权删除该幻灯片');
+        }
+        await this.slideRepository.remove(id);
+        return { success: true };
     }
 
     /**

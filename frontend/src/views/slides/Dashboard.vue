@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, onMounted,watch } from 'vue'
+import { ref, onMounted, watch } from 'vue'
 import { useRouter } from 'vue-router'
 
 import Button from 'primevue/button'
@@ -7,6 +7,10 @@ import Card from 'primevue/card'
 import DataView from 'primevue/dataview'
 import Message from 'primevue/message'
 import Dropdown from 'primevue/dropdown'
+import ConfirmDialog from 'primevue/confirmdialog'
+import Toast from 'primevue/toast';
+import { useConfirm } from "primevue/useconfirm";
+import { useToast } from 'primevue/usetoast';
 import { API_BASE_URL } from '@/utils/api'
 import axios from 'axios'
 
@@ -15,6 +19,8 @@ const slides = ref([])
 const loading = ref(true)
 const error = ref('')
 const visibility = ref('all') // 筛选框选项
+const confirm = useConfirm();
+const toast = useToast();
 
 // Visibility filter options
 const visibilityOptions = [
@@ -51,10 +57,50 @@ const viewSlide = (hash: string) => {
     window.open(`${API_BASE_URL}/slides/preview/${hash}`, '_blank')
 }
 
+
 const editSlide = (hash: string) => {
     // For now, we'll just open the preview
     // In a full implementation, this would open an editor
     window.open(`${API_BASE_URL}/slides/preview/${hash}`, '_blank')
+}
+
+const deleteSlide = async (id: string,title:string) => {
+    confirm.require({
+        message: `Are you sure you want to delete "${title}"?`,
+        header: 'Confirmation',
+        icon: 'pi pi-exclamation-triangle',
+        rejectProps: {
+            label: 'Cancel',
+            severity: 'secondary',
+            outlined: true
+        },
+        acceptProps: {
+            label: 'Delete'
+        },
+        accept: async () => {
+            try {
+                await axios.delete(`${API_BASE_URL}/slides/${id}`)
+                slides.value = slides.value.filter((slide: any) => slide.id !== id)
+                toast.add({
+                    severity: 'success',
+                    summary: 'Success',
+                    detail: 'Slide deleted successfully',
+                    life: 3000
+                });
+            } catch (err) {
+                toast.add({
+                    severity: 'error',
+                    summary: 'Error',
+                    detail: 'Failed to delete slide',
+                    life: 3000
+                });
+            }
+        },
+        reject: () => {
+            ;
+        }
+    });
+
 }
 
 // Format date for display
@@ -73,19 +119,15 @@ watch(visibility, () => {
 </script>
 
 <template>
+    <ConfirmDialog />
+    <Toast />
+
     <div class="dashboard p-4 mt-4">
         <div class="header flex justify-content-between align-items-center mb-4">
             <div class="flex gap-2 items-center">
                 <Button @click="createNewSlide" label="Create New Slide" icon="pi pi-plus" />
-                <Dropdown
-                    v-model="visibility"
-                    :options="visibilityOptions"
-                    optionLabel="label"
-                    optionValue="value"
-                    class="ml-4 w-12rem"
-                    :disabled="loading"
-                    placeholder="Filter"
-                />
+                <Dropdown v-model="visibility" :options="visibilityOptions" optionLabel="label" optionValue="value"
+                    class="ml-4 w-12rem" :disabled="loading" placeholder="Filter" />
             </div>
         </div>
 
@@ -113,7 +155,8 @@ watch(visibility, () => {
                     <p class="my-4">
                         {{ visibility === 'public' ? 'You have no public slides yet.' : 'You have no private slides yet.' }}
                     </p>
-                    <Button @click="createNewSlide" label="Create New Slide" icon="pi pi-plus" class="mt-2" size="large" />
+                    <Button @click="createNewSlide" label="Create New Slide" icon="pi pi-plus" class="mt-2"
+                        size="large" />
                 </div>
             </div>
 
@@ -128,10 +171,21 @@ watch(visibility, () => {
                                         <div class="flex items-center gap-2">
                                             <h3>{{ slide.title }}</h3>
                                             <span v-if="slide.visibility === 'public'" title="Public">
-                                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M2 12h20"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10"/></svg>
+                                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none"
+                                                    stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                                    stroke-linejoin="round">
+                                                    <circle cx="12" cy="12" r="10" />
+                                                    <path d="M2 12h20" />
+                                                    <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10" />
+                                                </svg>
                                             </span>
                                             <span v-else title="Private">
-                                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+                                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none"
+                                                    stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                                    stroke-linejoin="round">
+                                                    <rect x="3" y="11" width="18" height="11" rx="2" />
+                                                    <path d="M7 11V7a5 5 0 0 1 10 0v4" />
+                                                </svg>
                                             </span>
                                         </div>
                                     </template>
@@ -140,8 +194,10 @@ watch(visibility, () => {
                                         <div class="flex gap-2">
                                             <Button @click="viewSlide(slide.id)" label="View" icon="pi pi-eye"
                                                 size="small" severity="success" />
-                                            <Button @click="editSlide(slide.id)" label="Edit"
-                                                icon="pi pi-pencil" size="small" severity="warning" />
+                                            <Button @click="editSlide(slide.id)" label="Edit" icon="pi pi-pencil"
+                                                size="small" severity="warning" />
+                                            <Button @click="deleteSlide(slide.id,slide.title)" label="Delete" icon="pi pi-trash"
+                                                size="small" severity="danger" />
                                         </div>
                                     </template>
                                 </Card>
