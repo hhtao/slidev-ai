@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, onMounted, onUnmounted } from 'vue';
+import { ref, onMounted, onUnmounted, watch } from 'vue';
 import { useRouter } from 'vue-router';
 import Card from 'primevue/card';
 import Message from 'primevue/message';
@@ -31,7 +31,7 @@ const eventSource = ref<EventSource | null>(null);
 const isProcessing = ref<boolean>(true);
 const connectionRetries = ref<number>(0);
 const MAX_RETRIES = 3;
-
+const isButtonDisabled = ref(false);
 
 const messages = ref<MessageItem[]>([]);
 
@@ -104,7 +104,7 @@ const handleSSEMessage = async (event: MessageEvent, toolcallMapper: Map<string,
             // Mark the last pending toolcall as done
             const toolcalled = data.toolcalled;
             console.log(toolcalled);
-            
+
             if (toolcallMapper.has(toolcalled.id)) {
                 const { index } = toolcallMapper.get(toolcalled.id)!;
                 messages.value[index].status = 'done';
@@ -159,7 +159,7 @@ const checkExistingSlidevProject = async () => {
         }
 
         console.log(slideData);
-        
+
 
         // 检查是否有现成的slidev项目数据
         if (slideData.slidevName && slideData.slidevHome && slideData.slidevEntryFile) {
@@ -201,6 +201,14 @@ const initializeSSE = () => {
         return;
     }
 
+    isButtonDisabled.value = true;
+    toast.add({
+        severity: 'info',
+        summary: 'Connecting',
+        detail: 'Establishing connection to regenerate markdown...',
+        life: 3000
+    });
+
     try {
         const url = `${API_BASE_URL}/slides/process/make-markdown/${id}`;
         eventSource.value = new EventSource(url, {
@@ -214,8 +222,16 @@ const initializeSSE = () => {
     } catch (setupError) {
         error.value = 'Failed to initialize connection';
         console.error('SSE setup error:', setupError);
+        isButtonDisabled.value = false;
     }
 };
+
+// Enable buttons when processing is done or error occurs
+watch([isProcessing, error], ([processing, err]) => {
+    if (!processing || err) {
+        isButtonDisabled.value = false;
+    }
+});
 
 const cancelProcessing = () => {
     if (eventSource.value) {
@@ -339,9 +355,9 @@ onUnmounted(() => {
                         <i class="pi pi-check-circle text-4xl text-green-500 mb-4"></i>
                         <p class="text-gray-600">Markdown generation completed successfully!</p>
                         <div class="flex justify-center gap-2 mt-4">
-                            <Button label="Preview Slides" icon="pi pi-eye" class="mr-2" @click="previewSlide" />
-                            <Button label="Go to Dashboard" icon="pi pi-home"
-                                @click="() => router.push('/dashboard')" />
+                            <Button label="Preview Slides" icon="pi pi-eye" class="mr-2" @click="previewSlide" :disabled="isButtonDisabled" />
+                            <Button label="Regenerate" icon="pi pi-refresh" severity="warning" @click="initializeSSE" :disabled="isButtonDisabled" />
+                            <Button label="Deploy" icon="pi pi-send" severity="success" @click="() => {}" :disabled="isButtonDisabled" />
                         </div>
                     </div>
                 </div>

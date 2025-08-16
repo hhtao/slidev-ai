@@ -10,7 +10,7 @@ const currentStage = computed(() => {
 </script>
 
 <template>
-    <div class="w-full bg-white dark:bg-gray-800 rounded-lg shadow p-1 mb-6">
+    <div class="w-full bg-white p-card rounded-lg shadow p-2 mb-6">
         <div class="flex items-center justify-between relative">
             <!-- 连接线 -->
             <div class="absolute left-0 right-0 top-1/2 h-0.5 bg-gray-200 dark:bg-gray-700 -z-10"></div>
@@ -22,7 +22,13 @@ const currentStage = computed(() => {
                     : 'bg-gray-200 dark:bg-gray-700 text-gray-500'">
                     <i class="pi pi-user"></i>
                 </div>
-                <span class="mt-2 text-sm font-medium text-gray-600 dark:text-gray-300">User Input</span>
+                <span class="mt-2 text-sm font-medium" :class="currentStage === 'outline'
+                    ? 'text-blue-600 dark:text-blue-400'
+                    : currentStage === 'outline' || currentStage === 'markdown'
+                        ? 'text-green-600 dark:text-green-400'
+                        : 'text-gray-600 dark:text-gray-300'">
+                    User Input
+                </span>
             </div>
 
             <!-- Outline 步骤 -->
