@@ -7,7 +7,9 @@
 
 <h3>Slidev AI - AI-Powered Presentation Creation Platform</h3>
 
-**Transform your ideas into stunning presentations with AI assistance**
+*From ideas to presentations to content distribution — our mission is to shorten the distance.*
+
+English | [中文](README.zh.md)
 
 </div>
 
@@ -124,4 +126,4 @@ If you seek for tech support and deeper understanding of Slidev AI, please join 
 
 ---
 
-*"From concept to presentation in minutes"* - The Slidev AI Team
+*"From ideas to presentations to content distribution — our mission is to shorten the distance."* - The Slidev AI Team
