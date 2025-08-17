@@ -125,11 +125,19 @@ const saveSlide = async () => {
     try {
         const formData = collectForm();
         const res = await slidesStore.saveSlide(props.id, formData);
+
+        if (!res.data.success) {
+            toast.add({
+                severity: 'error',
+                summary: 'Save Failed',
+                life: 5000
+            });
+        }
     } catch (error) {
         toast.add({
             severity: 'error',
             summary: 'Error',
-            detail: error.message,
+            detail: error,
             life: 3000
         });
     }
@@ -156,7 +164,7 @@ Getting started:
 
 const initForm = async () => {
     try {
-        const slide = await slidesStore.getSlideById(props.id);
+        const slide = await slidesStore.getSlideById(props.id);        
 
         if (slide) {
             title.value = slide.title || '';
@@ -206,7 +214,7 @@ onMounted(() => {
 
                     <div class="p-field mb-4">
                         <div class="flex align-items-center justify-content-between mb-2 gap-2">
-                            <label for="outline" class="block m-0">Slide Outline</label>
+                            <label for="outline" class="block m-0">Slide Content</label>
                             <Button type="button" label="Add Example" text size="small" @click="addExample"
                                 :disabled="loading" class="flex-shrink-0" />
                         </div>
@@ -214,7 +222,7 @@ onMounted(() => {
                             placeholder="Enter your slide content&#10;&#10;Example:&#10;Introduction&#10;- Main point 1&#10;- Main point 2&#10;Conclusion"
                             :autoResize="true" rows="10" class="w-full" :disabled="loading" />
                         <small class="block mt-2 text-600">
-                            Enter your slide outline.
+                            Enter your slide content, any text fine.
                         </small>
                     </div>
 
@@ -246,12 +254,6 @@ onMounted(() => {
                         <Message severity="error">{{ error }}</Message>
                     </div>
 
-                    <div class="flex justify-content-end gap-2">
-                        <Button type="button" @click="$router.push('/dashboard')" label="Cancel" severity="secondary"
-                            :disabled="loading" />
-                        <Button type="submit" :label="loading ? 'Creating...' : 'Continue to Outline'"
-                            :disabled="loading" icon="pi pi-arrow-right" iconPos="right" />
-                    </div>
                 </form>
             </template>
 
@@ -260,8 +262,7 @@ onMounted(() => {
                     <Button type="button" @click="$router.push('/dashboard')" label="Cancel" severity="secondary"
                         :disabled="loading" />
                     <div class="flex space-x-2">
-                        <Button label="Save Draft" icon="pi pi-save" severity="info" :disabled="loading"
-                            @click="saveUserInput" />
+                        <Button label="Save Draft" icon="pi pi-save" severity="info" :disabled="loading" @click="saveSlide" />
                         <Button type="submit" :label="loading ? 'Creating...' : 'Continue to Outline'"
                             :disabled="loading" icon="pi pi-arrow-right" @click="createSlide" />
                     </div>

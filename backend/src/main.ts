@@ -5,6 +5,7 @@ import { join } from 'path';
 import { existsSync, mkdirSync } from 'fs';
 import cookieParser from 'cookie-parser';
 import { SlidevManagerService } from './app/slides/slidev-manager.service';
+import morgan from 'morgan';
 
 async function bootstrap() {
     // 确保uploads目录存在
@@ -21,6 +22,7 @@ async function bootstrap() {
         origin: 'http://localhost:3000',
         credentials: true,
     });
+    app.use(morgan('dev'));
 
     // 获取 SlidevManagerService 实例
     const slidevManager = app.get(SlidevManagerService);

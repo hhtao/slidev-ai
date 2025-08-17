@@ -13,7 +13,6 @@ import { SlidevManagerService } from './slidev-manager.service';
         TypeOrmModule.forFeature([Slide]),
     ],
     providers: [
-        SlidevMcpService,
         SlidesService,
         SlidevManagerService,
         SlideRepository
