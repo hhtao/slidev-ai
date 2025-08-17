@@ -34,7 +34,7 @@ export class SlideRepository {
         return this.slideRepository.find({ where: { userId, visibility } });
     }
 
-    async update(id:number, update: Partial<Slide>): Promise<Slide> {
+    async update(id: number, update: Partial<Slide>): Promise<Slide> {
         await this.slideRepository.update(id, update);
         const updated = await this.findOneById(id);
         if (!updated) throw new NotFoundException('Slide not found');

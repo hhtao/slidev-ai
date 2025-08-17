@@ -57,8 +57,33 @@ export const useSlidesStore = defineStore('slides', () => {
         slides.value = {}
     }
 
+
+    const createSlide = async (formData: FormData) => {
+        const res = await axios.post(`${API_BASE_URL}/slides/create`, formData, {
+            headers: {
+                'Content-Type': 'multipart/form-data'
+            }
+        });
+
+        return res;
+    }
+
+    const saveSlide = async (id: number, formData: FormData) => {
+        const res = await axios.post(`${API_BASE_URL}/slides/${id}/save-slide`, formData, {
+            headers: {
+                'Content-Type': 'multipart/form-data'
+            }
+        });
+
+        return res;
+    }
+
+    // const saveUserInput = async (id: number, userInput: string) => {
+    //     slides.value[id].userInput = userInput
+    // }
+
     const saveOutlines = async (id: number, outlines: any) => {
-        const res = await axios.post(`${API_BASE_URL}/slides/${id}/outlines`, {
+        const res = await axios.post(`${API_BASE_URL}/slides/${id}/save-outlines`, {
             outlines: JSON.stringify(outlines)
         });
 
@@ -67,5 +92,5 @@ export const useSlidesStore = defineStore('slides', () => {
         }
     }
 
-    return { slides, getSlideById, clearSlide, clearAll, saveOutlines }
+    return { slides, getSlideById, clearSlide, clearAll, saveOutlines, createSlide, saveSlide }
 })

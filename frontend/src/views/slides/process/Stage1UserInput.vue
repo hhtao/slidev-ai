@@ -61,6 +61,21 @@ const removeFile = () => {
     onFileRemove()
 }
 
+const collectForm = () => {
+    const formData = new FormData();
+    formData.append('title', title.value);
+
+    if (content.value.trim()) {
+        formData.append('content', content.value);
+    }
+
+    if (file.value) {
+        formData.append('file', file.value);
+    }
+    formData.append('visibility', visibility.value);
+    return formData;
+}
+
 const createSlide = async () => {
     if (!title.value.trim()) {
         error.value = 'Please enter a slide title'
@@ -77,27 +92,10 @@ const createSlide = async () => {
     error.value = ''
 
     try {
-        const formData = new FormData()
-        formData.append('title', title.value)
+        const formData = collectForm();
+        const res = await slidesStore.createSlide(formData);
 
-        if (content.value.trim()) {
-            formData.append('content', content.value)
-        }
-
-        if (file.value) {
-            formData.append('file', file.value)
-        }
-        formData.append('visibility', visibility.value)
-
-
-        const response = await axios.post(`${API_BASE_URL}/slides`, formData, {
-            headers: {
-                'Content-Type': 'multipart/form-data'
-            }
-        });
-
-        // 触发完成事件，传递创建的slide ID
-        emit('complete', response.data.id)
+        emit('complete', res.data.id)
     } catch (err: any) {
         console.error('Create slide error:', err)
         if (err.response && err.response.status === 401) {
@@ -120,6 +118,20 @@ const createSlide = async () => {
         }
     } finally {
         loading.value = false
+    }
+}
+
+const saveSlide = async () => {
+    try {
+        const formData = collectForm();
+        const res = await slidesStore.saveSlide(props.id, formData);
+    } catch (error) {
+        toast.add({
+            severity: 'error',
+            summary: 'Error',
+            detail: error.message,
+            life: 3000
+        });
     }
 }
 
@@ -180,13 +192,12 @@ onMounted(() => {
         <ProcessSteps :currentStep="1" />
 
         <div class="header mb-4">
-            <h1>Create New Slide</h1>
             <p class="text-600">Enter the basic information for your presentation</p>
         </div>
 
         <Card>
             <template #content>
-                <form @submit.prevent="createSlide">
+                <form>
                     <div class="p-field mb-4">
                         <label for="title" class="block mb-2">Slide Title</label>
                         <InputText id="title" v-model="title" type="text" placeholder="Enter slide title" class="w-full"
@@ -242,6 +253,19 @@ onMounted(() => {
                             :disabled="loading" icon="pi pi-arrow-right" iconPos="right" />
                     </div>
                 </form>
+            </template>
+
+            <template #footer>
+                <div class="flex justify-between items-center">
+                    <Button type="button" @click="$router.push('/dashboard')" label="Cancel" severity="secondary"
+                        :disabled="loading" />
+                    <div class="flex space-x-2">
+                        <Button label="Save Draft" icon="pi pi-save" severity="info" :disabled="loading"
+                            @click="saveUserInput" />
+                        <Button type="submit" :label="loading ? 'Creating...' : 'Continue to Outline'"
+                            :disabled="loading" icon="pi pi-arrow-right" @click="createSlide" />
+                    </div>
+                </div>
             </template>
         </Card>
     </div>

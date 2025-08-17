@@ -10,6 +10,7 @@ import { SlideRepository } from '@/app/slides/slide.repository';
 import { CreateSlideDto, OutlinesDto, SlidevProjectDto } from './slide.dto';
 import { SlidevManagerService } from './slidev-manager.service';
 import httpProxy from 'http-proxy';
+import { PrivateSlideOwnerGuard, PublicSlideOwnerGuard } from '../auth/slide-owner.guard';
 
 const proxy = httpProxy.createProxyServer();
 
@@ -66,7 +67,10 @@ export class SlidesController {
             }),
         }),
     )
-    @Post()
+
+
+    @UseGuards(JwtAuthGuard)
+    @Post('create')
     async createSlide(
         @Request() req: ExpressRequest,
         @Body() createSlideDto: CreateSlideDto,
@@ -75,73 +79,70 @@ export class SlidesController {
         return this.slidesService.createSlide((req.user as any).id, createSlideDto, file);
     }
 
+
+    @UseGuards(JwtAuthGuard, PrivateSlideOwnerGuard)
+    @Post(':id/save-slide')
+    async saveSlide(
+        @Param('id') id: number,
+        @Body() createSlideDto: CreateSlideDto,
+        @UploadedFile() file: MulterFile
+    ) {
+        return this.slidesService.saveSlide(id, createSlideDto, file);
+    }
+
     /**
      * 删除幻灯片，只有本人可以删除
      */
-    @UseGuards(JwtAuthGuard)
+    @UseGuards(JwtAuthGuard, PrivateSlideOwnerGuard)
     @Delete(':id')
     async deleteSlide(
-        @Param('id') id: string,
-        @Request() req: ExpressRequest
+        @Param('id') id: string
     ): Promise<{ success: boolean }> {
-        const userId = (req.user as any).id;
-        const slide = await this.slideRepository.findOneById(Number(id));
-        if (!slide) {
-            throw new Error('幻灯片不存在');
-        }
-        if (slide.userId !== userId) {
-            throw new Error('无权删除该幻灯片');
-        }
         await this.slideRepository.remove(id);
         return { success: true };
     }
 
+
+
     /**
      * 保存幻灯片的大纲数据
      */
-    @UseGuards(JwtAuthGuard)
-    @Post(':id/outlines')
+    @UseGuards(JwtAuthGuard, PrivateSlideOwnerGuard)
+    @Post(':id/save-outlines')
     async saveOutlines(
         @Param('id') id: number,
         @Body() outlinesDto: OutlinesDto,
-        @Request() req: ExpressRequest
     ) {
-        const userId = (req.user as any).id;
-        return this.slidesService.saveOutlines(id, userId, outlinesDto.outlines);
+        return this.slidesService.saveOutlines(id, outlinesDto.outlines);
     }
 
     /**
      * 保存幻灯片的 slides_path
      */
-    @UseGuards(JwtAuthGuard)
+    @UseGuards(JwtAuthGuard, PrivateSlideOwnerGuard)
     @Post(':id/save-slides-prj-meta')
     async saveSlidesPath(
         @Param('id') id: number,
         @Body() projectData: SlidevProjectDto,
-        @Request() req: ExpressRequest
     ) {
-        const userId = (req.user as any).id;
-        return this.slidesService.saveSlidesPath(id, userId, projectData);
+        return this.slidesService.saveSlidesPath(id, projectData);
     }
 
     /**
      * 检查幻灯片是否已经生成了大纲
      */
-    @UseGuards(JwtAuthGuard)
+    @UseGuards(JwtAuthGuard, PrivateSlideOwnerGuard)
     @Get(':id/has-outlines')
     async hasOutlines(
         @Param('id') id: number,
-        @Request() req: ExpressRequest
     ) {
-        const userId = (req.user as any).id;
-        return this.slidesService.hasOutlines(id, userId);
+        return this.slidesService.hasOutlines(id);
     }
 
     @UseGuards(JwtAuthGuard)
     @Sse('process/make-outline/:id')
     makeOutline(
         @Param('id') id: number,
-        @Res() res: Response
     ): Observable<any> {
         return new Observable(subscriber => {
             this.slidesService.makeOutlineHandler(id, subscriber);
@@ -159,18 +160,12 @@ export class SlidesController {
         });
     }
 
-    @UseGuards(JwtAuthGuard)
+    @UseGuards(JwtAuthGuard, PublicSlideOwnerGuard)
     @Get(':id')
-    async getSlideById(@Param('id') id: number, @Request() req: ExpressRequest) {
+    async getSlideById(
+        @Param('id') id: number
+    ) {
         const slide = await this.slideRepository.findOneById(id);
-        if (!slide) {
-            throw new Error('幻灯片不存在');
-        }
-        const userId = (req.user as any)?.id;
-        // 只有自己或公开的可以查看
-        if (slide.userId !== userId && slide.visibility !== 'public') {
-            throw new Error('无权查看该幻灯片');
-        }
         return slide;
     }
 
@@ -232,9 +227,6 @@ export class SlidesController {
 
         // 启动或获取Slidev实例
         const port = await this.slidevManager.startSlidev(id, absolutePath);
-
-        console.log('launch at port', port);
-
 
         proxy.on('proxyReq', (proxyReq, req, res, options) => {
             // 浏览器原始请求路径

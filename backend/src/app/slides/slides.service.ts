@@ -43,6 +43,18 @@ export class SlidesService {
         });
     }
 
+    async saveSlide(id: number, createSlideDto: CreateSlideDto, file?: MulterFile) {
+
+        await this.slidesRepository.update(id, {
+            title: createSlideDto.title,
+            content: createSlideDto.content,
+            visibility: createSlideDto.visibility,
+            processingStatus: 'pending'
+        });
+
+        return { success: true };
+    }
+
     async getAgentDependency() {
         const configurationPath = this.slidevMcpService.generateOpenMcpConfig();
         const agent = new OmAgent();
@@ -54,18 +66,7 @@ export class SlidesService {
     /**
      * 保存幻灯片的 slides_path
      */
-    async saveSlidesPath(id: number, userId: string, slidevData: SlidevProjectDto) {
-        const slide = await this.slidesRepository.findOneById(id);
-        
-        if (!slide) {
-            throw new Error('Slide not found');
-        }
-        
-        if (slide.userId !== userId) {
-            throw new Error('Unauthorized');
-        }
-
-        // 标记为完成，并插入 slidevData
+    async saveSlidesPath(id: number, slidevData: SlidevProjectDto) {
         await this.slidesRepository.update(id, { 
             processingStatus: 'completed',
             slidevName: slidevData.name,
@@ -79,37 +80,21 @@ export class SlidesService {
     /**
      * 保存幻灯片的大纲数据
      */
-    async saveOutlines(id: number, userId: string, outlines: any) {
-        const slide = await this.slidesRepository.findOneById(id);
-        
-        if (!slide) {
-            throw new Error('Slide not found');
-        }
-        
-        if (slide.userId !== userId) {
-            throw new Error('Unauthorized');
-        }
-        
-        // 将outlines对象转换为JSON字符串存储
+    async saveOutlines(id: number, outlines: any) {                
         this.slidesRepository.update(id, { outlines: JSON.stringify(outlines) });
-        
         return { success: true }
     }
 
     /**
      * 检查幻灯片是否已经生成了大纲
      */
-    async hasOutlines(id: number, userId: string): Promise<boolean> {
+    async hasOutlines(id: number): Promise<boolean> {
         const slide = await this.slidesRepository.findOneById(id);
         
         if (!slide) {
-            throw new Error('Slide not found');
+            throw new Error('幻灯片不存在');
         }
-        
-        if (slide.userId !== userId && slide.visibility !== 'public') {
-            throw new Error('Unauthorized');
-        }
-        
+
         return !!slide.outlines;
     }
 
