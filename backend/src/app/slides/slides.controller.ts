@@ -1,4 +1,4 @@
-import { Controller, Get, Post,Delete, Body, Param, UseGuards, Request, Query, UseInterceptors, UploadedFile, Sse, Res } from '@nestjs/common';
+import { Controller, Get, Post, Delete, Body, Param, UseGuards, Request, Query, UploadedFile, Sse, Res } from '@nestjs/common';
 import { SlidesService } from './slides.service';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { Request as ExpressRequest, Response } from 'express';
@@ -11,6 +11,7 @@ import { CreateSlideDto, OutlinesDto, SlidevProjectDto } from './slide.dto';
 import { SlidevManagerService } from './slidev-manager.service';
 import httpProxy from 'http-proxy';
 import { PrivateSlideOwnerGuard, PublicSlideOwnerGuard } from '../auth/slide-owner.guard';
+import { UseFileUploader } from '@/decorators/file-upload.decorator';
 
 const proxy = httpProxy.createProxyServer();
 
@@ -54,38 +55,25 @@ export class SlidesController {
     }
 
     @UseGuards(JwtAuthGuard)
-    @UseInterceptors(
-        FileInterceptor('file', {
-            storage: diskStorage({
-                destination: './uploads',
-                filename: (req, file, callback) => {
-                    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1e9);
-                    const ext = extname(file.originalname);
-                    const filename = `${file.fieldname}-${uniqueSuffix}${ext}`;
-                    callback(null, filename);
-                },
-            }),
-        }),
-    )
-
-
-    @UseGuards(JwtAuthGuard)
+    @UseFileUploader('file')
     @Post('create')
     async createSlide(
         @Request() req: ExpressRequest,
         @Body() createSlideDto: CreateSlideDto,
-        @UploadedFile() file: MulterFile
+        @UploadedFile() file?: MulterFile
     ) {
-        return this.slidesService.createSlide((req.user as any).id, createSlideDto, file);
+        const userId = (req.user as any).id;
+        return this.slidesService.createSlide(userId, createSlideDto, file);
     }
 
 
     @UseGuards(JwtAuthGuard, PrivateSlideOwnerGuard)
+    @UseFileUploader('file')
     @Post(':id/save-slide')
     async saveSlide(
         @Param('id') id: number,
         @Body() createSlideDto: CreateSlideDto,
-        @UploadedFile() file: MulterFile
+        @UploadedFile() file?: MulterFile
     ) {
         return this.slidesService.saveSlide(id, createSlideDto, file);
     }
@@ -127,6 +115,7 @@ export class SlidesController {
     ) {
         return this.slidesService.saveSlidesPath(id, projectData);
     }
+
 
     /**
      * 检查幻灯片是否已经生成了大纲

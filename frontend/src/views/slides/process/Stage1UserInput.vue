@@ -62,7 +62,7 @@ const removeFile = () => {
 }
 
 const collectForm = () => {
-    const formData = new FormData();
+    const formData = new FormData();    
     formData.append('title', title.value);
 
     if (content.value.trim()) {
@@ -73,6 +73,8 @@ const collectForm = () => {
         formData.append('file', file.value);
     }
     formData.append('visibility', visibility.value);
+    console.log(formData);
+    
     return formData;
 }
 
@@ -122,6 +124,7 @@ const createSlide = async () => {
 }
 
 const saveSlide = async () => {
+    
     try {
         const formData = collectForm();
         const res = await slidesStore.saveSlide(props.id, formData);
@@ -132,7 +135,16 @@ const saveSlide = async () => {
                 summary: 'Save Failed',
                 life: 5000
             });
+        } else {
+            toast.add({
+                severity: 'success',
+                summary: 'Success',
+                detail: 'Slide saved successfully',
+                life: 5000
+            });
+
         }
+
     } catch (error) {
         toast.add({
             severity: 'error',
@@ -163,6 +175,9 @@ Getting started:
 }
 
 const initForm = async () => {
+    if (!props.id) {
+        return;
+    }    
     try {
         const slide = await slidesStore.getSlideById(props.id);        
 

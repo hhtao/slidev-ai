@@ -34,6 +34,10 @@ const goToStage = (stage: Stage) => {
 };
 
 onMounted(async () => {
+    if (!route.query.id) {
+        return;
+    }
+    
     try {
         const slideId = parseInt(route.query.id + '');
         const slide = await slideStore.getSlideById(slideId);
