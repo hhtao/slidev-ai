@@ -1,3 +1,5 @@
+// 先执行 LLM 环境变量检查（若缺失会直接退出）
+import './init-llm';
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { ValidationPipe } from '@nestjs/common';
