@@ -75,6 +75,13 @@ export const useSlidesStore = defineStore('slides', () => {
             }
         });
 
+        if (res.data.success) {
+            const slide = slides.value[id];
+            slide.title = formData.get('title') as string || slide.title;
+            slide.content = formData.get('content') as string || slide.content;
+            slide.visibility = formData.get('visibility') as string || slide.visibility;
+        }
+
         return res;
     }
 
@@ -85,6 +92,9 @@ export const useSlidesStore = defineStore('slides', () => {
 
         if (!res.data.success) {
             throw new Error('Failed to save outlines');
+        } else {
+            const slide = slides.value[id];
+            slide.outlines = JSON.stringify(outlines);
         }
     }
 

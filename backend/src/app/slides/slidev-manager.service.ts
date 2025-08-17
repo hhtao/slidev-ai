@@ -129,7 +129,8 @@ export class SlidevManagerService implements OnApplicationShutdown {
 
             // 截图并保存
             await page.screenshot({
-                path: imagePath as `${string}.png`,
+                // path: imagePath as `${string}.png`,
+                path: 'screenshot.png',
                 fullPage: true
             });
 
