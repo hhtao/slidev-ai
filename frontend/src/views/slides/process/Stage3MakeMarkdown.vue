@@ -127,8 +127,6 @@ const handleSSEMessage = async (event: MessageEvent, toolcallMapper: Map<string,
                 life: 3000
             });
 
-            // 触发完成事件
-            emit('complete');
         }
     } catch (parseError) {
         console.error('Error parsing SSE message:', parseError);
@@ -202,12 +200,6 @@ const initializeSSE = () => {
     }
 
     isButtonDisabled.value = true;
-    toast.add({
-        severity: 'info',
-        summary: 'Connecting',
-        detail: 'Establishing connection to regenerate markdown...',
-        life: 3000
-    });
 
     try {
         const url = `${API_BASE_URL}/slides/process/make-markdown/${id}`;
@@ -225,6 +217,47 @@ const initializeSSE = () => {
         isButtonDisabled.value = false;
     }
 };
+
+const buildSlidevProject = async () => {
+    const buildingMessage = {
+        severity: 'info',
+        summary: 'Building',
+        detail: 'Slidev project is being built, please wait...',
+        closable: false,
+    };
+
+    toast.add(buildingMessage);
+    try {
+        const res = await slidesStore.buildSlidev(props.id);
+
+        toast.remove(buildingMessage);
+
+        if (!res.data.success) {
+            toast.add({
+                severity: 'error',
+                summary: 'Build Failed',
+                detail: res.data.message,
+                life: 5000
+            });
+        } else {
+            toast.add({
+                severity: 'success',
+                summary: 'Build Success',
+                detail: res.data.message,
+                life: 5000
+            });
+        }
+    } catch (error) {
+        toast.remove(buildingMessage);
+        toast.add({
+            severity: 'error',
+            summary: 'Error',
+            detail: (error as any)?.message || 'Unknown error',
+            life: 5000
+        });
+    }
+};
+
 
 // Enable buttons when processing is done or error occurs
 watch([isProcessing, error], ([processing, err]) => {
@@ -252,6 +285,15 @@ const previewSlide = async () => {
         return;
     }
 
+    const buildingMessage = {
+        severity: 'info',
+        summary: 'Building',
+        detail: 'Slidev Dev Server is launching, please wait...',
+        closable: false,
+    };
+
+    toast.add(buildingMessage);
+
     try {
         const response = await axios.get(`${API_BASE_URL}/slides/preview-id/${id}`);
         const port = response.data.port;
@@ -267,6 +309,8 @@ const previewSlide = async () => {
             detail: 'Error getting preview port: ' + error
         })
     }
+
+    toast.remove(buildingMessage);
 };
 
 const formatTimestamp = (timestamp?: number) => {
@@ -355,9 +399,12 @@ onUnmounted(() => {
                         <i class="pi pi-check-circle text-4xl text-green-500 mb-4"></i>
                         <p class="text-gray-600">Markdown generation completed successfully!</p>
                         <div class="flex justify-center gap-2 mt-4">
-                            <Button label="Preview Slides" icon="pi pi-eye" class="mr-2" @click="previewSlide" :disabled="isButtonDisabled" />
-                            <Button label="Regenerate" icon="pi pi-refresh" severity="warning" @click="initializeSSE" :disabled="isButtonDisabled" />
-                            <Button label="Deploy" icon="pi pi-send" severity="success" @click="() => {}" :disabled="isButtonDisabled" />
+                            <Button label="Preview Slides" icon="pi pi-eye" class="mr-2" @click="previewSlide"
+                                :disabled="isButtonDisabled" />
+                            <Button label="Regenerate" icon="pi pi-refresh" severity="warning" @click="initializeSSE"
+                                :disabled="isButtonDisabled" />
+                            <Button label="Deploy" icon="pi pi-send" severity="success" @click="buildSlidevProject"
+                                :disabled="isButtonDisabled" />
                         </div>
                     </div>
                 </div>

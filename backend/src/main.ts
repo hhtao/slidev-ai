@@ -24,7 +24,7 @@ async function bootstrap() {
     });
     app.use(morgan('dev'));
 
-    // 获取 SlidevManagerService 实例
+
     const slidevManager = app.get(SlidevManagerService);
 
     // 处理意外退出的清理函数

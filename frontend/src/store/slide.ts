@@ -78,10 +78,6 @@ export const useSlidesStore = defineStore('slides', () => {
         return res;
     }
 
-    // const saveUserInput = async (id: number, userInput: string) => {
-    //     slides.value[id].userInput = userInput
-    // }
-
     const saveOutlines = async (id: number, outlines: any) => {
         const res = await axios.post(`${API_BASE_URL}/slides/${id}/save-outlines`, {
             outlines: JSON.stringify(outlines)
@@ -92,5 +88,16 @@ export const useSlidesStore = defineStore('slides', () => {
         }
     }
 
-    return { slides, getSlideById, clearSlide, clearAll, saveOutlines, createSlide, saveSlide }
+    const buildSlidev = async (id: number) => {
+        const res = await axios.post(`${API_BASE_URL}/slides/${id}/build-slidev`);
+
+        if (!res.data.success) {
+            throw new Error('Failed to build slidev');
+        }
+
+
+        return res;
+    }
+
+    return { slides, getSlideById, clearSlide, clearAll, saveOutlines, createSlide, saveSlide, buildSlidev }
 })

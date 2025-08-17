@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Delete, Body, Param, UseGuards, Request, Query, UploadedFile, Sse, Res } from '@nestjs/common';
+import { Controller, Get, Post, Delete, Body, Param, UseGuards, Request, Query, UploadedFile, Sse, Res, NotFoundException, InternalServerErrorException } from '@nestjs/common';
 import { SlidesService } from './slides.service';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { Request as ExpressRequest, Response } from 'express';
@@ -238,5 +238,26 @@ export class SlidesController {
             ws: true,
         });
     }
+    
+    @UseGuards(JwtAuthGuard, PrivateSlideOwnerGuard)
+    @Post(':id/build-slidev')
+    async buildSlidevProject(
+        @Param('id') id: number,
+    ) {
+        const slide = await this.slideRepository.findOneById(id);
+        if (!slide) {
+            throw new NotFoundException('Slide not found');
+        }
 
+        const absolutePath = this.slidesService.getSlidePrjAbsolutePath(slide);
+        if (!absolutePath) {
+            throw new NotFoundException('Slide project path not found');
+        }
+
+        // 生成首页图
+        await this.slidevManager.captureScreenshot(id, absolutePath);
+        await this.slidevManager.buildSlidevProject(id, absolutePath);
+
+        return { success: true };
+    }
 }

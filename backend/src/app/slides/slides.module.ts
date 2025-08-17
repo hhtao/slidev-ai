@@ -7,6 +7,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { Slide } from './slide.entity';
 import { SlideRepository } from './slide.repository';
 import { SlidevManagerService } from './slidev-manager.service';
+import { SlidesPresentationController } from './presentation.controller';
 @Module({
     imports: [
         SlidevMcpModule,
@@ -17,7 +18,10 @@ import { SlidevManagerService } from './slidev-manager.service';
         SlidevManagerService,
         SlideRepository
     ],
-    controllers: [SlidesController],
+    controllers: [
+        SlidesController,
+        SlidesPresentationController
+    ],
     exports: [SlidesService, SlideRepository],
 })
 export class SlidesModule { }

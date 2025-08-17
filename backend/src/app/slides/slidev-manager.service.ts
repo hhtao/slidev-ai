@@ -1,7 +1,13 @@
 import { Injectable, OnApplicationShutdown } from '@nestjs/common';
 import * as net from 'net';
-import { spawn, ChildProcess } from 'child_process';
+import { spawn, ChildProcess, exec } from 'child_process';
 import waitOn from 'wait-on';
+import path, { join } from 'path';
+import { promisify } from 'util';
+import * as fs from 'fs-extra';
+import puppeteer from 'puppeteer';
+
+const execAsync = promisify(exec);
 
 @Injectable()
 export class SlidevManagerService implements OnApplicationShutdown {
@@ -11,16 +17,16 @@ export class SlidevManagerService implements OnApplicationShutdown {
     async startSlidev(id: number, filePath: string): Promise<number> {
         // 检查是否已存在实例
         const existing = this.instances.get(id);
-        
+
         console.log('cache', existing);
-        
+
         if (existing) {
             return existing.port;
         }
 
         // 获取可用端口
-        const port = await this.findAvailablePort();        
-        const process = await this.spawnSlidevProcess(id, filePath, port);        
+        const port = await this.findAvailablePort();
+        const process = await this.spawnSlidevProcess(id, filePath, port);
 
         // 存储实例信息
         const instance = { port, process };
@@ -41,13 +47,100 @@ export class SlidevManagerService implements OnApplicationShutdown {
     }
 
     private async spawnSlidevProcess(id: number, filePath: string, port: number): Promise<ChildProcess> {
-        const proc = spawn('slidev', [filePath, '--port', port.toString(), '--base', `/api/slides/preview/${id}/`], {
+        // , '--base', `/api/slides/preview/${id}/`
+        const proc = spawn('slidev', [filePath, '--port', port.toString()], {
             detached: true,
             stdio: 'inherit',
         });
 
         await waitOn({ resources: [`tcp:localhost:${port}`], timeout: 10000 });
         return proc;
+    }
+
+    async buildSlidevProject(id: number, filePath: string): Promise<void> {
+        // 1. 临时输出目录
+        const outDir = join(process.cwd(), '.slidev-temp-build');
+
+        // 2. 清空临时目录
+        if (await fs.pathExists(outDir)) {
+            await fs.remove(outDir);
+        }
+
+        // 3. 调用 slidev build
+        const base = `/api/presentation/${id}`;
+        const cmd = `slidev build "${filePath}" --base "${base}" --out "${outDir}"`;
+        console.log('Executing:', cmd);
+
+        try {
+            const { stdout, stderr } = await execAsync(cmd);
+            console.log(stdout);
+            if (stderr) console.error(stderr);
+        } catch (err) {
+            console.error('Slidev build failed:', err);
+            throw err;
+        }
+
+        // 4. 目标目录
+        const targetDir = join(process.cwd(), 'presentation', id.toString());
+
+        // 5. 如果存在，先删除
+        if (await fs.pathExists(targetDir)) {
+            await fs.remove(targetDir);
+        }
+
+        // 6. 移动临时输出到目标目录
+        await fs.move(outDir, targetDir);
+
+        console.log(`Slidev project built to: ${targetDir}`);
+    }
+
+    async captureScreenshot(id: number, filePath: string): Promise<string> {
+        const outputDir = join(process.cwd(), 'presentation', id.toString());
+        const port = await this.startSlidev(id, filePath);
+        const slidevServer = `http://localhost:${port}`;
+
+        if (!fs.existsSync(outputDir)) {
+            fs.mkdirSync(outputDir, { recursive: true });
+        }
+
+        const imagePath = path.join(
+            outputDir,
+            'cover.png'
+        );
+
+        // 启动 Puppeteer
+        const browser = await puppeteer.launch({
+            headless: true,
+            args: ['--no-sandbox', '--disable-setuid-sandbox'],
+        });
+
+        try {
+            const page = await browser.newPage();
+
+            // 设置视口为 16:9
+            await page.setViewport({
+                width: 1280,
+                height: 720,
+                deviceScaleFactor: 1,
+            });
+
+            // 打开页面并等待加载完成
+            await page.goto(slidevServer, { waitUntil: 'networkidle2', timeout: 30000 });
+
+            // 截图并保存
+            await page.screenshot({
+                path: imagePath as `${string}.png`,
+                fullPage: true
+            });
+
+            console.log(`Screenshot saved: ${imagePath}`);
+            return imagePath;
+        } catch (err) {
+            console.error('Failed to capture screenshot:', err);
+            throw err;
+        } finally {
+            await browser.close();
+        }
     }
 
     private async findAvailablePort(start = 5000): Promise<number> {
@@ -85,7 +178,7 @@ export class SlidevManagerService implements OnApplicationShutdown {
                 console.error(`终止进程时出错 (port: ${instance.port}):`, error);
             }
         }
-        
+
         // 清空实例和端口记录
         this.instances.clear();
         this.usedPorts.clear();
