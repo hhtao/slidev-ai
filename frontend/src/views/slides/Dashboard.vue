@@ -40,6 +40,8 @@ const fetchSlides = async () => {
         const response = await axios.get(`${API_BASE_URL}/slides/self`, {
             params
         })
+        console.log(response.data);
+        
         slides.value = response.data
     } catch (err) {
         error.value = 'Failed to fetch slides'

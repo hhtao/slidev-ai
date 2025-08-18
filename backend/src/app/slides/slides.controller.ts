@@ -4,7 +4,7 @@ import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { Request as ExpressRequest, Response } from 'express';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { diskStorage } from 'multer';
-import { extname } from 'path';
+import path, { extname } from 'path';
 import { Observable } from 'rxjs';
 import { SlideRepository } from '@/app/slides/slide.repository';
 import { CreateSlideDto, OutlinesDto, SlidevProjectDto } from './slide.dto';
@@ -255,7 +255,14 @@ export class SlidesController {
         }
 
         // 生成首页图
-        await this.slidevManager.captureScreenshot(id, absolutePath);
+        const screenshotPath = await this.slidevManager.captureScreenshot(id, absolutePath, slide);
+        if (screenshotPath) {
+            console.log(`Screenshot saved to ${screenshotPath}`);
+            this.slideRepository.update(id, {
+                coverFilename: path.basename(screenshotPath)
+            });
+        }
+        
         await this.slidevManager.buildSlidevProject(id, absolutePath);
 
         return { success: true };

@@ -55,6 +55,13 @@ export class Slide {
     slidevEntryFile: string;
 
     /**
+     * @description 封面图片在 sso-lite 中的名字
+     * @example "sso-lite.cf5878c3-9b41-4cf2-a3a8-678c07f549da.png"
+     */
+    @Column({ type: 'text', nullable: true })
+    coverFilename: string;
+
+    /**
      * @description 创建者 ID
      */
     @Column()
