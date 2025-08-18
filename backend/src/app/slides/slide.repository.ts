@@ -47,13 +47,20 @@ export class SlideRepository {
     async getPublicSlides(userId: string | null, skip: number, take: number): Promise<[Slide[], number]> {
         const qb = this.slideRepository
             .createQueryBuilder('slide')
-            .where('slide.visibility = :visibility', { visibility: 'public' })
+            .where('slide.visibility = :visibility AND slide.processingStatus = :processingStatus', {
+                visibility: 'public',
+                processingStatus: 'completed'
+            })
             .leftJoinAndSelect('slide.user', 'user')
             .select([
                 'slide.id',
                 'slide.title',
+                'slide.coverFilename',
+                'slide.updatedAt',
                 'slide.createdAt',
-                'user.username'
+                'slide.processingStatus',
+                'user.username',
+                'user.avatar'
             ])
             .skip(skip)
             .take(take);

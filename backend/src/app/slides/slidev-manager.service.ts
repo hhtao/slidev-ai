@@ -6,6 +6,8 @@ import path, { join } from 'path';
 import { promisify } from 'util';
 import * as fs from 'fs-extra';
 import puppeteer from 'puppeteer';
+import { Slide } from './slide.entity';
+import { SsoLite } from '@/utils';
 
 const execAsync = promisify(exec);
 
@@ -111,7 +113,19 @@ export class SlidevManagerService implements OnApplicationShutdown {
         console.log(`Slidev project built to: ${targetDir}`);
     }
 
-    async captureScreenshot(id: number, filePath: string): Promise<string> {
+    getSlideCoverFilePath(slide: Slide) {
+        let slideCoverFilename = '';
+        if (slide.coverFilename) {
+            slideCoverFilename = slide.coverFilename;
+        } else {
+            const name = SsoLite.signID();
+            slideCoverFilename = name + '.png';
+        }
+
+        return SsoLite.getPath('screenshots', slideCoverFilename);
+    }
+
+    async captureScreenshot(id: number, filePath: string, slide: Slide): Promise<string> {
         const outputDir = join(process.cwd(), 'presentation', id.toString());
         const port = await this.startSlidev(id, filePath);
         const slidevServer = `http://localhost:${port}`;
@@ -120,10 +134,11 @@ export class SlidevManagerService implements OnApplicationShutdown {
             fs.mkdirSync(outputDir, { recursive: true });
         }
 
-        const imagePath = path.join(
-            outputDir,
-            'cover.png'
-        );
+        const imagePath = this.getSlideCoverFilePath(slide);
+
+        if (!fs.existsSync(path.dirname(imagePath))) {
+            fs.mkdirSync(path.dirname(imagePath), { recursive: true });
+        }
 
         // 启动 Puppeteer
         const browser = await puppeteer.launch({
@@ -146,12 +161,11 @@ export class SlidevManagerService implements OnApplicationShutdown {
 
             // 截图并保存
             await page.screenshot({
-                // path: imagePath as `${string}.png`,
-                path: 'screenshot.png',
+                path: imagePath as `${string}.png`,
+                // path: 'screenshot.png',
                 fullPage: true
             });
 
-            console.log(`Screenshot saved: ${imagePath}`);
             return imagePath;
         } catch (err) {
             console.error('Failed to capture screenshot:', err);

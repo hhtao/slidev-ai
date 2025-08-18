@@ -7,7 +7,7 @@ import { UsersModule } from './app/users/users.module';
 import { AuthModule } from './app/auth/auth.module';
 import { ConfigModule } from '@nestjs/config';
 import { ServeStaticModule } from '@nestjs/serve-static';
-import { join } from 'path';
+import { SsoLite } from './utils';
 
 @Module({
     imports: [
@@ -19,7 +19,7 @@ import { join } from 'path';
             synchronize: true,
         }),
         ServeStaticModule.forRoot({
-            rootPath: join(__dirname, '..', 'uploads'),
+            rootPath: SsoLite.root(),
             serveRoot: '/uploads/',
         }),
         SlidesModule,
