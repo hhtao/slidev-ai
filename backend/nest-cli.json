@@ -6,5 +6,13 @@
     "deleteOutDir": true,
     "webpack": true,
     "webpackConfigPath": "webpack.config.js"
+  },
+  "watchOptions": {
+    "ignored": [
+      "**/.slidev-temp-build/**",
+      "**/slidev-mcp/.slidev-mcp/**",
+      "**/presentation/**",
+      "**/uploads/**"
+    ]
   }
 }

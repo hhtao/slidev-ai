@@ -58,3 +58,4 @@ uploads/
 slidev-mcp/
 openmcp/
 presentation/
+.slidev-temp-build/
