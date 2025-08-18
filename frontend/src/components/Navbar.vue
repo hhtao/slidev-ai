@@ -71,10 +71,12 @@ const items = ref([
 
             <template #end>
                 <div class="flex items-center gap-2">
-                    <Button :icon="darkMode ? 'pi pi-moon' : 'pi pi-sun'" @click="toggleDarkMode" rounded text />
+                    <Button :icon="darkMode ? 'pi pi-moon' : 'pi pi-sun'" @click="toggleDarkMode" rounded text
+                        class="text-2xl"
+                    />
                     <a href="https://github.com/LSTM-Kirigaya/slidev-ai" target="_blank" rel="noopener noreferrer"
-                        class="p-button p-button-text p-button-rounded h-[var(--p-button-icon-only-width)]">
-                        <i class="pi pi-github text-xl"></i>
+                        class="text-2xl p-button p-button-text p-button-rounded h-[var(--p-button-icon-only-width)]">
+                        <i class="pi pi-github"></i>
                     </a>
                     <div v-if="authStore.user" class="h-[32px] flex items-center gap-2">
                             <Avatar
@@ -82,7 +84,6 @@ const items = ref([
                                 :image="`${UPLOADS_BASE_URL}/avatars/${authStore.user.avatar}`"
                                 shape="circle"
                                 class="cursor-pointer"
-                                size="large"
                                 title="我的信息"
                                 @click="router.push('/me')"
                             />
@@ -91,7 +92,6 @@ const items = ref([
                                 :label="authStore.user.username.charAt(0).toUpperCase()"
                                 shape="circle"
                                 class="cursor-pointer"
-                                size="large"
                                 title="我的信息"
                                 @click="router.push('/me')"
                             />

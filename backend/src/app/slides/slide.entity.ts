@@ -25,7 +25,7 @@ export class Slide {
     content!: string;
 
     @Column({ default: 'pending' })
-    processingStatus!: ProcessingStatus;
+    processingStatus!: string;
 
     @Column()
     @Check(`"visibility" IN ('public', 'private')`)

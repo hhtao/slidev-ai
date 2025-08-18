@@ -1,7 +1,8 @@
 <script setup lang="ts">
 import { ref, onMounted, computed } from 'vue'
 import axios from 'axios'
-import { API_BASE_URL } from '@/utils/api'
+import { API_BASE_URL, UPLOADS_BASE_URL } from '@/utils/api'
+import { useRouter } from 'vue-router'
 
 const slides = ref([])
 const loading = ref(true)
@@ -13,15 +14,14 @@ const sortedSlides = computed(() => {
     )
 })
 
+const router = useRouter()
+
 const fetchSlides = async () => {
     loading.value = true
     error.value = ''
     try {
         const response = await axios.get(`${API_BASE_URL}/slides/public`)
         slides.value = response.data[0]
-
-        console.log(response.data[0]);
-        
     } catch (err) {
         error.value = 'Failed to fetch slides'
     } finally {
@@ -64,33 +64,34 @@ onMounted(fetchSlides)
             </div>
 
             <!-- Slide Cards -->
-            <div class="flex flex-col gap-4">
+            <div class="grid gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
                 <div v-for="slide in sortedSlides" :key="slide.id"
-                    class="flex item rounded-xl shadow-sm hover:shadow-lg bg-white dark:bg-gray-800 p-4 cursor-pointer"
+                    class="slide-card cursor-pointer rounded-xl shadow-sm hover:shadow-lg transition-shadow duration-300 bg-white dark:bg-gray-800"
                     @click="gotoPreview(slide)">
                     <!-- Thumbnail -->
                     <div
-                        class="flex-shrink-0 w-[300px] h-30 rounded-md overflow-hidden bg-gray-100 dark:bg-gray-700 flex items-center justify-center">
+                        class="w-full h-48 rounded-t-xl overflow-hidden bg-gray-100 dark:bg-gray-700 flex items-center justify-center">
                         <img v-if="slide.coverFilename" :src="getCoverImageUrl(slide.coverFilename)" :alt="slide.title"
                             class="w-full h-full object-cover" />
-                        <i v-else class="pi pi-image text-4xl text-gray-400"></i>
+                        <i v-else class="pi pi-image text-5xl text-gray-400"></i>
                     </div>
 
-                    <!-- Right Info -->
-                    <div class="flex flex-col flex-1 ml-5">
-                        <!-- Title -->
-                        <span class="font-semibold text-lg text-gray-900 dark:text-gray-100 truncate mb-2">{{
-                            slide.title }}</span>
+                    <!-- Info -->
+                    <div class="p-4 flex flex-col gap-2">
+                        <span class="font-semibold text-lg text-gray-900 dark:text-gray-100 truncate">{{ slide.title
+                            }}</span>
 
-                        <!-- Author & Dates -->
-                        <div class="text-sm text-gray-500 mb-1">
-                            Author: {{ slide.user?.username || 'Anonymous' }}
+                        <div class="flex items-center gap-2 text-sm text-gray-500">
+                            <Avatar v-if="slide.user?.avatar"
+                                :image="`${UPLOADS_BASE_URL}/avatars/${slide.user.avatar}`" shape="circle" size="small"
+                                class="cursor-pointer" title="Profile" @click.stop="router.push('/me')" />
+
+                            <span class="text-primary-200">{{ slide.user?.username || 'Anonymous' }}</span>
                         </div>
-                        <div class="text-sm text-gray-500 mb-1">
-                            Created: {{ formatDate(slide.createdAt) }}
-                        </div>
-                        <div class="text-sm text-gray-500 mb-1">
-                            Updated: {{ formatDate(slide.updatedAt) }}
+
+                        <div class="text-sm text-gray-500">
+                            <span>Created: {{ formatDate(slide.createdAt) }}</span> |
+                            <span>Updated: {{ formatDate(slide.updatedAt) }}</span>
                         </div>
                     </div>
                 </div>
@@ -105,11 +106,12 @@ onMounted(fetchSlides)
     margin: auto;
 }
 
-.item {
-    background-color: #fff;
+.slide-card {
+    display: flex;
+    flex-direction: column;
 }
 
-.my-app-dark .item {
+.my-app-dark .slide-card {
     background-color: #282828;
 }
 </style>

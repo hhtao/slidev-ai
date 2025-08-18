@@ -59,7 +59,8 @@ export class SlideRepository {
                 'slide.updatedAt',
                 'slide.createdAt',
                 'slide.processingStatus',
-                'user.username'
+                'user.username',
+                'user.avatar'
             ])
             .skip(skip)
             .take(take);
