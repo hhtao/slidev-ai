@@ -15,7 +15,7 @@ import { ConfigService, ConfigModule } from '@nestjs/config';
             inject: [ConfigService],
             useFactory: async (configService: ConfigService) => {
                 const secret = configService.get<string>('JWT_SECRET', 'defaultSecretKey');
-                console.log('Module secret', secret); // 这里才会拿到正确值
+
                 return {
                     secret,
                     signOptions: { expiresIn: '7d' },
