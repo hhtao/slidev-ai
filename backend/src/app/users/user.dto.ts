@@ -1,17 +1,42 @@
 
-import { IsString, MinLength,IsEnum } from 'class-validator';
+import { IsString, MinLength } from 'class-validator';
+import { ApiProperty } from '@nestjs/swagger';
 
 
 export class CreateUserDto {
+    @ApiProperty({ description: '用户名（唯一）', minLength: 4, example: 'alice' })
     @IsString()
     @MinLength(4)
     username!: string;
 
+    @ApiProperty({ description: '用户登录密码（明文传入，服务端会加密存储）', minLength: 6, example: 'Passw0rd!' })
     @IsString()
     @MinLength(6)
     password!: string;
 
-     @IsString()
+    @ApiProperty({ description: '邮箱（唯一）', example: 'alice@example.com' })
+    @IsString()
     @MinLength(6)
     email!: string;
+}
+
+// 用于对外返回的用户信息（不含密码）
+export class UserResponseDto {
+    @ApiProperty({ description: '用户 ID', example: 1 })
+    id!: number;
+
+    @ApiProperty({ description: '用户名', example: 'alice' })
+    username!: string;
+
+    @ApiProperty({ description: '邮箱', example: 'alice@example.com' })
+    email!: string;
+
+    @ApiProperty({ description: '角色', example: 'user', enum: ['user', 'admin'] })
+    role!: string;
+
+    @ApiProperty({ description: '创建时间 (ISO8601)', example: '2025-08-18T08:00:00.000Z' })
+    createdAt!: Date;
+
+    @ApiProperty({ description: '更新时间 (ISO8601)', example: '2025-08-18T09:00:00.000Z' })
+    updatedAt!: Date;
 }
