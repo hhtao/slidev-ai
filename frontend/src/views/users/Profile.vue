@@ -1,17 +1,26 @@
 <script setup lang="ts">
 import { useAuthStore } from '@/store/auth'
-import { useRouter } from 'vue-router'
-import { computed, ref, watch } from 'vue'
+import { useRoute, useRouter } from 'vue-router'
+import { computed, ref, watch, onMounted } from 'vue'
 import Card from 'primevue/card'
 import Button from 'primevue/button'
 import InputText from 'primevue/inputtext'
 import FileUpload from 'primevue/fileupload'
 import Avatar from 'primevue/avatar'
 import {UPLOADS_BASE_URL} from '@/utils/api'
+import { apiGetUser } from '@/api/user'
+import type { UserDTO } from '@/api/auth'
 const router = useRouter()
+const route = useRoute()
 const authStore = useAuthStore()
 
-const user = computed(() => authStore.user)
+// 如果有路由参数 userId，则查看该用户，否则查看自己
+const routeUserId = computed(() => route.params.userId as string | undefined)
+const selfUser = computed(() => authStore.user)
+const viewingUser = ref<UserDTO | null>(null)
+const isSelf = computed(() => !routeUserId.value || (selfUser.value && String(selfUser.value.id) === String(routeUserId.value)))
+
+const user = computed(() => (isSelf.value ? selfUser.value : viewingUser.value))
 
 const email = ref('')
 const avatarFile = ref<File | null>(null)
@@ -27,12 +36,31 @@ const onSelect = (e: any) => {
 }
 
 const submit = async () => {
+  if (!isSelf.value) return
   loading.value = true
   await authStore.updateProfile({ email: email.value !== user.value?.email ? email.value : undefined, avatar: avatarFile.value || undefined })
   await authStore.refreshMe()
   loading.value = false
   avatarFile.value = null
 }
+
+const fetchViewingUser = async () => {
+  if (routeUserId.value && !isSelf.value) {
+    const res = await apiGetUser(routeUserId.value)
+    if (res.success) {
+      viewingUser.value = res.data
+      email.value = res.data.email
+    }
+  }
+}
+
+onMounted(() => {
+  fetchViewingUser()
+})
+
+watch(routeUserId, () => {
+  fetchViewingUser()
+})
 
 const goLogin = () => router.push('/login')
 </script>
@@ -58,15 +86,15 @@ const goLogin = () => router.push('/login')
             <div class="grid grid-cols-3 gap-2 items-center">
               <div class="font-medium text-color-secondary">邮箱</div>
               <div class="col-span-2 flex items-center gap-2">
-                <InputText v-model="email" placeholder="新的邮箱" class="w-full" />
+                <InputText v-model="email" :disabled="!isSelf" placeholder="新的邮箱" class="w-full" />
               </div>
             </div>
           <div>
-            <FileUpload mode="basic" name="avatar" accept="image/*" customUpload chooseLabel="选择头像" @select="onSelect" auto />
-            <div v-if="avatarFile" class="mt-2 text-sm text-color-secondary">已选择: {{ avatarFile.name }}</div>
+            <FileUpload v-if="isSelf" mode="basic" name="avatar" accept="image/*" customUpload chooseLabel="选择头像" @select="onSelect" auto />
+            <div v-if="isSelf && avatarFile" class="mt-2 text-sm text-color-secondary">已选择: {{ avatarFile.name }}</div>
           </div>
           <div>
-            <Button label="保存修改" :loading="loading" icon="pi pi-save" @click="submit" />
+            <Button v-if="isSelf" label="保存修改" :loading="loading" icon="pi pi-save" @click="submit" />
           </div>
         </div>
         <div v-else class="flex flex-col items-start gap-3">

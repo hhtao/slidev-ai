@@ -27,10 +27,12 @@ const router = createRouter({
       name: 'public',
       component: () => import('@/views/public/PublicSlides.vue')
     },
+    // 可选 userId 访问他人主页
     {
-      path: '/me',
-      name: 'me',
-      component: () => import('@/views/users/Profile.vue')
+      path: '/profile/:userId',
+      name: 'user-profile',
+      component: () => import('@/views/users/Profile.vue'),
+      props: true
     },
     {
       path: '/slides/process',

@@ -9,7 +9,6 @@ import Dropdown from 'primevue/dropdown'
 import ConfirmDialog from 'primevue/confirmdialog'
 import Toast from 'primevue/toast'
 import Tag from 'primevue/tag'
-import Tooltip from 'primevue/tooltip'
 
 import { useConfirm } from "primevue/useconfirm"
 import { useToast } from 'primevue/usetoast'
@@ -54,7 +53,6 @@ const fetchSlides = async () => {
 }
 
 const createNewSlide = () => router.push('/slides/process?stage=input')
-const viewSlide = (id: string) => window.open(`${API_BASE_URL}/slides/preview/${id}`, '_blank')
 const editSlide = (id: string) => router.push(`/slides/process?stage=input&id=${id}`)
 
 const deleteSlide = async (id: string, title: string) => {

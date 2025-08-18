@@ -14,6 +14,7 @@ export interface RegisterDto {
 }
 
 export interface UserDTO {
+  id: number;
   username: string;
   email: string;
   avatar?: string | null;

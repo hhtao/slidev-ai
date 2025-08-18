@@ -22,6 +22,21 @@ export async function apiGetMe(): Promise<Result<UserDTO>> {
   }
 }
 
+// 获取指定用户（用于查看其它用户资料）
+export async function apiGetUser(id: number | string): Promise<Result<UserDTO>> {
+  try {
+    const { data, status } = await http.get(`${API_BASE_URL}/users/${id}`);
+    if (data && data.id) {
+      return { success: true, data };
+    }
+    return { success: false, error: 'Failed to fetch user', status };
+  } catch (e: any) {
+    const status = e?.response?.status;
+    const msg = e?.response?.data?.message || e.message;
+    return { success: false, error: msg, status };
+  }
+}
+
 export async function apiUpdateMe(payload: UpdateProfilePayload): Promise<Result<UserDTO>> {
   try {
     const form = new FormData();

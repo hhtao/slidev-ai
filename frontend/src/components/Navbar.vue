@@ -85,7 +85,7 @@ const items = ref([
                                 shape="circle"
                                 class="cursor-pointer"
                                 title="我的信息"
-                                @click="router.push('/me')"
+                                @click="router.push(`/profile/${authStore.user.id}`)"
                             />
                             <Avatar
                                 v-else
@@ -93,7 +93,7 @@ const items = ref([
                                 shape="circle"
                                 class="cursor-pointer"
                                 title="我的信息"
-                                @click="router.push('/me')"
+                                @click="router.push(`/profile/${authStore.user.id}`)"
                             />
                         <Button label="Logout" @click="logout" icon="pi pi-sign-out" text size="small" />
                     </div>
