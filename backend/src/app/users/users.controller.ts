@@ -28,6 +28,17 @@ export class UsersController {
         return safe;
     }
 
+    // 注意：必须放在 ':id' 动态参数路由之前，否则会被当作 id 解析导致 400
+    @Get('me')
+    @UseGuards(AuthGuard('jwt'))
+    @ApiOperation({ summary: '获取当前登录用户信息' })
+    @ApiOkResponse({ description: '查询成功', type: UserResponseDto })
+    async me(@Req() req: Request): Promise<UserResponseDto> {
+        const user = req.user as User;
+        const { password, ...safe } = user as any;
+        return safe;
+    }
+
     @Get(':id')
     @ApiOperation({ summary: '获取单个用户', description: '通过用户 ID 获取用户信息（不含密码）。' })
     @ApiOkResponse({ description: '查询成功', type: UserResponseDto })
@@ -37,16 +48,6 @@ export class UsersController {
         if (!user) {
             throw new NotFoundException('User not found');
         }
-        const { password, ...safe } = user as any;
-        return safe;
-    }
-
-    @Get('me')
-    @UseGuards(AuthGuard('jwt'))
-    @ApiOperation({ summary: '获取当前登录用户信息' })
-    @ApiOkResponse({ description: '查询成功', type: UserResponseDto })
-    async me(@Req() req: Request): Promise<UserResponseDto> {
-        const user = req.user as User;
         const { password, ...safe } = user as any;
         return safe;
     }

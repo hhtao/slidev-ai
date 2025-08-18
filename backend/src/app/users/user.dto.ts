@@ -31,7 +31,7 @@ export class UserResponseDto {
     @ApiProperty({ description: '邮箱', example: 'alice@example.com' })
     email!: string;
 
-    @ApiProperty({ description: '头像 URL', example: '/uploads/avatar-1730000000000-123456789.png', required: false })
+    @ApiProperty({ description: '头像 URL', example: '1730000000000-123456789.png', required: false })
     @IsOptional()
     avatar?: string;
 
