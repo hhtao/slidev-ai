@@ -3,7 +3,9 @@ import { Request, Response } from 'express';
 import { AuthService } from './auth.service';
 import { CreateUserDto } from '@/app/users/user.dto';
 import { JwtService } from '@nestjs/jwt';
+import { ApiTags, ApiOperation, ApiBody, ApiCreatedResponse, ApiOkResponse } from '@nestjs/swagger';
 
+@ApiTags('auth')
 @Controller('auth')
 export class AuthController {
     constructor(
@@ -12,12 +14,18 @@ export class AuthController {
     ) { }
 
     @Post('register')
+    @ApiOperation({ summary: '注册新用户' })
+    @ApiCreatedResponse({ description: '注册成功，返回新用户（不含密码）' })
+    @ApiBody({ type: CreateUserDto })
     async register(@Body() createUserDto: CreateUserDto) {
         return this.authService.register(createUserDto);
     }
 
     @HttpCode(200)
     @Post('login')
+    @ApiOperation({ summary: '用户登录 / Cookie 会话续期', description: '若请求带有效 jwt Cookie，则直接返回用户状态；否则使用用户名+密码登录并写入 httpOnly Cookie。' })
+    @ApiBody({ required: false, schema: { type: 'object', properties: { username: { type: 'string', example: 'alice' }, password: { type: 'string', example: '123456' } } } })
+    @ApiOkResponse({ description: '返回 { success, message, user } 或错误信息' })
     async login(
         @Req() req: Request,
         @Res({ passthrough: true }) res: Response,
@@ -97,6 +105,8 @@ export class AuthController {
 
     @Post('logout')
     @HttpCode(200)
+    @ApiOperation({ summary: '退出登录', description: '清除 jwt httpOnly Cookie。' })
+    @ApiOkResponse({ description: '返回 { success: true }' })
     async logout(
         @Req() req: Request,
         @Res({ passthrough: true }) res: Response

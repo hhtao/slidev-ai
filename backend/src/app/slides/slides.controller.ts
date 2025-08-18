@@ -12,6 +12,7 @@ import { SlidevManagerService } from './slidev-manager.service';
 import httpProxy from 'http-proxy';
 import { PrivateSlideOwnerGuard, PublicSlideOwnerGuard } from '../auth/slide-owner.guard';
 import { UseFileUploader } from '@/decorators/file-upload.decorator';
+import { ApiTags, ApiOperation, ApiQuery, ApiOkResponse, ApiConsumes, ApiBody, ApiParam, ApiBearerAuth, ApiProduces } from '@nestjs/swagger';
 
 const proxy = httpProxy.createProxyServer();
 
@@ -19,6 +20,7 @@ const proxy = httpProxy.createProxyServer();
 type MulterFile = Express.Multer.File;
 
 
+@ApiTags('slides')
 @Controller('slides')
 export class SlidesController {
     constructor(
@@ -34,6 +36,10 @@ export class SlidesController {
      */
     @UseGuards(JwtAuthGuard)
     @Get('self')
+    @ApiOperation({ summary: '获取自己的幻灯片列表' })
+    @ApiBearerAuth()
+    @ApiQuery({ name: 'visibility', required: false, enum: ['public', 'private', 'all'], description: '按可见性过滤（默认 all）' })
+    @ApiOkResponse({ description: '返回当前用户的幻灯片数组' })
     async getSelfSlides(
         @Request() req: ExpressRequest,
         @Query('visibility') visibility?: 'public' | 'private' | 'all'
@@ -46,6 +52,11 @@ export class SlidesController {
      * 获取公开幻灯片，可以根据用户id筛选
      */
     @Get('public')
+    @ApiOperation({ summary: '获取公开幻灯片列表' })
+    @ApiQuery({ name: 'userId', required: false, description: '按用户 ID 过滤' })
+    @ApiQuery({ name: 'skip', required: false, example: 0, description: '分页 skip（默认 0）' })
+    @ApiQuery({ name: 'take', required: false, example: 10, description: '分页 take（默认 10）' })
+    @ApiOkResponse({ description: '返回公开幻灯片数组' })
     async getPublicSlides(
         @Query('userId') userId: string,
         @Query('skip') skip: number = 0,
@@ -57,6 +68,11 @@ export class SlidesController {
     @UseGuards(JwtAuthGuard)
     @UseFileUploader('file')
     @Post('create')
+    @ApiOperation({ summary: '创建幻灯片' })
+    @ApiBearerAuth()
+    @ApiConsumes('multipart/form-data')
+    @ApiBody({ description: '幻灯片元数据与可选封面文件', schema: { type: 'object', properties: { title: { type: 'string' }, description: { type: 'string' }, visibility: { type: 'string', enum: ['public', 'private'] }, file: { type: 'string', format: 'binary', description: '可选封面' } } } })
+    @ApiOkResponse({ description: '返回创建后的幻灯片实体' })
     async createSlide(
         @Request() req: ExpressRequest,
         @Body() createSlideDto: CreateSlideDto,
@@ -70,6 +86,12 @@ export class SlidesController {
     @UseGuards(JwtAuthGuard, PrivateSlideOwnerGuard)
     @UseFileUploader('file')
     @Post(':id/save-slide')
+    @ApiOperation({ summary: '更新幻灯片基本信息 / 封面' })
+    @ApiBearerAuth()
+    @ApiParam({ name: 'id', description: '幻灯片 ID' })
+    @ApiConsumes('multipart/form-data')
+    @ApiBody({ description: '需更新的字段与可选封面文件', schema: { type: 'object', properties: { title: { type: 'string' }, description: { type: 'string' }, visibility: { type: 'string', enum: ['public', 'private'] }, file: { type: 'string', format: 'binary' } } } })
+    @ApiOkResponse({ description: '返回更新后的实体' })
     async saveSlide(
         @Param('id') id: number,
         @Body() createSlideDto: CreateSlideDto,
@@ -83,6 +105,10 @@ export class SlidesController {
      */
     @UseGuards(JwtAuthGuard, PrivateSlideOwnerGuard)
     @Delete(':id')
+    @ApiOperation({ summary: '删除幻灯片（仅本人）' })
+    @ApiBearerAuth()
+    @ApiParam({ name: 'id', description: '幻灯片 ID' })
+    @ApiOkResponse({ description: '删除结果', schema: { type: 'object', properties: { success: { type: 'boolean' } } } })
     async deleteSlide(
         @Param('id') id: string
     ): Promise<{ success: boolean }> {
@@ -97,6 +123,11 @@ export class SlidesController {
      */
     @UseGuards(JwtAuthGuard, PrivateSlideOwnerGuard)
     @Post(':id/save-outlines')
+    @ApiOperation({ summary: '保存大纲' })
+    @ApiBearerAuth()
+    @ApiParam({ name: 'id', description: '幻灯片 ID' })
+    @ApiBody({ description: '大纲数组', schema: { type: 'object', properties: { outlines: { type: 'array', items: { type: 'object' } } } } })
+    @ApiOkResponse({ description: '返回保存后的结果' })
     async saveOutlines(
         @Param('id') id: number,
         @Body() outlinesDto: OutlinesDto,
@@ -109,6 +140,11 @@ export class SlidesController {
      */
     @UseGuards(JwtAuthGuard, PrivateSlideOwnerGuard)
     @Post(':id/save-slides-prj-meta')
+    @ApiOperation({ summary: '保存 Slidev 项目元数据 / 路径' })
+    @ApiBearerAuth()
+    @ApiParam({ name: 'id', description: '幻灯片 ID' })
+    @ApiBody({ description: '项目元数据（例如 slides_path 等）', schema: { type: 'object' } })
+    @ApiOkResponse({ description: '返回保存后的状态或实体' })
     async saveSlidesPath(
         @Param('id') id: number,
         @Body() projectData: SlidevProjectDto,
@@ -122,6 +158,10 @@ export class SlidesController {
      */
     @UseGuards(JwtAuthGuard, PrivateSlideOwnerGuard)
     @Get(':id/has-outlines')
+    @ApiOperation({ summary: '是否已有大纲' })
+    @ApiBearerAuth()
+    @ApiParam({ name: 'id', description: '幻灯片 ID' })
+    @ApiOkResponse({ description: '返回布尔状态' })
     async hasOutlines(
         @Param('id') id: number,
     ) {
@@ -130,6 +170,10 @@ export class SlidesController {
 
     @UseGuards(JwtAuthGuard)
     @Sse('process/make-outline/:id')
+    @ApiOperation({ summary: '生成大纲 (SSE)', description: '服务端事件流，推送生成过程。' })
+    @ApiBearerAuth()
+    @ApiParam({ name: 'id', description: '幻灯片 ID' })
+    @ApiProduces('text/event-stream')
     makeOutline(
         @Param('id') id: number,
     ): Observable<any> {
@@ -141,6 +185,10 @@ export class SlidesController {
 
     @UseGuards(JwtAuthGuard)
     @Sse('process/make-markdown/:id')
+    @ApiOperation({ summary: '生成 Markdown (SSE)', description: '服务端事件流，推送生成过程。' })
+    @ApiBearerAuth()
+    @ApiParam({ name: 'id', description: '幻灯片 ID' })
+    @ApiProduces('text/event-stream')
     makeMarkdown(
         @Param('id') id: number
     ): Observable<any> {
@@ -151,6 +199,10 @@ export class SlidesController {
 
     @UseGuards(JwtAuthGuard, PublicSlideOwnerGuard)
     @Get(':id')
+    @ApiOperation({ summary: '获取单个幻灯片（权限控制）' })
+    @ApiBearerAuth()
+    @ApiParam({ name: 'id', description: '幻灯片 ID' })
+    @ApiOkResponse({ description: '返回幻灯片实体' })
     async getSlideById(
         @Param('id') id: number
     ) {
@@ -159,6 +211,9 @@ export class SlidesController {
     }
 
     @Get('preview-id/:id')
+    @ApiOperation({ summary: '获取预览端口', description: '启动或复用 Slidev 进程并返回端口号。' })
+    @ApiParam({ name: 'id', description: '幻灯片 ID' })
+    @ApiOkResponse({ description: '返回 { port: number }' })
     async getPreviewId(
         @Param('id') id: number,
     ) {
@@ -190,6 +245,8 @@ export class SlidesController {
     }
 
     @Get('preview/:id')
+    @ApiOperation({ summary: '代理 Slidev 预览 (浏览器 HTML/静态资源)', description: '内部 http-proxy 转发到对应 Slidev 服务。' })
+    @ApiParam({ name: 'id', description: '幻灯片 ID' })
     async previewSlidev(
         @Param('id') id: number,
         @Request() req: ExpressRequest,
@@ -241,6 +298,10 @@ export class SlidesController {
     
     @UseGuards(JwtAuthGuard, PrivateSlideOwnerGuard)
     @Post(':id/build-slidev')
+    @ApiOperation({ summary: '构建 Slidev 项目', description: '进行项目打包与首页截图生成，更新状态。' })
+    @ApiBearerAuth()
+    @ApiParam({ name: 'id', description: '幻灯片 ID' })
+    @ApiOkResponse({ description: '返回 { success: true }' })
     async buildSlidevProject(
         @Param('id') id: number,
     ) {
