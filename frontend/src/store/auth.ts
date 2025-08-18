@@ -1,5 +1,6 @@
 // stores/auth.ts
 import { apiLogin, apiLogout, apiRegister } from '@/api/auth'
+import { apiGetMe, apiUpdateMe } from '@/api/user'
 import { defineStore } from 'pinia'
 import { ref } from 'vue'
 
@@ -32,5 +33,17 @@ export const useAuthStore = defineStore('auth', () => {
         return res;
     };
 
-    return { user, login, register, logout };
+    const refreshMe = async () => {
+        const res = await apiGetMe();
+        if (res.success) user.value = res.data;
+        return res;
+    };
+
+    const updateProfile = async (payload: { email?: string; avatar?: File }) => {
+        const res = await apiUpdateMe(payload);
+        if (res.success) user.value = res.data;
+        return res;
+    };
+
+    return { user, login, register, logout, refreshMe, updateProfile };
 })

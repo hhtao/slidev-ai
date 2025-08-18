@@ -5,7 +5,7 @@ import Menubar from 'primevue/menubar';
 import Button from 'primevue/button';
 import Avatar from 'primevue/avatar';
 import { useAuthStore } from '@/store/auth';
-
+import { UPLOADS_BASE_URL } from '@/utils/api';
 const router = useRouter();
 const darkMode = ref(false);
 const authStore = useAuthStore();
@@ -78,9 +78,20 @@ const items = ref([
                     </a>
                     <div v-if="authStore.user" class="h-[32px] flex items-center gap-2">
                             <Avatar
+                                v-if="authStore.user.avatar"
+                                :image="`${UPLOADS_BASE_URL}/avatars/${authStore.user.avatar}`"
+                                shape="circle"
+                                class="cursor-pointer"
+                                size="large"
+                                title="我的信息"
+                                @click="router.push('/me')"
+                            />
+                            <Avatar
+                                v-else
                                 :label="authStore.user.username.charAt(0).toUpperCase()"
                                 shape="circle"
                                 class="cursor-pointer"
+                                size="large"
                                 title="我的信息"
                                 @click="router.push('/me')"
                             />
