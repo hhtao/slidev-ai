@@ -98,10 +98,13 @@ watch(visibility, () => { })
 
     <div class="dashboard p-6">
         <!-- Header -->
-        <div class="flex justify-between items-center mb-6">
+        <div class="flex justify-between items-center mb-6" v-if="sortedSlides.length > 0">
             <Button icon="pi pi-plus" label="New Slide" class="p-button-rounded" @click="createNewSlide" />
             <Dropdown v-model="visibility" :options="visibilityOptions" optionLabel="label" optionValue="value"
                 class="w-40" :disabled="loading" placeholder="Filter" />
+        </div>
+        <div v-else class="flex justify-between items-center mb-6">
+
         </div>
 
         <!-- Loading -->
@@ -118,7 +121,7 @@ watch(visibility, () => { })
         <!-- Content -->
         <div v-else>
             <!-- Empty State -->
-            <div v-if="sortedSlides.length === 0" class="text-center p-10 rounded-lg bg-gray-50 dark:bg-gray-800">
+            <div v-if="sortedSlides.length === 0" class="text-center p-10 rounded-lg item">
                 <h2 class="text-xl font-semibold mb-2">
                     {{ visibility === 'all' ? 'Welcome to Slidev AI' : 'No slides found' }}
                 </h2>
@@ -131,12 +134,12 @@ watch(visibility, () => { })
                                 : 'You have no private slides yet.'
                     }}
                 </p>
-                <Button label="Create Slide" icon="pi pi-plus" class="p-button-rounded p-button-success"
+                <Button label="Create Slide" icon="pi pi-plus" class="p-button-rounded"
                     @click="createNewSlide" />
             </div>
 
             <!-- Slide Cards (Horizontal) -->
-            <DataView :value="sortedSlides">
+            <DataView :value="sortedSlides" v-if="sortedSlides.length > 0">
                 <template #list="slotProps">
                     <div class="flex flex-col gap-4">
                         <div v-for="slide in slotProps.items" :key="slide.id"

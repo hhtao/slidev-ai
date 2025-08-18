@@ -56,26 +56,46 @@ export class SlidevManagerService implements OnApplicationShutdown {
         const bin = this.resolveSlidevBinary();
         const args = this.buildSlidevArgs(bin, filePath, port);
         console.log('[Slidev spawn]', bin, args.join(' '));
+
         const proc = spawn(bin, args, {
             cwd: process.cwd(),
             detached: true,
-            stdio: 'inherit',
-            shell: process.platform === 'win32' && bin === 'npx' // allow .cmd resolution
+            stdio: ['pipe', 'pipe', 'pipe'],
+            shell: process.platform === 'win32' && bin === 'npx'
         });
 
         proc.on('error', (err) => {
             console.error('Failed to start slidev process:', err);
         });
 
+        // 自动检测交互提示并输入 "y"
+        proc.stdout?.on('data', (data) => {
+            const text = data.toString();
+            if (text.includes('do you want to install it now')) {
+                console.log('[Slidev spawn] Auto-accept theme installation...');
+                proc.stdin?.write('y\n');
+            }
+            process.stdout.write(text); // 保持正常输出
+        });
+
+        proc.stderr?.on('data', (data) => {
+            process.stderr.write(data.toString());
+        });
+
         try {
-            await waitOn({ resources: [`tcp:localhost:${port}`], timeout: 15000 });
+            await waitOn({
+                resources: [`tcp:localhost:${port}`],
+                timeout: 30000 // 超时延长到 30s
+            });
         } catch (e) {
             proc.kill();
             throw new Error(`Slidev failed to start on port ${port}. Root cause: ${(e as any).message}`);
         }
+
         return proc;
     }
 
+    
     async buildSlidevProject(id: number, filePath: string): Promise<void> {
         // 1. 临时输出目录
         const outDir = join(process.cwd(), '.slidev-temp-build');
