@@ -23,11 +23,9 @@ onMounted(() => {
 </script>
 
 <template>
-    <div id="app">
-        <Toast />
-        <Navbar />
-        <router-view />
-    </div>
+    <Toast />
+    <Navbar />
+    <router-view />
 </template>
 
 <style>
@@ -43,8 +41,16 @@ body {
     background-color: #f5f5f5;
 }
 
+.p-dataview-content {
+    background-color: #f5f5f5 !important;
+}
+
 .my-app-dark body {
     background-color: #333;
+}
+
+.my-app-dark .p-dataview-content {
+    background-color: #1c1c1c !important;
 }
 
 #app {

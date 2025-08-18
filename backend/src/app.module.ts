@@ -9,7 +9,6 @@ import { ConfigModule } from '@nestjs/config';
 import { ServeStaticModule } from '@nestjs/serve-static';
 import { SsoLite } from './utils';
 
-
 @Module({
     imports: [
         ConfigModule.forRoot({ isGlobal: true }),
