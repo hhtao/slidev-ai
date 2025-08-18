@@ -47,13 +47,30 @@ export class SlidevManagerService implements OnApplicationShutdown {
     }
 
     private async spawnSlidevProcess(id: number, filePath: string, port: number): Promise<ChildProcess> {
-        // , '--base', `/api/slides/preview/${id}/`
-        const proc = spawn('slidev', [filePath, '--port', port.toString()], {
+        if (!(await fs.pathExists(filePath))) {
+            throw new Error(`Slide file not found: ${filePath}`);
+        }
+
+        const bin = this.resolveSlidevBinary();
+        const args = this.buildSlidevArgs(bin, filePath, port);
+        console.log('[Slidev spawn]', bin, args.join(' '));
+        const proc = spawn(bin, args, {
+            cwd: process.cwd(),
             detached: true,
             stdio: 'inherit',
+            shell: process.platform === 'win32' && bin === 'npx' // allow .cmd resolution
         });
 
-        await waitOn({ resources: [`tcp:localhost:${port}`], timeout: 10000 });
+        proc.on('error', (err) => {
+            console.error('Failed to start slidev process:', err);
+        });
+
+        try {
+            await waitOn({ resources: [`tcp:localhost:${port}`], timeout: 15000 });
+        } catch (e) {
+            proc.kill();
+            throw new Error(`Slidev failed to start on port ${port}. Root cause: ${(e as any).message}`);
+        }
         return proc;
     }
 
@@ -142,6 +159,26 @@ export class SlidevManagerService implements OnApplicationShutdown {
         } finally {
             await browser.close();
         }
+    }
+
+    private resolveSlidevBinary(): string {
+        // 优先查找本地 node_modules/.bin
+        const candidates: string[] = [];
+        const binName = process.platform === 'win32' ? 'slidev.cmd' : 'slidev';
+        // backend own node_modules
+        candidates.push(join(process.cwd(), 'node_modules', '.bin', binName));
+        // monorepo root sibling (../node_modules)
+        candidates.push(join(process.cwd(), '..', 'node_modules', '.bin', binName));
+        for (const c of candidates) if (fs.existsSync(c)) return c;
+        // fallback to npx (需确保 npx 可用)
+        return 'npx';
+    }
+
+    private buildSlidevArgs(bin: string, filePath: string, port: number): string[] {
+        if (bin === 'npx') {
+            return ['-y', 'slidev', filePath, '--port', port.toString()];
+        }
+        return [filePath, '--port', port.toString()];
     }
 
     private async findAvailablePort(start = 5000): Promise<number> {
