@@ -32,17 +32,7 @@ slidev-ai 是 [OpenMCP](https://github.com/LSTM-Kirigaya/openmcp-client) 生态�
 
 对于想要开发类似 AI 应用的开发者，这里提供了一个完整的 LLM Prompt，可用于生成类似的前后端项目：
 
-```
-
-我现在需要开发一个名为 slidev-ai 的前后端项目，请帮我完成基础的项目初始化。
-
-## 技术选型
-
-前端：typescript + vue3 + primevue + tailwindcss
-后端：typescript + nestjs + sqlite + TypeORM
-...
-
-````
+[PROMPT.md](./PROMPT.md)
 
 ## 📦 快速开始
 
