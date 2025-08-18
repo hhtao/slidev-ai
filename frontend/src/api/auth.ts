@@ -1,5 +1,6 @@
 import http from './http';
 import { Result } from './base';
+import { API_BASE_URL } from '@/utils/api'
 
 export interface LoginDto {
   username: string;
@@ -15,13 +16,14 @@ export interface RegisterDto {
 export interface UserDTO {
   username: string;
   email: string;
+  avatar?: string | null;
 }
 
 
 
 export async function apiLogin(dto?: LoginDto): Promise<Result<UserDTO>> {
   try {
-    const { data, status } = await http.post('/auth/login', dto);
+    const { data, status } = await http.post(`${API_BASE_URL}/auth/login`, dto);
     if (data?.success && data?.user) {
       return { success: true, data: data.user, message: data.message };
     }
@@ -38,7 +40,7 @@ export async function apiLogin(dto?: LoginDto): Promise<Result<UserDTO>> {
 
 export async function apiRegister(dto: RegisterDto): Promise<Result<void>> {
   try {
-    const res = await http.post('/auth/register', dto);
+    const res = await http.post(`${API_BASE_URL}/auth/register`, dto);
     if (res.status >= 200 && res.status < 300) {
       return { success: true, data: undefined };
     }
@@ -52,7 +54,7 @@ export async function apiRegister(dto: RegisterDto): Promise<Result<void>> {
 
 export async function apiLogout(): Promise<Result<void>> {
   try {
-    await http.post('/auth/logout');
+    await http.post(`${API_BASE_URL}/auth/logout`);
     return { success: true, data: undefined };
   } catch (err: any) {
     const status = err?.response?.status;

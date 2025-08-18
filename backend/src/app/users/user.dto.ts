@@ -1,5 +1,5 @@
 
-import { IsString, MinLength } from 'class-validator';
+import { IsString, MinLength, IsOptional, IsEmail } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 
 
@@ -31,6 +31,10 @@ export class UserResponseDto {
     @ApiProperty({ description: '邮箱', example: 'alice@example.com' })
     email!: string;
 
+    @ApiProperty({ description: '头像 URL', example: '/uploads/avatar-1730000000000-123456789.png', required: false })
+    @IsOptional()
+    avatar?: string;
+
     @ApiProperty({ description: '角色', example: 'user', enum: ['user', 'admin'] })
     role!: string;
 
@@ -39,4 +43,12 @@ export class UserResponseDto {
 
     @ApiProperty({ description: '更新时间 (ISO8601)', example: '2025-08-18T09:00:00.000Z' })
     updatedAt!: Date;
+}
+
+// 更新个人资料（邮箱 + 头像上传）
+export class UpdateProfileDto {
+    @ApiProperty({ description: '新的邮箱', example: 'newalice@example.com', required: false })
+    @IsOptional()
+    @IsEmail()
+    email?: string;
 }
