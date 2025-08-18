@@ -2,13 +2,30 @@
 import './init-llm';
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
-import { ValidationPipe } from '@nestjs/common';
+import { INestApplication, ValidationPipe } from '@nestjs/common';
 import { join } from 'path';
 import { existsSync, mkdirSync } from 'fs';
 import cookieParser from 'cookie-parser';
 import { SlidevManagerService } from './app/slides/slidev-manager.service';
 import morgan from 'morgan';
+import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 
+function setupSwagger(app: INestApplication) {
+    const config = new DocumentBuilder()
+        .setTitle('Slidev AI API')
+        .setDescription('The Slidev AI API description')
+        .setVersion('1.0')
+        .addTag('slidev')
+        .build();
+    const documentFactory = () => SwaggerModule.createDocument(app, config);
+    SwaggerModule.setup('docs', app, documentFactory, {
+        customCssUrl: 'https://cdnjs.cloudflare.com/ajax/libs/swagger-ui/4.15.5/swagger-ui.min.css',
+        customJs: [
+            'https://cdnjs.cloudflare.com/ajax/libs/swagger-ui/4.15.5/swagger-ui-bundle.js',
+            'https://cdnjs.cloudflare.com/ajax/libs/swagger-ui/4.15.5/swagger-ui-standalone-preset.js'
+        ]
+    });
+}
 async function bootstrap() {
     // 确保uploads目录存在
     const uploadDir = join(__dirname, '..', 'uploads');
@@ -18,6 +35,7 @@ async function bootstrap() {
 
     const app = await NestFactory.create(AppModule);
     app.setGlobalPrefix('api');
+    setupSwagger(app);
     app.use(cookieParser());
     app.useGlobalPipes(new ValidationPipe());
     app.enableCors({
