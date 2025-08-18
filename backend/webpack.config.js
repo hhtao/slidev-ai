@@ -38,4 +38,12 @@ module.exports = {
         filename: 'main.js',
         libraryTarget: 'commonjs2',
     },
+    watchOptions: {
+        ignored: [
+            '**/.slidev-temp-build/**',
+            '**/slidev-mcp/.slidev-mcp/**',
+            '**/presentation/**',
+            '**/uploads/**'
+        ]
+    }
 };

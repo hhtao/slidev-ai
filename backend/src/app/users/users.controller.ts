@@ -16,18 +16,7 @@ export class UsersController {
         private readonly usersService: UsersService,
         private readonly userRepository: UserRepository
     ) { }
-
-    @Post()
-    @ApiOperation({ summary: '创建用户', description: '创建一个新的用户账号（密码将被加密存储）。' })
-    @ApiBody({ type: CreateUserDto })
-    @ApiCreatedResponse({ description: '创建成功，返回用户信息（不含密码）', type: UserResponseDto })
-    async create(@Body() createUserDto: CreateUserDto): Promise<UserResponseDto> {
-        const user = await this.userRepository.create(createUserDto);
-        // 去除密码字段，只返回安全信息
-        const { password, ...safe } = user as any;
-        return safe;
-    }
-
+    
     // 注意：必须放在 ':id' 动态参数路由之前，否则会被当作 id 解析导致 400
     @Get('me')
     @UseGuards(AuthGuard('jwt'))
