@@ -48,7 +48,7 @@ export class SlidesService {
             title: createSlideDto.title,
             content: createSlideDto.content,
             visibility: createSlideDto.visibility,
-            processingStatus: 'pending'
+            processingStatus: 'user-input-saved'
         });
 
         return { success: true };
@@ -67,10 +67,10 @@ export class SlidesService {
      */
     async saveSlidesPath(id: number, slidevData: SlidevProjectDto) {
         await this.slidesRepository.update(id, { 
-            processingStatus: 'completed',
             slidevName: slidevData.name,
             slidevHome: slidevData.home,
             slidevEntryFile: slidevData.slides_path,
+            processingStatus: 'markdown-saved',
         });
         
         return { success: true };
@@ -80,7 +80,10 @@ export class SlidesService {
      * 保存幻灯片的大纲数据
      */
     async saveOutlines(id: number, outlines: any) {                
-        this.slidesRepository.update(id, { outlines: JSON.stringify(outlines) });
+        this.slidesRepository.update(id, {
+            outlines: JSON.stringify(outlines),
+            processingStatus: 'outline-saved',
+        });
         return { success: true }
     }
 

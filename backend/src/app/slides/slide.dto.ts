@@ -20,6 +20,8 @@ export interface OutlinesDto {
     outlines: any;
 }
 
+export type ProcessingStatus = 'pending' | 'user-input-saved' | 'outline-saved' | 'markdown-saved' | 'completed'
+
 // 定义 slidesPath 数据结构
 export interface SlidevProjectDto {
     /**

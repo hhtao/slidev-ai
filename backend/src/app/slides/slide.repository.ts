@@ -47,7 +47,7 @@ export class SlideRepository {
     async getPublicSlides(userId: string | null, skip: number, take: number): Promise<[Slide[], number]> {
         const qb = this.slideRepository
             .createQueryBuilder('slide')
-            .where('slide.visibility = :visibility, slide.processingStatus = :processingStatus', {
+            .where('slide.visibility = :visibility AND slide.processingStatus = :processingStatus', {
                 visibility: 'public',
                 processingStatus: 'completed'
             })

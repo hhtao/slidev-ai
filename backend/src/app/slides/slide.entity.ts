@@ -1,5 +1,6 @@
 import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn, DeleteDateColumn, Check, ManyToOne, JoinColumn, OneToOne, JoinTable } from 'typeorm';
 import { User } from '../users/user.entity';
+import { ProcessingStatus } from './slide.dto';
 
 
 
@@ -24,7 +25,7 @@ export class Slide {
     content!: string;
 
     @Column({ default: 'pending' })
-    processingStatus!: string;
+    processingStatus!: ProcessingStatus;
 
     @Column()
     @Check(`"visibility" IN ('public', 'private')`)

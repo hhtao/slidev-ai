@@ -254,6 +254,8 @@ export class SlidesController {
             throw new NotFoundException('Slide project path not found');
         }
 
+        this.slideRepository.update(id, { processingStatus: 'markdown-saved' });
+
         // 生成首页图
         const screenshotPath = await this.slidevManager.captureScreenshot(id, absolutePath, slide);
         if (screenshotPath) {
@@ -264,6 +266,8 @@ export class SlidesController {
         }
         
         await this.slidevManager.buildSlidevProject(id, absolutePath);
+
+        this.slideRepository.update(id, { processingStatus: 'completed' });
 
         return { success: true };
     }
