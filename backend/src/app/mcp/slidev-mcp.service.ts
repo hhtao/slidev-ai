@@ -4,6 +4,7 @@ import { execSync } from 'child_process';
 import { existsSync, mkdirSync, writeFileSync } from 'fs';
 import * as path from 'path';
 import chalk from 'chalk';
+import {SLIDEV_MCP_ROOT} from '@/constant/filepath';
 
 @Injectable()
 export class SlidevMcpService implements OnModuleInit {
@@ -95,7 +96,10 @@ export class SlidevMcpService implements OnModuleInit {
                     command: 'mcp',
                     args: ['run', 'main.py'],
                     cwd: this.repoPath, // absolute path of cloned repo
-                    description: 'slidev-mcp-academic'
+                    description: 'slidev-mcp-academic',
+                    env: {
+                        SLIDEV_MCP_ROOT: SLIDEV_MCP_ROOT,
+                    }
                 }
             },
             defaultLLM: {
@@ -109,6 +113,7 @@ export class SlidevMcpService implements OnModuleInit {
         if (!existsSync(openMcpDir)) {
             mkdirSync(openMcpDir, { recursive: true });
         }
+        
 
         const configPath = path.join(openMcpDir, 'config.json');
         writeFileSync(configPath, JSON.stringify(config, null, 2), 'utf-8');

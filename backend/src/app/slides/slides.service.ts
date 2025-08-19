@@ -8,7 +8,8 @@ import { CreateSlideDto, SlidevProjectDto } from './slide.dto';
 import { Slide } from './slide.entity';
 import { toSseData } from '@/utils/sse';
 import path from 'path';
-
+import { v4 as uuidv4 } from 'uuid';
+import { SLIDEV_MCP_ROOT } from '@/constant/filepath';
 // 定义文件类型
 type MulterFile = Express.Multer.File;
 
@@ -32,7 +33,7 @@ export class SlidesService {
      */
     async createSlide(userId: string, createSlideDto: CreateSlideDto, file?: MulterFile): Promise<Slide> {
         // TODO: 解析文件 file 并进入数据库
-
+        const filePath = uuidv4()
         return this.slidesRepository.create({
             title: createSlideDto.title,
             content: createSlideDto.content,
@@ -66,20 +67,19 @@ export class SlidesService {
      * 保存幻灯片的 slides_path
      */
     async saveSlidesPath(id: number, slidevData: SlidevProjectDto) {
-        await this.slidesRepository.update(id, { 
+        await this.slidesRepository.update(id, {
             slidevName: slidevData.name,
-            slidevHome: slidevData.home,
-            slidevEntryFile: slidevData.slides_path,
+            slidevHome: slidevData.name,
             processingStatus: 'markdown-saved',
         });
-        
+
         return { success: true };
     }
 
     /**
      * 保存幻灯片的大纲数据
      */
-    async saveOutlines(id: number, outlines: any) {                
+    async saveOutlines(id: number, outlines: any) {
         this.slidesRepository.update(id, {
             outlines: JSON.stringify(outlines),
             processingStatus: 'outline-saved',
@@ -92,7 +92,7 @@ export class SlidesService {
      */
     async hasOutlines(id: number): Promise<boolean> {
         const slide = await this.slidesRepository.findOneById(id);
-        
+
         if (!slide) {
             throw new Error('幻灯片不存在');
         }
@@ -125,7 +125,7 @@ export class SlidesService {
             if (toolcall.function.name === 'slidev_save_outline') {
                 saveOutlineIds.add(toolcall.id);
             }
-            
+
             return toolcall;
         });
 
@@ -134,7 +134,7 @@ export class SlidesService {
             if (saveOutlineIds.has(toolcalled.id)) {
                 loop.abort();
             }
-            
+
             subscriber.next(toSseData({
                 type: 'toolcalled',
                 toolcalled,
@@ -201,11 +201,11 @@ export class SlidesService {
         });
 
         loop.registerOnToolCalled(toolcalled => {
-            
+
             if (saveOutlineIds.has(toolcalled.id)) {
                 loop.abort();
             }
-            
+
             subscriber.next(toSseData({
                 type: 'toolcalled',
                 toolcalled,
@@ -218,13 +218,14 @@ export class SlidesService {
             outlines: outlines,
             title: slide.title,
             content: slide.content,
+            path: uuidv4()
         });
 
         const prompts = [
             usermcpPrompt,
             slidevPrompt,
         ];
-
+        console.log(prompts);
         await agent.ainvoke({ messages: prompts.join('\n\n') });
 
         subscriber.next(toSseData({ done: true }));
@@ -233,17 +234,11 @@ export class SlidesService {
 
     getSlidePrjAbsolutePath(slide: Slide): string | null {
 
-        const slidePath = slide.slidevEntryFile;
+        const slidePath = path.join(SLIDEV_MCP_ROOT, slide.slidevHome, "slides.md");
         if (!slidePath) {
             return null;
         }
-        
-        // 如果路径以 .slidev-mcp 开头，则将其解析为相对于项目根目录的绝对路径
-        if (slidePath.startsWith('.slidev-mcp')) {
-            return path.join(process.cwd(), 'slidev-mcp', slidePath);
-        }
-        
-        // 对于其他路径，保持原有逻辑（直接返回 null，需要进一步实现）
-        return null;
+
+        return slidePath;
     }
 }

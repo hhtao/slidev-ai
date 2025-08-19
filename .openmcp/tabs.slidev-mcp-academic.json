@@ -1,0 +1,288 @@
+{
+  "clientId": "61d05e61-5e61-505e613f25a-805e613f25a3212-a3212120",
+  "currentIndex": 0,
+  "tabs": [
+    {
+      "name": "交互测试",
+      "icon": "icon-robot",
+      "type": "blank",
+      "componentIndex": 3,
+      "storage": {
+        "activeNames": [
+          0
+        ],
+        "messages": [],
+        "parallelMode": false,
+        "parallelChats": [],
+        "selectedModels": [],
+        "settings": {
+          "modelIndex": 12,
+          "enableTools": [
+            {
+              "name": "usermcp_query_user_profile",
+              "description": "Query user profile",
+              "inputSchema": {
+                "type": "object",
+                "properties": {
+                  "user_id": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "user_id"
+                ]
+              },
+              "enabled": true
+            },
+            {
+              "name": "usermcp_insert_user_profile",
+              "description": "Insert user profile",
+              "inputSchema": {
+                "type": "object",
+                "properties": {
+                  "user_id": {
+                    "type": "string"
+                  },
+                  "profile": {
+                    "type": "object"
+                  }
+                },
+                "required": [
+                  "user_id",
+                  "profile"
+                ]
+              },
+              "enabled": true
+            },
+            {
+              "name": "usermcp_delete_user_profile",
+              "description": "Delete user profile",
+              "inputSchema": {
+                "type": "object",
+                "properties": {
+                  "user_id": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "user_id"
+                ]
+              },
+              "enabled": true
+            },
+            {
+              "name": "websearch",
+              "description": "search the given https url and get the markdown text of the website",
+              "inputSchema": {
+                "type": "object",
+                "properties": {
+                  "url": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "url"
+                ]
+              },
+              "enabled": true
+            },
+            {
+              "name": "slidev_check_environment",
+              "description": "check if nodejs and slidev-cli is ready",
+              "inputSchema": {
+                "type": "object",
+                "properties": {}
+              },
+              "enabled": true
+            },
+            {
+              "name": "slidev_create",
+              "description": "\ncreate slidev, you need to ask user to get title and author to continue the task.\nyou don't know title and author at beginning.\n`name`: name of the project\n",
+              "inputSchema": {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "name"
+                ]
+              },
+              "enabled": true
+            },
+            {
+              "name": "slidev_load",
+              "description": "load exist slidev project and get the current slidev markdown content",
+              "inputSchema": {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "name"
+                ]
+              },
+              "enabled": true
+            },
+            {
+              "name": "slidev_make_cover",
+              "description": "\nCreate or update slidev cover.\n`python_string_template` is python string template, you can use {title}, {subtitle} to format the string.\nIf user give enough information, you can use it to update cover page, otherwise you must ask the lacking information. `background` must be a valid url of image\n",
+              "inputSchema": {
+                "type": "object",
+                "properties": {
+                  "title": {
+                    "type": "string"
+                  },
+                  "subtitle": {
+                    "type": "string"
+                  },
+                  "author": {
+                    "type": "string"
+                  },
+                  "background": {
+                    "type": "string"
+                  },
+                  "python_string_template": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "title"
+                ]
+              },
+              "enabled": true
+            },
+            {
+              "name": "slidev_add_page",
+              "description": "\nAdd new page.\n- `content` is markdown format text to describe page content.\n- `layout`: layout of the page\n- `parameters`: frontmatter parameters of the page\n",
+              "inputSchema": {
+                "type": "object",
+                "properties": {
+                  "content": {
+                    "type": "string"
+                  },
+                  "layout": {
+                    "type": "string"
+                  },
+                  "parameters": {
+                    "type": "object"
+                  }
+                },
+                "required": [
+                  "content"
+                ]
+              },
+              "enabled": true
+            },
+            {
+              "name": "slidev_set_page",
+              "description": "\n`index`: the index of the page to set. 0 is cover, so you should use index in [1, {len(SLIDEV_CONTENT) - 1}]\n`content`: the markdown content to set.\n- You can use ```code ```, latex or mermaid to represent more complex idea or concept. \n- Too long or short content is forbidden.\n`layout`: the layout of the page.\n`parameters`: frontmatter parameters.\n",
+              "inputSchema": {
+                "type": "object",
+                "properties": {
+                  "index": {
+                    "type": "integer"
+                  },
+                  "content": {
+                    "type": "string"
+                  },
+                  "layout": {
+                    "type": "string"
+                  },
+                  "parameters": {
+                    "type": "object"
+                  }
+                },
+                "required": [
+                  "index",
+                  "content"
+                ]
+              },
+              "enabled": true
+            },
+            {
+              "name": "slidev_get_page",
+              "description": "get the content of the `index` th page",
+              "inputSchema": {
+                "type": "object",
+                "properties": {
+                  "index": {
+                    "type": "integer"
+                  }
+                },
+                "required": [
+                  "index"
+                ]
+              },
+              "enabled": true
+            },
+            {
+              "name": "slidev_save_outline",
+              "description": "\n保存大纲到项目的 outline.json 文件中\n`outline`: 大纲项目列表，每个项目包含 group 和 content 字段\n",
+              "inputSchema": {
+                "type": "object",
+                "properties": {
+                  "outline": {
+                    "type": "object",
+                    "properties": {
+                      "outlines": {
+                        "type": "array",
+                        "items": {
+                          "type": "object",
+                          "properties": {
+                            "group": {
+                              "type": "string"
+                            },
+                            "content": {
+                              "type": "string"
+                            }
+                          },
+                          "required": [
+                            "group",
+                            "content"
+                          ]
+                        }
+                      }
+                    },
+                    "required": [
+                      "outlines"
+                    ]
+                  }
+                },
+                "required": [
+                  "outline"
+                ]
+              },
+              "enabled": true
+            },
+            {
+              "name": "slidev_export_project",
+              "description": "",
+              "inputSchema": {
+                "type": "object",
+                "properties": {
+                  "path": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "path"
+                ]
+              },
+              "enabled": true
+            }
+          ],
+          "enableWebSearch": false,
+          "temperature": 0.6,
+          "contextLength": 100,
+          "systemPrompt": "",
+          "enableXmlWrapper": false,
+          "parallelToolCalls": true
+        }
+      }
+    }
+  ]
+}
