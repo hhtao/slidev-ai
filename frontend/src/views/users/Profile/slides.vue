@@ -2,7 +2,7 @@
 import { ref, onMounted, computed } from 'vue'
 import axios from 'axios'
 import { API_BASE_URL, UPLOADS_BASE_URL } from '@/utils/api'
-import { useRouter } from 'vue-router'
+import { useRoute, useRouter } from 'vue-router'
 
 const slides = ref([])
 const loading = ref(true)
@@ -14,13 +14,20 @@ const sortedSlides = computed(() => {
     ) as any[];
 })
 
-const router = useRouter()
+const router = useRouter();
+const route = useRoute();
+
 
 const fetchSlides = async () => {
     loading.value = true
     error.value = ''
     try {
-        const response = await axios.get(`${API_BASE_URL}/slides/public`)
+        const response = await axios.get(`${API_BASE_URL}/slides/public`, {
+            params: {
+                userId: route.params.userId,
+            }
+        });
+
         slides.value = response.data[0]
     } catch (err) {
         error.value = 'Failed to fetch slides'

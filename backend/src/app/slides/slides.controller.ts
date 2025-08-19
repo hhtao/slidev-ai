@@ -198,6 +198,7 @@ export class SlidesController {
         });
     }
 
+
     @UseGuards(JwtAuthGuard, PublicSlideOwnerGuard)
     @Get(':id')
     @ApiOperation({ summary: '获取单个幻灯片（权限控制）' })
@@ -228,17 +229,12 @@ export class SlidesController {
         // 计算Markdown文件绝对路径
         const absolutePath = this.slidesService.getSlidePrjAbsolutePath(slide);
 
-        console.log('get path', absolutePath);
-
-
         if (!absolutePath) {
             throw new Error('Slidev project not found');
         }
 
         // 启动或获取Slidev实例
         const port = await this.slidevManager.startSlidev(id, absolutePath);
-
-        console.log('get process, port is', port);
 
         return {
             port,

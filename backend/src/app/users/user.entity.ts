@@ -35,5 +35,9 @@ export class User {
     @Check(`"role" IN ('admin', 'user')`)
     role: string;
 
+    @Column({ nullable: true })
+    website?: string;
 
+    @Column({ nullable: true })
+    egoId?: number;
 }

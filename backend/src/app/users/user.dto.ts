@@ -51,4 +51,10 @@ export class UpdateProfileDto {
     @IsOptional()
     @IsEmail()
     email?: string;
+
+    @ApiProperty({ description: '用户的个人网站', example: 'https://kirigaya.cn', required: false })
+    website?: string;
+
+    @ApiProperty({ description: '本我属性ID', example: '1', required: false })
+    egoId?: string;
 }
