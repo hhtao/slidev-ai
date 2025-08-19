@@ -3,7 +3,7 @@ import { ref, onMounted, computed } from 'vue'
 import axios from 'axios'
 import { API_BASE_URL, UPLOADS_BASE_URL } from '@/utils/api'
 import { useRouter } from 'vue-router'
-
+import {t} from '@/i18n/index'
 const slides = ref([])
 const loading = ref(true)
 const error = ref('')
@@ -59,7 +59,7 @@ onMounted(fetchSlides)
         <div v-else>
             <!-- Empty State -->
             <div v-if="sortedSlides.length === 0" class="text-center p-10 rounded-lg bg-gray-50 dark:bg-gray-800">
-                <h2 class="text-xl font-semibold mb-2">No public slides found</h2>
+                <h2 class="text-xl font-semibold mb-2">{{ t('info.public-slide.no-public-slide') }}</h2>
                 <p class="mb-4 text-gray-500">Check back later for public presentations.</p>
             </div>
 
@@ -95,7 +95,7 @@ onMounted(fetchSlides)
                         </div>
 
                         <div class="text-sm text-gray-500">
-                            <span>Created: {{ formatDate(slide.createdAt) }}</span> |
+                            <span>t('info.public-slide.created-at') {{ formatDate(slide.createdAt) }}</span> |
                             <span>Updated: {{ formatDate(slide.updatedAt) }}</span>
                         </div>
                     </div>

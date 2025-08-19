@@ -1,5 +1,21 @@
 <script setup lang="ts">
-import { ref, onMounted } from 'vue';
+import { ref, onMounted, computed } from 'vue';
+import { setLanguage, getCurrentLanguage } from '@/i18n/index';
+import { useAppStore } from '@/store/website';
+import Dropdown from 'primevue/dropdown';
+const appStore = useAppStore();
+const localeOptions = [
+    { label: 'English', value: 'en' },
+    { label: '简体中文', value: 'zh-CN' }
+];
+const selectedLocale = computed({
+    get: () => appStore.locale,
+    set: async (val: string) => {
+        appStore.setLocale(val);
+        await setLanguage(val);
+        window.location.reload(); // 语言切换后刷新页面，确保所有文本更新
+    }
+});
 import { useRouter } from 'vue-router';
 import Menubar from 'primevue/menubar';
 import Button from 'primevue/button';
@@ -71,6 +87,15 @@ const items = ref([
 
             <template #end>
                 <div class="flex items-center gap-2">
+                    <Dropdown
+                        v-model="selectedLocale"
+                        :options="localeOptions"
+                        option-label="label"
+                        option-value="value"
+                        class="w-28 mr-2"
+                        size="small"
+                        :pt="{ root: { style: 'min-width: 100px' } }"
+                    />
                     <Button :icon="darkMode ? 'pi pi-moon' : 'pi pi-sun'" @click="toggleDarkMode" rounded text
                         class="text-2xl"
                     />

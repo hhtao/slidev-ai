@@ -14,6 +14,7 @@ import { useConfirm } from "primevue/useconfirm"
 import { useToast } from 'primevue/usetoast'
 import { API_BASE_URL } from '@/utils/api'
 import axios from 'axios'
+import {t} from '@/i18n/index'
 
 const router = useRouter()
 const slides = ref([])
@@ -174,10 +175,10 @@ watch(visibility, () => { })
 
                                 <!-- Dates -->
                                 <p class="text-sm text-gray-500">
-                                    Created: {{ formatDate(slide.createdAt) }}
+                                   {{t('info.public-slide.created-at')}} {{ formatDate(slide.createdAt) }}
                                 </p>
                                 <p class="text-sm text-gray-500 mb-3">
-                                    Updated: {{ formatDate(slide.updatedAt) }}
+                                   {{t('info.public-slide.updated-at')}} {{ formatDate(slide.updatedAt) }}
                                 </p>
 
                                 <!-- Actions -->
