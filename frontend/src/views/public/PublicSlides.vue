@@ -23,7 +23,7 @@ const fetchSlides = async () => {
         const response = await axios.get(`${API_BASE_URL}/slides/public`)
         slides.value = response.data[0]
     } catch (err) {
-        error.value = 'Failed to fetch slides'
+        error.value = t('common.error.fetch-slides')
     } finally {
         loading.value = false
     }
@@ -47,7 +47,7 @@ onMounted(fetchSlides)
         <!-- Loading -->
         <div v-if="loading" class="flex flex-col items-center justify-center py-12 text-gray-500">
             <i class="pi pi-spin pi-spinner text-2xl mb-3"></i>
-            Loading slides...
+            {{ t('common.loading.slides') }}
         </div>
 
         <!-- Error -->
@@ -60,7 +60,7 @@ onMounted(fetchSlides)
             <!-- Empty State -->
             <div v-if="sortedSlides.length === 0" class="text-center p-10 rounded-lg bg-gray-50 dark:bg-gray-800">
                 <h2 class="text-xl font-semibold mb-2">{{ t('info.public-slide.no-public-slide') }}</h2>
-                <p class="mb-4 text-gray-500">Check back later for public presentations.</p>
+                <p class="mb-4 text-gray-500">{{ t('info.public-slide.check-back-later') }}</p>
             </div>
 
             <!-- Slide Cards -->
@@ -85,18 +85,17 @@ onMounted(fetchSlides)
 
                             <Avatar v-if="slide.user?.avatar"
                                 :image="`${UPLOADS_BASE_URL}/avatars/${slide.user?.avatar}`" shape="circle"
-                                class="cursor-pointer" title="我的信息"
+                                class="cursor-pointer" :title="t('common.user.profile-title')"
                                 @click.stop="router.push(`/profile/${slide.user?.id}`)" />
                             <Avatar v-else :label="slide.user?.username.charAt(0).toUpperCase()" shape="circle"
-                                class="cursor-pointer" title="我的信息"
+                                class="cursor-pointer" :title="t('common.user.profile-title')"
                                 @click.stop="router.push(`/profile/${slide.user?.id}`)" />
-
-                            <span class="text-primary-200">{{ slide.user?.username || 'Anonymous' }}</span>
+                            <span class="text-primary-200">{{ slide.user?.username || t('common.user.anonymous') }}</span>
                         </div>
 
                         <div class="text-sm text-gray-500">
-                            <span>t('info.public-slide.created-at') {{ formatDate(slide.createdAt) }}</span> |
-                            <span>Updated: {{ formatDate(slide.updatedAt) }}</span>
+                            <span>{{ t('info.public-slide.created-at') }} {{ formatDate(slide.createdAt) }}</span> |
+                            <span>{{ t('info.public-slide.updated-at') }} {{ formatDate(slide.updatedAt) }}</span>
                         </div>
                     </div>
                 </div>

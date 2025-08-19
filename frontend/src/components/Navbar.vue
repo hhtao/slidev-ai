@@ -1,13 +1,14 @@
 <script setup lang="ts">
 import { ref, onMounted, computed } from 'vue';
-import { setLanguage, getCurrentLanguage } from '@/i18n/index';
+import { setLanguage } from '@/i18n/index';
+import { t } from '@/i18n/index';
 import { useAppStore } from '@/store/website';
 import Dropdown from 'primevue/dropdown';
 const appStore = useAppStore();
-const localeOptions = [
-    { label: 'English', value: 'en' },
-    { label: '简体中文', value: 'zh-CN' }
-];
+const localeOptions = computed(() => [
+    { label: t('locale.english'), value: 'en' },
+    { label: t('locale.chinese-simplified'), value: 'zh-CN' }
+]);
 const selectedLocale = computed({
     get: () => appStore.locale,
     set: async (val: string) => {
@@ -55,23 +56,19 @@ onMounted(() => {
 
 
 // Define menu items
-const items = ref([
+const items = computed(() => [
     {
-        label: 'Public Slides',
+        label: t('nav.public-slides'),
         icon: 'pi pi-globe',
-        command: () => {
-            router.push('/public')
-        }
+        command: () => router.push('/public')
     },
     {
-        label: 'My Slides',
+        label: t('nav.my-slides'),
         icon: 'pi pi-folder',
         visible: () => authStore.user !== null,
-        command: () => {
-            router.push('/dashboard')
-        }
+        command: () => router.push('/dashboard')
     }
-])
+]);
 
 </script>
 
@@ -120,9 +117,9 @@ const items = ref([
                                 title="我的信息"
                                 @click="router.push(`/profile/${authStore.user.id}`)"
                             />
-                        <Button label="Logout" @click="logout" icon="pi pi-sign-out" text size="small" />
+                        <Button :label="t('auth.logout.button')" @click="logout" icon="pi pi-sign-out" text size="small" />
                     </div>
-                    <Button v-else label="Login" @click="router.push('/login')" icon="pi pi-sign-in" />
+                    <Button v-else :label="t('auth.login.button')" @click="router.push('/login')" icon="pi pi-sign-in" />
                 </div>
             </template>
         </Menubar>

@@ -7,6 +7,7 @@ import Password from 'primevue/password';
 import Card from 'primevue/card';
 import Message from 'primevue/message';
 import { useAuthStore } from '@/store/auth';
+import { t } from '@/i18n/index';
 
 const router = useRouter();
 const authStore = useAuthStore();
@@ -26,7 +27,7 @@ const handleSubmit = async () => {
     if (res.success) {
         router.push('/dashboard');
     } else {
-        error.value = res.error || 'Registration failed';
+        error.value = res.error || t('auth.register.error');
     }
 }
 </script>
@@ -37,33 +38,33 @@ const handleSubmit = async () => {
             <div class="auth-form">
                 <div class="flex flex-col items-center mb-4">
                     <h1 class="text-3xl font-bold mt-2">slidev-ai</h1>
-                    <p class="text-gray-600 mt-2">AI-powered presentation creation tool</p>
+                    <p class="text-gray-600 mt-2">{{ t('auth.tagline') }}</p>
                 </div>
 
                 <Card>
                     <template #title>
-                        <h2>Register</h2>
+                        <h2>{{ t('auth.register.title') }}</h2>
                     </template>
 
                     <template #content>
                         <form @submit.prevent="handleSubmit">
                             <div class="p-field mb-4">
-                                <label for="username" class="block mb-2">Username</label>
+                                <label for="username" class="block mb-2">{{ t('auth.register.username') }}</label>
                                 <InputText id="username" v-model="username" type="text" required class="w-full" />
                             </div>
 
                             <div class="p-field mb-4">
-                                <label for="email" class="block mb-2">Email</label>
+                                <label for="email" class="block mb-2">{{ t('auth.register.email') }}</label>
                                 <InputText id="email" v-model="email" type="email" required class="w-full" />
                             </div>
 
                             <div class="p-field mb-4 w-100">
-                                <label for="password" class="block mb-2">Password</label>
+                                <label for="password" class="block mb-2">{{ t('auth.register.password') }}</label>
                                 <Password id="password" v-model="password" :feedback="false" toggleMask required
                                     class="w-full" />
                             </div>
 
-                            <Button type="submit" label='Register' icon="pi pi-user-plus"
+                            <Button type="submit" :label="t('auth.register.button')" icon="pi pi-user-plus"
                                 class="w-full mt-4" />
 
                             <div v-if="error" class="mt-4">
@@ -73,8 +74,8 @@ const handleSubmit = async () => {
 
                         <div class="mt-4 text-center">
                             <p>
-                                Already have an account?
-                                <Button @click="router.push('/login')" label='Login' link />
+                                {{ t('auth.register.prompt.has-account') }}
+                                <Button @click="router.push('/login')" :label="t('auth.register.prompt.login-link')" link />
                             </p>
                         </div>
                     </template>

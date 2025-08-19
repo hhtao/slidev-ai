@@ -1,5 +1,71 @@
 {
     "info.public-slide.no-public-slide": "未找到公开幻灯片",
     "info.public-slide.created-at": "创建于：",
-    "info.public-slide.updated-at": "更新于："
+    "info.public-slide.updated-at": "更新于：",
+    "info.public-slide.check-back-later": "稍后再来查看公开的演示文稿。",
+
+    "common.loading.slides": "正在加载幻灯片...",
+    "common.error.fetch-slides": "获取幻灯片失败",
+    "common.user.anonymous": "匿名用户",
+    "common.user.profile-title": "我的信息",
+
+    "dashboard.button.new": "新建幻灯片",
+    "dashboard.button.create": "创建幻灯片",
+    "dashboard.filter.placeholder": "筛选",
+    "dashboard.filter.all": "全部",
+    "dashboard.filter.public": "公开",
+    "dashboard.filter.private": "私有",
+    "dashboard.delete.confirm.message": "确定要删除 \"{title}\" 吗？",
+    "dashboard.delete.confirm.header": "删除确认",
+    "dashboard.toast.delete.success.summary": "已删除",
+    "dashboard.toast.delete.success.detail": "幻灯片删除成功",
+    "dashboard.toast.delete.error.summary": "错误",
+    "dashboard.toast.delete.error.detail": "删除幻灯片失败",
+    "dashboard.empty.welcome.title": "欢迎使用 Slidev AI",
+    "dashboard.empty.none-found.title": "未找到幻灯片",
+    "dashboard.empty.all.desc": "现在创建你的第一个演示文稿。",
+    "dashboard.empty.public.desc": "你还没有公开幻灯片。",
+    "dashboard.empty.private.desc": "你还没有私有幻灯片。",
+    "dashboard.tag.public": "公开",
+    "dashboard.tag.private": "私有",
+    "dashboard.status.completed": "已完成",
+    "dashboard.status.processing": "处理中",
+    "dashboard.action.edit": "编辑",
+    "dashboard.action.delete": "删除",
+
+    "preview.loading.slide": "正在加载幻灯片...",
+    "preview.error.load-slide": "加载幻灯片失败",
+    "preview.button.copy-markdown": "复制 Markdown",
+    "preview.instructions.title": "如何使用此 Slidev 演示：",
+    "preview.instructions.step1": "复制上方的 Markdown 内容",
+    "preview.instructions.step2": "保存为 .md 文件（例如 presentation.md）",
+    "preview.instructions.step3": "安装 Slidev：",
+    "preview.instructions.step4": "运行：",
+    "preview.not-found": "未找到该幻灯片",
+
+    "auth.tagline": "AI 驱动的演示文稿创建工具",
+    "auth.login.title": "登录",
+    "auth.login.username": "用户名",
+    "auth.login.password": "密码",
+    "auth.login.button": "登录",
+    "auth.login.error": "登录失败",
+    "auth.login.prompt.no-account": "还没有账号？",
+    "auth.login.prompt.register-link": "注册",
+    "auth.register.title": "注册",
+    "auth.register.username": "用户名",
+    "auth.register.email": "邮箱",
+    "auth.register.password": "密码",
+    "auth.register.button": "注册",
+    "auth.register.error": "注册失败",
+    "auth.register.prompt.has-account": "已经有账号？",
+    "auth.register.prompt.login-link": "登录"
+        ,"auth.logout.button": "退出登录"
+        ,"nav.public-slides": "公开幻灯片"
+        ,"nav.my-slides": "我的幻灯片"
+        ,"process.stage.user-input": "用户输入"
+        ,"process.stage.outline": "大纲"
+        ,"process.stage.markdown": "PPT"
+        ,"process.tooltip.finished": "已完成"
+        ,"locale.english": "英语"
+        ,"locale.chinese-simplified": "简体中文"
 }

@@ -3,6 +3,7 @@ import { ref, onMounted } from 'vue'
 import { useRoute } from 'vue-router'
 import axios from 'axios'
 import { API_BASE_URL } from '@/utils/api'
+import { t } from '@/i18n/index'
 
 const route = useRoute()
 const slide = ref<{title: string, content: string} | null>(null)
@@ -14,7 +15,7 @@ const getSlideById = async () => {
         const response = await axios.get(`${API_BASE_URL}/slides/preview/${route.params.hash}`)
         slide.value = response.data
     } catch (err) {
-        error.value = 'Failed to load slide'
+        error.value = t('preview.error.load-slide')
         console.error(err)
     } finally {
         loading.value = false
@@ -39,7 +40,7 @@ onMounted(() => {
 <template>
     <div class="preview-container">
         <div v-if="loading" class="loading">
-            Loading slide...
+            {{ t('preview.loading.slide') }}
         </div>
 
         <div v-else-if="error" class="error">
@@ -51,7 +52,7 @@ onMounted(() => {
                 <h1>{{ slide.title }}</h1>
                 <div class="actions">
                     <button @click="copyToClipboard" class="copy-btn">
-                        Copy Markdown
+                        {{ t('preview.button.copy-markdown') }}
                     </button>
                 </div>
             </div>
@@ -61,18 +62,18 @@ onMounted(() => {
             </div>
 
             <div class="instructions">
-                <h3>How to use this Slidev presentation:</h3>
+                <h3>{{ t('preview.instructions.title') }}</h3>
                 <ol>
-                    <li>Copy the markdown content above</li>
-                    <li>Save it as a .md file (e.g., presentation.md)</li>
-                    <li>Install Slidev: <code>npm install -g @slidev/cli</code></li>
-                    <li>Run: <code>slidev presentation.md</code></li>
+                    <li>{{ t('preview.instructions.step1') }}</li>
+                    <li>{{ t('preview.instructions.step2') }}</li>
+                    <li>{{ t('preview.instructions.step3') }} <code>npm install -g @slidev/cli</code></li>
+                    <li>{{ t('preview.instructions.step4') }} <code>slidev presentation.md</code></li>
                 </ol>
             </div>
         </div>
 
         <div v-else class="not-found">
-            Slide not found
+            {{ t('preview.not-found') }}
         </div>
     </div>
 </template>

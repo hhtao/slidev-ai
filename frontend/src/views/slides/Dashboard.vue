@@ -25,9 +25,9 @@ const confirm = useConfirm()
 const toast = useToast()
 
 const visibilityOptions = [
-    { label: 'All', value: 'all' },
-    { label: 'Public', value: 'public' },
-    { label: 'Private', value: 'private' }
+    { label: t('dashboard.filter.all'), value: 'all' },
+    { label: t('dashboard.filter.public'), value: 'public' },
+    { label: t('dashboard.filter.private'), value: 'private' }
 ]
 
 const sortedSlides = computed(() => {
@@ -47,7 +47,7 @@ const fetchSlides = async () => {
         console.log(slides.value);
 
     } catch (err) {
-        error.value = 'Failed to fetch slides'
+        error.value = t('common.error.fetch-slides')
     } finally {
         loading.value = false
     }
@@ -100,9 +100,9 @@ watch(visibility, () => { })
     <div class="dashboard p-6">
         <!-- Header -->
         <div class="flex justify-between items-center mb-6" v-if="sortedSlides.length > 0">
-            <Button icon="pi pi-plus" label="New Slide" class="p-button-rounded" @click="createNewSlide" />
+            <Button icon="pi pi-plus" :label="t('dashboard.button.new')" class="p-button-rounded" @click="createNewSlide" />
             <Dropdown v-model="visibility" :options="visibilityOptions" optionLabel="label" optionValue="value"
-                class="w-40" :disabled="loading" placeholder="Filter" />
+                class="w-40" :disabled="loading" :placeholder="t('dashboard.filter.placeholder')" />
         </div>
         <div v-else class="flex justify-between items-center mb-6">
 
@@ -111,7 +111,7 @@ watch(visibility, () => { })
         <!-- Loading -->
         <div v-if="loading" class="flex flex-col items-center justify-center py-12 text-gray-500">
             <i class="pi pi-spin pi-spinner text-2xl mb-3"></i>
-            Loading slides...
+            {{ t('common.loading.slides') }}
         </div>
 
         <!-- Error -->
@@ -124,18 +124,16 @@ watch(visibility, () => { })
             <!-- Empty State -->
             <div v-if="sortedSlides.length === 0" class="text-center p-10 rounded-lg item">
                 <h2 class="text-xl font-semibold mb-2">
-                    {{ visibility === 'all' ? 'Welcome to Slidev AI' : 'No slides found' }}
+                    {{ visibility === 'all' ? t('dashboard.empty.welcome.title') : t('dashboard.empty.none-found.title') }}
                 </h2>
                 <p class="mb-4 text-gray-500">
-                    {{
-                        visibility === 'all'
-                            ? 'Create your first presentation now.'
-                            : visibility === 'public'
-                                ? 'You have no public slides yet.'
-                                : 'You have no private slides yet.'
-                    }}
+                    {{ visibility === 'all'
+                        ? t('dashboard.empty.all.desc')
+                        : visibility === 'public'
+                            ? t('dashboard.empty.public.desc')
+                            : t('dashboard.empty.private.desc') }}
                 </p>
-                <Button label="Create Slide" icon="pi pi-plus" class="p-button-rounded"
+                <Button :label="t('dashboard.button.create')" icon="pi pi-plus" class="p-button-rounded"
                     @click="createNewSlide" />
             </div>
 
@@ -166,10 +164,10 @@ watch(visibility, () => { })
 
                                 <!-- Visibility & Status -->
                                 <div class="flex items-center gap-2 mb-2">
-                                    <Tag :value="slide.visibility === 'public' ? 'Public' : 'Private'"
+                                    <Tag :value="slide.visibility === 'public' ? t('dashboard.tag.public') : t('dashboard.tag.private')"
                                         :severity="slide.visibility === 'public' ? 'success' : 'secondary'"
                                         v-tooltip.top="slide.visibility" />
-                                    <Tag :value="getStatusTag(slide.processingStatus).value"
+                                    <Tag :value="slide.processingStatus === 'completed' ? t('dashboard.status.completed') : t('dashboard.status.processing')"
                                         :severity="getStatusTag(slide.processingStatus).severity" />
                                 </div>
 
@@ -184,11 +182,11 @@ watch(visibility, () => { })
                                 <!-- Actions -->
                                 <div class="flex gap-2 mt-auto">
         
-                                    <div class="action-btn" data-label="Edit">
+                                    <div class="action-btn" :data-label="t('dashboard.action.edit')">
                                         <Button icon="pi pi-pencil" severity="info" text size="small"
                                             @click.stop="editSlide(slide.id)" />
                                     </div>
-                                    <div class="action-btn" data-label="Delete">
+                                    <div class="action-btn" :data-label="t('dashboard.action.delete')">
                                         <Button icon="pi pi-trash" severity="danger" text size="small"
                                             @click.stop="deleteSlide(slide.id, slide.title)" />
                                     </div>

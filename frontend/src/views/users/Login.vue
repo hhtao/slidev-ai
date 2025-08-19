@@ -7,6 +7,7 @@ import Password from 'primevue/password';
 import Card from 'primevue/card';
 import Message from 'primevue/message';
 import { useAuthStore } from '@/store/auth';
+import { t } from '@/i18n/index';
 
 const router = useRouter();
 const authStore = useAuthStore();
@@ -26,7 +27,7 @@ const handleSubmit = async () => {
     if (res.success) {
         router.push('/dashboard');
     } else {
-        error.value = res.error || 'Login failed';
+        error.value = res.error || t('auth.login.error');
     }
 }
 </script>
@@ -37,29 +38,29 @@ const handleSubmit = async () => {
             <div class="auth-form">
                 <div class="flex flex-col items-center mb-4">
                     <h1 class="text-3xl font-bold mt-2">slidev-ai</h1>
-                    <p class="text-gray-600 mt-2">AI-powered presentation creation tool</p>
+                    <p class="text-gray-600 mt-2">{{ t('auth.tagline') }}</p>
                 </div>
 
                 <Card>
                     <template #title>
-                        <h2>Login</h2>
+                        <h2>{{ t('auth.login.title') }}</h2>
                     </template>
 
                     <template #content>
                         <form @submit.prevent="handleSubmit">
                             <div class="p-field mb-4">
-                                <label for="username" class="block mb-2">Username</label>
+                                <label for="username" class="block mb-2">{{ t('auth.login.username') }}</label>
                                 <InputText id="username" v-model="username" type="text" required class="w-full" />
                             </div>
 
                            
                             <div class="p-field mb-4 w-100">
-                                <label for="password" class="block mb-2">Password</label>
+                                <label for="password" class="block mb-2">{{ t('auth.login.password') }}</label>
                                 <Password id="password" v-model="password" :feedback="false" toggleMask required
                                     class="w-full" />
                             </div>
 
-                            <Button type="submit" label='Login' icon="pi pi-sign-in"
+                            <Button type="submit" :label="t('auth.login.button')" icon="pi pi-sign-in"
                                 class="w-full mt-4" />
 
                             <div v-if="error" class="mt-4">
@@ -69,8 +70,8 @@ const handleSubmit = async () => {
 
                         <div class="mt-4 text-center">
                             <p>
-                                Don't have an account?
-                                <Button @click="router.push('/register')" label='Register' link/>
+                                {{ t('auth.login.prompt.no-account') }}
+                                <Button @click="router.push('/register')" :label="t('auth.login.prompt.register-link')" link/>
                             </p>
                         </div>
                     </template>

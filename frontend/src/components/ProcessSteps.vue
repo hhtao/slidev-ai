@@ -7,10 +7,12 @@ const route = useRoute();
 const router = useRouter();
 const slideStore = useSlidesStore();
 
+import { t } from '@/i18n/index';
+
 const stages = [
-    { key: 'input', label: 'User Input', icon: 'pi pi-user' },
-    { key: 'outline', label: 'Outline', icon: 'pi pi-list' },
-    { key: 'markdown', label: 'PPT', icon: 'pi pi-desktop' }
+    { key: 'input', label: t('process.stage.user-input'), icon: 'pi pi-user' },
+    { key: 'outline', label: t('process.stage.outline'), icon: 'pi pi-list' },
+    { key: 'markdown', label: t('process.stage.markdown'), icon: 'pi pi-desktop' }
 ] as const;
 
 type Stage = typeof stages[number]['key'];
@@ -95,7 +97,7 @@ onMounted(async () => {
                             : 'bg-gray-200 dark:bg-gray-700 text-gray-500',
                     isFutureCompleted(stage.key) ? 'cursor-pointer hover:opacity-90' : ''
                 ]" @click="(isBeforeCurrent(stage.key) || isFutureCompleted(stage.key)) ? goToStage(stage.key) : null"
-                    title="finished">
+                    :title="t('process.tooltip.finished')">
                     <i :class="stage.icon"></i>
 
                     <!-- 右上角小对勾徽标（未来且已完成） -->

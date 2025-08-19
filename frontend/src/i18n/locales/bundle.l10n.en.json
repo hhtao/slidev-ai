@@ -1,5 +1,71 @@
 {
     "info.public-slide.no-public-slide": "No public slides found",
     "info.public-slide.created-at": "Created at:",
-    "info.public-slide.updated-at": "Updated at:"
+    "info.public-slide.updated-at": "Updated at:",
+    "info.public-slide.check-back-later": "Check back later for public presentations.",
+
+    "common.loading.slides": "Loading slides...",
+    "common.error.fetch-slides": "Failed to fetch slides",
+    "common.user.anonymous": "Anonymous",
+    "common.user.profile-title": "My Profile",
+
+    "dashboard.button.new": "New Slide",
+    "dashboard.button.create": "Create Slide",
+    "dashboard.filter.placeholder": "Filter",
+    "dashboard.filter.all": "All",
+    "dashboard.filter.public": "Public",
+    "dashboard.filter.private": "Private",
+    "dashboard.delete.confirm.message": "Are you sure you want to delete \"{title}\"?",
+    "dashboard.delete.confirm.header": "Delete Confirmation",
+    "dashboard.toast.delete.success.summary": "Deleted",
+    "dashboard.toast.delete.success.detail": "Slide deleted successfully",
+    "dashboard.toast.delete.error.summary": "Error",
+    "dashboard.toast.delete.error.detail": "Failed to delete slide",
+    "dashboard.empty.welcome.title": "Welcome to Slidev AI",
+    "dashboard.empty.none-found.title": "No slides found",
+    "dashboard.empty.all.desc": "Create your first presentation now.",
+    "dashboard.empty.public.desc": "You have no public slides yet.",
+    "dashboard.empty.private.desc": "You have no private slides yet.",
+    "dashboard.tag.public": "Public",
+    "dashboard.tag.private": "Private",
+    "dashboard.status.completed": "Completed",
+    "dashboard.status.processing": "Processing",
+    "dashboard.action.edit": "Edit",
+    "dashboard.action.delete": "Delete",
+
+    "preview.loading.slide": "Loading slide...",
+    "preview.error.load-slide": "Failed to load slide",
+    "preview.button.copy-markdown": "Copy Markdown",
+    "preview.instructions.title": "How to use this Slidev presentation:",
+    "preview.instructions.step1": "Copy the markdown content above",
+    "preview.instructions.step2": "Save it as a .md file (e.g., presentation.md)",
+    "preview.instructions.step3": "Install Slidev:",
+    "preview.instructions.step4": "Run:",
+    "preview.not-found": "Slide not found",
+
+    "auth.tagline": "AI-powered presentation creation tool",
+    "auth.login.title": "Login",
+    "auth.login.username": "Username",
+    "auth.login.password": "Password",
+    "auth.login.button": "Login",
+    "auth.login.error": "Login failed",
+    "auth.login.prompt.no-account": "Don't have an account?",
+    "auth.login.prompt.register-link": "Register",
+    "auth.register.title": "Register",
+    "auth.register.username": "Username",
+    "auth.register.email": "Email",
+    "auth.register.password": "Password",
+    "auth.register.button": "Register",
+    "auth.register.error": "Registration failed",
+    "auth.register.prompt.has-account": "Already have an account?",
+    "auth.register.prompt.login-link": "Login"
+        ,"auth.logout.button": "Logout"
+        ,"nav.public-slides": "Public Slides"
+        ,"nav.my-slides": "My Slides"
+        ,"process.stage.user-input": "User Input"
+        ,"process.stage.outline": "Outline"
+        ,"process.stage.markdown": "PPT"
+        ,"process.tooltip.finished": "finished"
+        ,"locale.english": "English"
+        ,"locale.chinese-simplified": "Simplified Chinese"
 }
