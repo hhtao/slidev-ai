@@ -13,6 +13,7 @@ import httpProxy from 'http-proxy';
 import { PrivateSlideOwnerGuard, PublicSlideOwnerGuard } from '../auth/slide-owner.guard';
 import { UseFileUploader } from '@/decorators/file-upload.decorator';
 import { ApiTags, ApiOperation, ApiQuery, ApiOkResponse, ApiConsumes, ApiBody, ApiParam, ApiBearerAuth, ApiProduces } from '@nestjs/swagger';
+import BaseResponse from '../base/base.dto';
 
 const proxy = httpProxy.createProxyServer();
 
@@ -301,35 +302,11 @@ export class SlidesController {
     @ApiOperation({ summary: '构建 Slidev 项目', description: '进行项目打包与首页截图生成，更新状态。' })
     @ApiBearerAuth()
     @ApiParam({ name: 'id', description: '幻灯片 ID' })
-    @ApiOkResponse({ description: '返回 { success: true }' })
+    @ApiOkResponse({ description: '返回构建结果' })
     async buildSlidevProject(
         @Param('id') id: number,
     ) {
-        const slide = await this.slideRepository.findOneById(id);
-        if (!slide) {
-            throw new NotFoundException('Slide not found');
-        }
-
-        const absolutePath = this.slidesService.getSlidePrjAbsolutePath(slide);
-        if (!absolutePath) {
-            throw new NotFoundException('Slide project path not found');
-        }
-
-        this.slideRepository.update(id, { processingStatus: 'markdown-saved' });
-
-        // 生成首页图
-        const screenshotPath = await this.slidevManager.captureScreenshot(id, absolutePath, slide);
-        if (screenshotPath) {
-            console.log(`Screenshot saved to ${screenshotPath}`);
-            this.slideRepository.update(id, {
-                coverFilename: path.basename(screenshotPath)
-            });
-        }
-        
-        await this.slidevManager.buildSlidevProject(id, absolutePath);
-
-        this.slideRepository.update(id, { processingStatus: 'completed' });
-
-        return { success: true };
+        const resp: BaseResponse = await this.slidesService.buildSlidevProject(id);
+        return resp;
     }
 }

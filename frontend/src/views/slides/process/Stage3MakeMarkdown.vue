@@ -88,7 +88,23 @@ const handleSSEMessage = async (event: MessageEvent, toolcallMapper: Map<string,
     try {
         const data = JSON.parse(event.data);
 
-        if (data.type === 'toolcall') {
+        if (data.type === 'busy') {
+            isProcessing.value = false;
+            messages.value.push({
+                type: 'busy',
+                status: 'failed',
+                message: data.message,
+                timestamp: Date.now()
+            });
+            toast.add({
+                severity: 'warn',
+                summary: 'Slide Busy',
+                detail: data.message,
+                life: 4000
+            });
+            if (eventSource.value) eventSource.value.close();
+            return;
+        } else if (data.type === 'toolcall') {
             const toolcall = data.toolcall;
             const message: MessageItem = {
                 type: 'toolcall',

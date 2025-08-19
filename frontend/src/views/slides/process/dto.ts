@@ -19,11 +19,12 @@ export interface SlidevProjectSchema {
 }
 
 export type MessageItem = {
-    type: 'toolcall' | 'toolcalled' | 'done' | 'error';
+    type: 'toolcall' | 'toolcalled' | 'done' | 'error' | 'busy';
     name?: string;
     status?: 'pending' | 'done' | 'failed';
     timestamp?: number;
     error?: string;
+    message?: string; // for busy or generic messages
 };
 
 

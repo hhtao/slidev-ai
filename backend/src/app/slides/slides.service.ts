@@ -10,6 +10,10 @@ import { toSseData } from '@/utils/sse';
 import path from 'path';
 import { v4 as uuidv4 } from 'uuid';
 import { SLIDEV_MCP_ROOT } from '@/constant/filepath';
+import { SlideLockService } from './slide-lock.service';
+import BaseResponse from '@/app/base/base.dto';
+import  STATUS_CODE  from '@/constant/status-code';
+import { SlidevManagerService } from './slidev-manager.service';
 // 定义文件类型
 type MulterFile = Express.Multer.File;
 
@@ -26,6 +30,9 @@ export class SlidesService {
     constructor(
         private readonly slidesRepository: SlideRepository,
         private readonly slidevMcpService: SlidevMcpService,
+        private readonly slideLock: SlideLockService,
+        private readonly slidevManager: SlidevManagerService,
+
     ) { }
 
     /**
@@ -100,139 +107,105 @@ export class SlidesService {
         return !!slide.outlines;
     }
 
-    /**
-     * @description 创建 outline 任务，并返回中途进度
-     */
-    async makeOutlineHandler(id: number, subscriber: Subscriber<any>) {
-        const slide = await this.slidesRepository.findOneById(id);
-
-        if (!slide) {
-            subscriber.next(toSseData({ type: 'error', message: 'Slide not found' }));
+    private async runSseWithLock(id: number, operation: string, subscriber: Subscriber<any>, core: () => Promise<void>) {
+        try {
+            await this.slideLock.withLock(id, operation, async () => {
+                try {
+                    await core();
+                } catch (inner) {
+                    throw inner;
+                }
+            });
+        } catch (e: any) {
+            if (e.code === 'SLIDE_BUSY') {
+                subscriber.next(toSseData({
+                    type: 'busy',
+                    message: `当前幻灯片正在执行 ${e.current?.operation}`,
+                    current: e.current,
+                }));
+            } else {
+                subscriber.next(toSseData({ type: 'error', message: e.message }));
+            }
+        } finally {
             subscriber.complete();
-            return;
         }
+    }
 
-        const { agent, loop } = await this.getAgentDependency();
-
-        const saveOutlineIds = new Set();
-
-        loop.registerOnToolCall(toolcall => {
-            subscriber.next(toSseData({
-                type: 'toolcall',
-                toolcall,
-            }));
-
-            if (toolcall.function.name === 'slidev_save_outline') {
-                saveOutlineIds.add(toolcall.id);
+    /** 创建 outline 任务（带锁） */
+    async makeOutlineHandler(id: number, subscriber: Subscriber<any>) {
+        await this.runSseWithLock(id, 'make-outline', subscriber, async () => {
+            const slide = await this.slidesRepository.findOneById(id);
+            if (!slide) {
+                subscriber.next(toSseData({ type: 'error', message: 'Slide not found' }));
+                return;
             }
-
-            return toolcall;
+            const { agent, loop } = await this.getAgentDependency();
+            const saveOutlineIds = new Set();
+            loop.registerOnToolCall(toolcall => {
+                subscriber.next(toSseData({ type: 'toolcall', toolcall }));
+                if (toolcall.function.name === 'slidev_save_outline') {
+                    saveOutlineIds.add(toolcall.id);
+                }
+                return toolcall;
+            });
+            loop.registerOnToolCalled(toolcalled => {
+                if (saveOutlineIds.has(toolcalled.id)) {
+                    loop.abort();
+                }
+                subscriber.next(toSseData({ type: 'toolcalled', toolcalled }));
+                return toolcalled;
+            });
+            loop.registerOnError(error => {
+                subscriber.next(toSseData({ error }));
+                console.log('error', error);
+            });
+            const usermcpPrompt = await agent.getPrompt('usermcp_guide_prompt', {});
+            const outlinePrompt = await agent.getPrompt('outline_generate_prompt', { title: slide.title, content: slide.content });
+            await agent.ainvoke({ messages: [usermcpPrompt, outlinePrompt].join('\n\n') });
+            subscriber.next(toSseData({ done: true }));
         });
-
-        loop.registerOnToolCalled(toolcalled => {
-
-            if (saveOutlineIds.has(toolcalled.id)) {
-                loop.abort();
-            }
-
-            subscriber.next(toSseData({
-                type: 'toolcalled',
-                toolcalled,
-            }));
-
-            return toolcalled;
-        });
-
-        loop.registerOnError(error => {
-            subscriber.next(toSseData({ error }));
-            console.log('error', error);
-        });
-
-        const usermcpPrompt = await agent.getPrompt('usermcp_guide_prompt', {});
-        const outlinePrompt = await agent.getPrompt('outline_generate_prompt', {
-            title: slide.title,
-            content: slide.content,
-        });
-
-        const prompts = [
-            usermcpPrompt,
-            outlinePrompt,
-        ];
-
-        await agent.ainvoke({ messages: prompts.join('\n\n') });
-
-        subscriber.next(toSseData({ done: true }));
     }
 
     /**
      * @description 创建 markdown 任务，并返回中途进度
      */
     async makeMarkdownHandler(id: number, subscriber: Subscriber<any>) {
-        const { agent, loop } = await this.getAgentDependency();
-
-        const slide = await this.slidesRepository.findOneById(id);
-
-        if (!slide) {
-            subscriber.next(toSseData({ type: 'error', message: 'Slide not found' }));
-            subscriber.complete();
-            return;
-        }
-
-        const outlines = slide.outlines || '';
-        if (outlines.length === 0) {
-            subscriber.next(toSseData({ type: 'message', message: 'Outline not found' }));
-            subscriber.complete();
-            return;
-        }
-
-        const saveOutlineIds = new Set();
-
-        loop.registerOnToolCall(toolcall => {
-            subscriber.next(toSseData({
-                type: 'toolcall',
-                toolcall,
-            }));
-
-            if (toolcall.function.name === 'slidev_export_project') {
-                saveOutlineIds.add(toolcall.id);
+        await this.runSseWithLock(id, 'make-markdown', subscriber, async () => {
+            const { agent, loop } = await this.getAgentDependency();
+            const slide = await this.slidesRepository.findOneById(id);
+            if (!slide) {
+                subscriber.next(toSseData({ type: 'error', message: 'Slide not found' }));
+                return;
             }
-
-            return toolcall;
-        });
-
-        loop.registerOnToolCalled(toolcalled => {
-
-            if (saveOutlineIds.has(toolcalled.id)) {
-                loop.abort();
+            const outlines = slide.outlines || '';
+            if (outlines.length === 0) {
+                subscriber.next(toSseData({ type: 'message', message: 'Outline not found' }));
+                return;
             }
-
-            subscriber.next(toSseData({
-                type: 'toolcalled',
-                toolcalled,
-            }));
-            return toolcalled;
+            const saveOutlineIds = new Set();
+            loop.registerOnToolCall(toolcall => {
+                subscriber.next(toSseData({ type: 'toolcall', toolcall }));
+                if (toolcall.function.name === 'slidev_export_project') {
+                    saveOutlineIds.add(toolcall.id);
+                }
+                return toolcall;
+            });
+            loop.registerOnToolCalled(toolcalled => {
+                if (saveOutlineIds.has(toolcalled.id)) {
+                    loop.abort();
+                }
+                subscriber.next(toSseData({ type: 'toolcalled', toolcalled }));
+                return toolcalled;
+            });
+            const usermcpPrompt = await agent.getPrompt('usermcp_guide_prompt', {});
+            let slidevHome = slide.slidevHome;
+            if (!slidevHome || slidevHome.length === 0) {
+                slidevHome = uuidv4();
+            }
+            const slidevPrompt = await agent.getPrompt('slidev_generate_with_specific_outlines_prompt', { outlines, title: slide.title, content: slide.content, path: slidevHome });
+            await agent.ainvoke({ messages: [usermcpPrompt, slidevPrompt].join('\n\n') });
+            subscriber.next(toSseData({ done: true }));
         });
-
-        const usermcpPrompt = await agent.getPrompt('usermcp_guide_prompt', {});
-        let slidevHome = slide.slidevHome;
-        if (!slidevHome || slidevHome.length === 0) {
-            slidevHome = uuidv4();
-        }
-        const slidevPrompt = await agent.getPrompt('slidev_generate_with_specific_outlines_prompt', {
-            outlines: outlines,
-            title: slide.title,
-            content: slide.content,
-            path: slidevHome,
-        });
-
-        const prompts = [
-            usermcpPrompt,
-            slidevPrompt,
-        ];
-        console.log(prompts);
-        await agent.ainvoke({ messages: prompts.join('\n\n') });
-
-        subscriber.next(toSseData({ done: true }));
     }
 
 
@@ -244,5 +217,35 @@ export class SlidesService {
         }
 
         return slidePath;
+    }
+    async buildSlidevProject(id:number): Promise<BaseResponse> {
+        try {
+            await this.slideLock.withLock(id, 'build-slidev', async () => {
+                const slide = await this.slidesRepository.findOneById(id);
+                if (!slide) {
+                    throw new Error('NOT_FOUND:Slide not found');
+                }
+                const absolutePath = this.getSlidePrjAbsolutePath(slide);
+                if (!absolutePath) {
+                    throw new Error('NOT_FOUND:Slide project path not found');
+                }
+                this.slidesRepository.update(id, { processingStatus: 'markdown-saved' });
+                const screenshotPath = await this.slidevManager.captureScreenshot(id, absolutePath, slide);
+                if (screenshotPath) {
+                    this.slidesRepository.update(id, { coverFilename: path.basename(screenshotPath) });
+                }
+                await this.slidevManager.buildSlidevProject(id, absolutePath);
+                this.slidesRepository.update(id, { processingStatus: 'completed' });
+            });
+            return BaseResponse.success();
+        } catch (e: any) {
+            if (e.code === 'SLIDE_BUSY') {
+                return BaseResponse.error(STATUS_CODE.BAD_REQUEST, `Slide busy: running ${e.current?.operation}`);
+            }
+            if (typeof e.message === 'string' && e.message.startsWith('NOT_FOUND:')) {
+                return BaseResponse.error(STATUS_CODE.NOT_FOUND, e.message.split(':')[1]);
+            }
+            return BaseResponse.error(STATUS_CODE.INTERNAL_SERVER_ERROR, e.message || 'Unknown error');
+        }
     }
 }

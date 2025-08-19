@@ -90,11 +90,6 @@ const collapseAllPanels = () => {
     }
 };
 
-const expandAllPanels = () => {
-    if (editableOutlineRef.value && editableOutlineRef.value.expandAll) {
-        editableOutlineRef.value.expandAll();
-    }
-};
 
 const saveOutlines = async () => {
     const id = props.id;
@@ -184,11 +179,28 @@ const checkExistingOutlines = async () => {
     }
 };
 
-const handleSSEMessage = async (event: MessageEvent, toolcallMapper: Map<string, { index: number }>) => {
+const handleSSEMessage = async (event: MessageEvent) => {
     try {
         const data = JSON.parse(event.data);
 
-        if (data.type === 'toolcall') {
+        if (data.type === 'busy') {
+            // 服务器告知该 slide 正在执行其他操作
+            isProcessing.value = false;
+            messages.value.push({
+                type: 'busy',
+                status: 'failed',
+                message: data.message,
+                timestamp: Date.now()
+            });
+            toast.add({
+                severity: 'warn',
+                summary: 'Slide Busy',
+                detail: data.message,
+                life: 4000
+            });
+            if (eventSource.value) eventSource.value.close();
+            return;
+        } else if (data.type === 'toolcall') {
             const toolcall = data.toolcall;
             const message: MessageItem = {
                 type: 'toolcall',
@@ -254,9 +266,8 @@ const initializeSSE = () => {
             withCredentials: true
         });
 
-        const toolcallMapper = new Map();
-        eventSource.value.addEventListener('error', handleSSEError);
-        eventSource.value.addEventListener('message', event => handleSSEMessage(event, toolcallMapper))
+    eventSource.value.addEventListener('error', handleSSEError);
+    eventSource.value.addEventListener('message', event => handleSSEMessage(event))
     } catch (setupError) {
         error.value = 'Failed to initialize connection';
         console.error('SSE setup error:', setupError);

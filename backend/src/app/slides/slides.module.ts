@@ -8,6 +8,7 @@ import { Slide } from './slide.entity';
 import { SlideRepository } from './slide.repository';
 import { SlidevManagerService } from './slidev-manager.service';
 import { SlidesPresentationController } from './presentation.controller';
+import { SlideLockService } from './slide-lock.service';
 @Module({
     imports: [
         SlidevMcpModule,
@@ -16,7 +17,8 @@ import { SlidesPresentationController } from './presentation.controller';
     providers: [
         SlidesService,
         SlidevManagerService,
-        SlideRepository
+    SlideRepository,
+    SlideLockService
     ],
     controllers: [
         SlidesController,
