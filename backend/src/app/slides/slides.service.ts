@@ -214,11 +214,15 @@ export class SlidesService {
         });
 
         const usermcpPrompt = await agent.getPrompt('usermcp_guide_prompt', {});
+        let slidevHome = slide.slidevHome;
+        if (!slidevHome || slidevHome.length === 0) {
+            slidevHome = uuidv4();
+        }
         const slidevPrompt = await agent.getPrompt('slidev_generate_with_specific_outlines_prompt', {
             outlines: outlines,
             title: slide.title,
             content: slide.content,
-            path: uuidv4()
+            path: slidevHome,
         });
 
         const prompts = [
