@@ -32,13 +32,17 @@ const isProcessing = ref<boolean>(true);
 const connectionRetries = ref<number>(0);
 const MAX_RETRIES = 3;
 const isButtonDisabled = ref(false);
+const hasFinished = ref<boolean>(false);
+const isBusy = ref<boolean>(false);
 
 const messages = ref<MessageItem[]>([]);
 
 // Methods
 const handleSSEError = (event: Event) => {
     console.error('SSE connection error:', event);
-
+    if (hasFinished.value || isBusy.value) {
+        return; // 已完成或忙状态不重试
+    }
     if (connectionRetries.value < MAX_RETRIES) {
         connectionRetries.value++;
         toast.add({
@@ -89,19 +93,10 @@ const handleSSEMessage = async (event: MessageEvent, toolcallMapper: Map<string,
         const data = JSON.parse(event.data);
 
         if (data.type === 'busy') {
+            isBusy.value = true;
             isProcessing.value = false;
-            messages.value.push({
-                type: 'busy',
-                status: 'failed',
-                message: data.message,
-                timestamp: Date.now()
-            });
-            toast.add({
-                severity: 'warn',
-                summary: 'Slide Busy',
-                detail: data.message,
-                life: 4000
-            });
+            messages.value.push({ type: 'busy', status: 'failed', message: data.message, timestamp: Date.now() });
+            toast.add({ severity: 'warn', summary: 'Slide Busy', detail: data.message, life: 4000 });
             if (eventSource.value) eventSource.value.close();
             return;
         } else if (data.type === 'toolcall') {
@@ -136,6 +131,7 @@ const handleSSEMessage = async (event: MessageEvent, toolcallMapper: Map<string,
 
         if (data.done) {
             isProcessing.value = false;
+            hasFinished.value = true;
             toast.add({
                 severity: 'success',
                 summary: 'Processing Complete',

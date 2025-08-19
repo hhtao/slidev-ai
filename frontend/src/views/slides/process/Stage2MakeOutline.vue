@@ -32,6 +32,8 @@ const isProcessing = ref<boolean>(true);
 const outlines = ref<OutlineItem[]>([]);
 const connectionRetries = ref<number>(0);
 const MAX_RETRIES = 3;
+const hasFinished = ref<boolean>(false); // 正常完成
+const isBusy = ref<boolean>(false); // 收到 busy
 
 const messages = ref<MessageItem[]>([]);
 
@@ -45,6 +47,10 @@ const outlineGenerated = computed<boolean>(() => {
 // Methods
 const handleSSEError = (event: Event) => {
     console.error('SSE connection error:', event);
+    // 如果已经完成或已判定 busy，不再重试
+    if (hasFinished.value || isBusy.value) {
+        return;
+    }
 
     if (connectionRetries.value < MAX_RETRIES) {
         connectionRetries.value++;
@@ -184,20 +190,10 @@ const handleSSEMessage = async (event: MessageEvent) => {
         const data = JSON.parse(event.data);
 
         if (data.type === 'busy') {
-            // 服务器告知该 slide 正在执行其他操作
+            isBusy.value = true;
             isProcessing.value = false;
-            messages.value.push({
-                type: 'busy',
-                status: 'failed',
-                message: data.message,
-                timestamp: Date.now()
-            });
-            toast.add({
-                severity: 'warn',
-                summary: 'Slide Busy',
-                detail: data.message,
-                life: 4000
-            });
+            messages.value.push({ type: 'busy', status: 'failed', message: data.message, timestamp: Date.now() });
+            toast.add({ severity: 'warn', summary: 'Slide Busy', detail: data.message, life: 4000 });
             if (eventSource.value) eventSource.value.close();
             return;
         } else if (data.type === 'toolcall') {
@@ -235,6 +231,7 @@ const handleSSEMessage = async (event: MessageEvent) => {
 
         if (data.done) {
             isProcessing.value = false;
+            hasFinished.value = true;
             toast.add({
                 severity: 'success',
                 summary: 'Processing Complete',
