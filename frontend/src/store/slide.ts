@@ -100,12 +100,6 @@ export const useSlidesStore = defineStore('slides', () => {
 
     const buildSlidev = async (id: number) => {
         const res = await axios.post(`${API_BASE_URL}/slides/${id}/build-slidev`);
-
-        if (!res.data.success) {
-            throw new Error('Failed to build slidev');
-        }
-
-
         return res;
     }
 

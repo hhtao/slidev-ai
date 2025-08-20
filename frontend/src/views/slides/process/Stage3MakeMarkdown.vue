@@ -11,6 +11,7 @@ import { useSlidesStore } from '@/store/slide';
 import axios from 'axios';
 import { API_BASE_URL } from '@/utils/api';
 import ProcessSteps from '@/components/ProcessSteps.vue';
+import STATUS_CODE from '@/constant/status-code';
 
 const props = defineProps<{
     id: number
@@ -139,6 +140,10 @@ const handleSSEMessage = async (event: MessageEvent, toolcallMapper: Map<string,
                 detail: 'Markdown generation finished successfully',
                 life: 3000
             });
+            if (eventSource.value) {
+                eventSource.value.close();
+                eventSource.value = null;
+            }
 
         }
     } catch (parseError) {
@@ -212,6 +217,12 @@ const initializeSSE = () => {
         return;
     }
 
+    // 若已有连接尚未关闭，先关闭，防止重复并行连接
+    if (eventSource.value) {
+        try { eventSource.value.close(); } catch { /* ignore */ }
+        eventSource.value = null;
+    }
+
     isProcessing.value = true;
     hasFinished.value = false;
     isButtonDisabled.value = true;
@@ -247,7 +258,7 @@ const buildSlidevProject = async () => {
 
         toast.remove(buildingMessage);
 
-        if (!res.data.success) {
+        if (res.data.code != STATUS_CODE.SUCCESS) {
             toast.add({
                 severity: 'error',
                 summary: 'Build Failed',
@@ -397,9 +408,9 @@ onUnmounted(() => {
                                             <i class="pi pi-exclamation-triangle mr-2"></i>
                                             Error: {{ message.error || 'Unknown error' }}
                                         </span>
-                                        <span v-else-if="message.type === 'busy'" class="font-medium text-red-600">
+                                        <span v-else-if="message.type === 'busy'" class="font-medium text-yellow-600">
                                             <i class="pi pi-exclamation-triangle mr-2"></i>
-                                            Error: {{ message.message }}
+                                            Warning: {{ message.message }}
                                         </span>
                                     </div>
                                     <span class="text-xs text-gray-500">
