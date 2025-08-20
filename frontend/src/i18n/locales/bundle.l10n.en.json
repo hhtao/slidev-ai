@@ -59,6 +59,7 @@
     "auth.register.error": "Registration failed",
     "auth.register.prompt.has-account": "Already have an account?",
     "auth.register.prompt.login-link": "Login",
+    "auth.logout.button": "Logout",
     "process.input.header": "Enter the basic information for your presentation",
     "process.input.slide-title": "Slide Title",
     "process.input.slide-title.placeholder": "Enter slide title",

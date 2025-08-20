@@ -59,6 +59,7 @@
     "auth.register.error": "注册失败",
     "auth.register.prompt.has-account": "已经有账号？",
     "auth.register.prompt.login-link": "登录",
+    "auth.logout.button": "登出",
     "process.input.header": "请输入演示文稿的基本信息",
     "process.input.slide-title": "幻灯片标题",
     "process.input.slide-title.placeholder": "输入幻灯片标题",
