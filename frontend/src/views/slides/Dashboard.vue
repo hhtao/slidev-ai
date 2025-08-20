@@ -99,13 +99,10 @@ watch(visibility, () => { })
 
     <div class="dashboard p-6">
         <!-- Header -->
-        <div class="flex justify-between items-center mb-6" v-if="sortedSlides.length > 0">
+        <div class="flex justify-between items-center mb-6">
             <Button icon="pi pi-plus" :label="t('dashboard.button.new')" class="p-button-rounded" @click="createNewSlide" />
             <Dropdown v-model="visibility" :options="visibilityOptions" optionLabel="label" optionValue="value"
                 class="w-40" :disabled="loading" :placeholder="t('dashboard.filter.placeholder')" />
-        </div>
-        <div v-else class="flex justify-between items-center mb-6">
-
         </div>
 
         <!-- Loading -->
