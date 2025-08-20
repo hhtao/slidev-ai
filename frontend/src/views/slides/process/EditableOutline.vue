@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue';
+import { t } from '@/i18n/index';
 import Panel from 'primevue/panel';
-import Button from 'primevue/button';
 import InputText from 'primevue/inputtext';
 import Textarea from 'primevue/textarea';
 import { OutlineItem } from './dto';
@@ -101,18 +101,18 @@ defineExpose({
 
 <template>
     <div class="space-y-4">
-        <Panel v-for="(groupOutlines, group) in groupedOutlines" :key="group" :header="`Group: ${group}`" toggleable
+    <Panel v-for="(groupOutlines, group) in groupedOutlines" :key="group" :header="t('outline.panel.group-header', String(group))" toggleable
             :collapsed="!expandedGroups[group]" @update:collapsed="(val: boolean) => updateGroupExpanded(group.toString(), !val)">
             <div v-for="outline in groupOutlines" :key="outline.originalIndex"
                 class="mb-4 p-3 border-b border-gray-200 dark:border-gray-700 last:border-b-0">
                 <div class="mb-2">
-                    <label class="block text-sm font-medium mb-1">Group</label>
+            <label class="block text-sm font-medium mb-1">{{ t('outline.panel.group') }}</label>
                     <InputText :model-value="outline.group"
                         @update:model-value="newGroup => updateGroup(outline.originalIndex, newGroup || '')"
                         class="w-full" size="small" />
                 </div>
                 <div>
-                    <label class="block text-sm font-medium mb-1">Content</label>
+            <label class="block text-sm font-medium mb-1">{{ t('outline.panel.content') }}</label>
                     <Textarea :model-value="outline.content"
                         @update:model-value="newContent => updateContent(outline.originalIndex, newContent)"
                         class="w-full" rows="3" />

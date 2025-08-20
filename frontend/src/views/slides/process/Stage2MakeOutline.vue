@@ -11,6 +11,7 @@ import { useToast } from 'primevue/usetoast';
 import { useSlidesStore } from '@/store/slide';
 import { API_BASE_URL } from '@/utils/api';
 import ProcessSteps from '@/components/ProcessSteps.vue';
+import { t } from '@/i18n';
 
 const props = defineProps<{
     id: number;
@@ -56,15 +57,15 @@ const handleSSEError = (event: Event) => {
         connectionRetries.value++;
         toast.add({
             severity: 'warn',
-            summary: 'Connection Issue',
-            detail: `Attempting to reconnect (${connectionRetries.value}/${MAX_RETRIES})...`,
+            summary: t('process.outline.connection-issue'),
+            detail: t('process.outline.reconnect.attempt', String(connectionRetries.value), String(MAX_RETRIES)),
             life: 3000
         });
         setTimeout(initializeSSE, 2000 * connectionRetries.value);
         return;
     }
 
-    error.value = 'Failed to establish connection after multiple attempts. Please try again later.';
+    error.value = t('process.outline.error.sse');
     isProcessing.value = false;
 
     messages.value.push({
@@ -75,8 +76,8 @@ const handleSSEError = (event: Event) => {
     });
 
     toast.add({
-        severity: 'error',
-        summary: 'Connection Failed',
+    severity: 'error',
+    summary: t('process.outline.connection-failed'),
         detail: error.value,
         life: 5000
     });
@@ -100,7 +101,7 @@ const collapseAllPanels = () => {
 const saveOutlines = async () => {
     const id = props.id;
     if (!id) {
-        error.value = 'Invalid slide ID';
+    error.value = t('process.outline.error.invalid-id');
         return;
     }
 
@@ -108,15 +109,15 @@ const saveOutlines = async () => {
         await slidesStore.saveOutlines(id, outlines.value);
         toast.add({
             severity: 'success',
-            summary: 'Save Outlines Successfully',
+            summary: t('process.outline.save-success'),
             life: 3000,
         });
     } catch (error) {
         console.error('Error saving outlines:', error);
         toast.add({
             severity: 'error',
-            summary: 'Error',
-            detail: 'Failed to save outlines:' + error,
+            summary: t('process.outline.error'),
+            detail: t('process.outline.save-error') + error,
             life: 5000
         });        
     }
@@ -136,7 +137,7 @@ const gotoGenMarkdown = async () => {
 const checkExistingOutlines = async () => {
     const id = props.id;
     if (!id) {
-        error.value = 'Invalid slide ID';
+    error.value = t('process.outline.error.invalid-id');
         return;
     }
 
@@ -145,7 +146,7 @@ const checkExistingOutlines = async () => {
         const slideData = await slidesStore.getSlideById(id);
         
         if (!slideData) {
-            error.value = 'Failed to fetch slide data';
+            error.value = t('process.outline.error.fetch-failed');
             return;
         }        
 
@@ -164,8 +165,8 @@ const checkExistingOutlines = async () => {
                     isProcessing.value = false;
                     toast.add({
                         severity: 'success',
-                        summary: 'Loaded Existing Outline',
-                        detail: 'Using previously generated outline',
+                        summary: t('process.outline.loaded-existing'),
+                        detail: t('process.outline.using-existing'),
                         life: 3000
                     });
                     return true;
@@ -179,8 +180,8 @@ const checkExistingOutlines = async () => {
         initializeSSE();
         return false;
     } catch (err) {
-        console.error('Error fetching slide data:', err);
-        error.value = 'Failed to fetch slide data';
+    console.error('Error fetching slide data:', err);
+    error.value = t('process.outline.error.fetch-failed');
         return false;
     }
 };
@@ -193,7 +194,7 @@ const handleSSEMessage = async (event: MessageEvent) => {
             isBusy.value = true;
             isProcessing.value = false;
             messages.value.push({ type: 'busy', status: 'failed', message: data.message, timestamp: Date.now() });
-            toast.add({ severity: 'warn', summary: 'Slide Busy', detail: data.message, life: 4000 });
+            toast.add({ severity: 'warn', summary: t('process.outline.slide-busy'), detail: data.message, life: 4000 });
             if (eventSource.value) eventSource.value.close();
             return;
         } else if (data.type === 'toolcall') {
@@ -234,8 +235,8 @@ const handleSSEMessage = async (event: MessageEvent) => {
             hasFinished.value = true;
             toast.add({
                 severity: 'success',
-                summary: 'Processing Complete',
-                detail: 'Outline generation finished successfully',
+                summary: t('process.outline.processing-complete'),
+                detail: t('process.outline.finished'),
                 life: 3000
             });
         }
@@ -253,7 +254,7 @@ const handleSSEMessage = async (event: MessageEvent) => {
 const initializeSSE = () => {
     const id = props.id;
     if (!id || Array.isArray(id)) {
-        error.value = 'Invalid slide ID';
+    error.value = t('process.outline.error.invalid-id');
         return;
     }
 
@@ -266,7 +267,7 @@ const initializeSSE = () => {
     eventSource.value.addEventListener('error', handleSSEError);
     eventSource.value.addEventListener('message', event => handleSSEMessage(event))
     } catch (setupError) {
-        error.value = 'Failed to initialize connection';
+    error.value = t('process.outline.error.init-conn');
         console.error('SSE setup error:', setupError);
     }
 };
@@ -299,7 +300,7 @@ watch(error, (newError) => {
     if (newError) {
         toast.add({
             severity: 'error',
-            summary: 'Error',
+            summary: t('process.outline.error'),
             detail: newError,
             life: 5000
         });
@@ -313,7 +314,7 @@ watch(error, (newError) => {
         <Card>
             <template #title>
                 <div class="flex justify-between items-center">
-                    <h1>Presentation Outline Generator</h1>
+                    <h1>{{ t('process.outline.title') }}</h1>
                     <Button icon="pi pi-times" outlined @click="cancelProcessing" severity="secondary"
                         aria-label="Cancel processing" />
                 </div>
@@ -330,9 +331,8 @@ watch(error, (newError) => {
                         class="flex flex-col items-center justify-center py-10 space-y-4">
                         <ProgressSpinner />
                         <p class="mt-2 text-center">
-                            Generating outline...
-                            <span class="block text-sm text-gray-500">Please wait while we process your
-                                presentation</span>
+                            {{ t('process.outline.generating') }}
+                            <span class="block text-sm text-gray-500">{{ t('process.outline.generating.help') }}</span>
                         </p>
                     </div>
 
@@ -350,15 +350,15 @@ watch(error, (newError) => {
                                             <i class="pi pi-cog mr-2 animate-spin"
                                                 v-if="message.status === 'pending'"></i>
                                             <i class="pi pi-check mr-2" v-else-if="message.status === 'done'"></i>
-                                            {{ message.name || 'Unknown tool' }}
+                                            {{ message.name || t('process.outline.error.unknown-tool') }}
                                         </span>
                                         <span v-else-if="message.type === 'toolcalled'" class="font-medium">
                                             <i class="pi pi-check-circle mr-2"></i>
-                                            Tool response received
+                                            {{ t('process.outline.tool-response') }}
                                         </span>
                                         <span v-else-if="message.type === 'error'" class="font-medium text-red-600">
                                             <i class="pi pi-exclamation-triangle mr-2"></i>
-                                            Error: {{ message.error || 'Unknown error' }}
+                                            {{ t('process.outline.error') }}: {{ message.error || t('process.outline.error.unknown') }}
                                         </span>
                                     </div>
                                     <span class="text-xs text-gray-500">
@@ -374,7 +374,7 @@ watch(error, (newError) => {
 
                     <!-- 显示可编辑的大纲 -->
                     <div v-if="outlineGenerated">
-                        <h2 class="text-xl font-bold mb-4">Generated Outline</h2>
+                        <h2 class="text-xl font-bold mb-4">{{ t('process.outline.generated') }}</h2>
                         <EditableOutline ref="editableOutlineRef" :outlines="outlines" @update:outlines="updateOutlines"
                             @collapse-all="() => { }" />
                     </div>
@@ -382,20 +382,20 @@ watch(error, (newError) => {
                     <!-- Empty state -->
                     <div v-if="!isProcessing && !outlineGenerated" class="text-center py-10">
                         <i class="pi pi-inbox text-4xl text-gray-400 mb-4"></i>
-                        <p class="text-gray-600">Processing completed but no outline was generated.</p>
-                        <Button label="Try Again" icon="pi pi-refresh" class="mt-4" @click="initializeSSE" />
+                        <p class="text-gray-600">{{ t('process.outline.processing-completed-no-outline') }}</p>
+                        <Button :label="t('process.outline.try-again')" icon="pi pi-refresh" class="mt-4" @click="initializeSSE" />
                     </div>
                 </div>
             </template>
 
             <template #footer>
                 <div class="flex justify-between items-center">
-                    <Button label="Cancel" icon="pi pi-times" @click="cancelProcessing" severity="secondary"
+                    <Button :label="t('process.outline.cancel')" icon="pi pi-times" @click="cancelProcessing" severity="secondary"
                         :disabled="!isProcessing" />
                     <div class="flex space-x-2">
-                        <Button label="Save Draft" icon="pi pi-save" severity="info"
+                        <Button :label="t('process.outline.save-draft')" icon="pi pi-save" severity="info"
                             :disabled="isProcessing || !outlineGenerated" @click="saveOutlines"/>
-                        <Button label="Continue to Markdown" icon="pi pi-arrow-right" icon-pos="right"
+                        <Button :label="t('process.outline.continue')" icon="pi pi-arrow-right" icon-pos="right"
                             :disabled="isProcessing || !outlineGenerated" @click="gotoGenMarkdown" />
                     </div>
                 </div>

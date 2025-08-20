@@ -11,6 +11,7 @@ import { useSlidesStore } from '@/store/slide';
 import axios from 'axios';
 import { API_BASE_URL } from '@/utils/api';
 import ProcessSteps from '@/components/ProcessSteps.vue';
+import { t } from '@/i18n';
 import STATUS_CODE from '@/constant/status-code';
 
 const props = defineProps<{
@@ -48,15 +49,15 @@ const handleSSEError = (event: Event) => {
         connectionRetries.value++;
         toast.add({
             severity: 'warn',
-            summary: 'Connection Issue',
-            detail: `Attempting to reconnect (${connectionRetries.value}/${MAX_RETRIES})...`,
+            summary: t('process.markdown.connection-issue'),
+            detail: t('process.markdown.reconnect.attempt', String(connectionRetries.value), String(MAX_RETRIES)),
             life: 3000
         });
         setTimeout(initializeSSE, 2000 * connectionRetries.value);
         return;
     }
 
-    error.value = 'Failed to establish connection after multiple attempts. Please try again later.';
+    error.value = t('process.markdown.error.sse');
     isProcessing.value = false;
 
     messages.value.push({
@@ -67,8 +68,8 @@ const handleSSEError = (event: Event) => {
     });
 
     toast.add({
-        severity: 'error',
-        summary: 'Connection Failed',
+    severity: 'error',
+    summary: t('process.markdown.connection-failed'),
         detail: error.value,
         life: 5000
     });
@@ -97,7 +98,7 @@ const handleSSEMessage = async (event: MessageEvent, toolcallMapper: Map<string,
             isProcessing.value = false;
             hasFinished.value = true;
             messages.value.push({ type: 'busy', status: 'failed', message: `${data.message}，请稍后再试`, timestamp: Date.now() });
-            toast.add({ severity: 'warn', summary: 'Slide Busy', detail: `${data.message}，请稍后再试`, life: 4000 });
+            toast.add({ severity: 'warn', summary: t('process.markdown.slide-busy'), detail: `${data.message}，请稍后再试`, life: 4000 });
             if (eventSource.value) eventSource.value.close();
             return;
         } else if (data.type === 'toolcall') {
@@ -136,8 +137,8 @@ const handleSSEMessage = async (event: MessageEvent, toolcallMapper: Map<string,
             hasFinished.value = true;
             toast.add({
                 severity: 'success',
-                summary: 'Processing Complete',
-                detail: 'Markdown generation finished successfully',
+                summary: t('process.markdown.processing-complete'),
+                detail: t('process.markdown.finished'),
                 life: 3000
             });
             if (eventSource.value) {
@@ -161,7 +162,7 @@ const handleSSEMessage = async (event: MessageEvent, toolcallMapper: Map<string,
 const checkExistingSlidevProject = async () => {
     const id = props.id;
     if (!id) {
-        error.value = 'Invalid slide ID';
+    error.value = t('process.markdown.error.invalid-id');
         return;
     }
 
@@ -170,7 +171,7 @@ const checkExistingSlidevProject = async () => {
         const slideData = await slidesStore.getSlideById(id);
 
         if (!slideData) {
-            error.value = 'Failed to fetch slide data';
+            error.value = t('process.markdown.error.fetch-failed');
             return;
         }
 
@@ -193,8 +194,8 @@ const checkExistingSlidevProject = async () => {
             isProcessing.value = false;
             toast.add({
                 severity: 'success',
-                summary: 'Loaded Existing Project',
-                detail: 'Using previously generated Slidev project',
+                summary: t('process.markdown.loaded-existing'),
+                detail: t('process.markdown.using-existing'),
                 life: 3000
             });
 
@@ -205,7 +206,7 @@ const checkExistingSlidevProject = async () => {
         }
     } catch (err) {
         console.error('Error fetching slide data:', err);
-        error.value = 'Failed to fetch slide data';
+    error.value = t('process.markdown.error.fetch-failed');
         return false;
     }
 }
@@ -213,7 +214,7 @@ const checkExistingSlidevProject = async () => {
 const initializeSSE = () => {
     const id = props.id;
     if (!id) {
-        error.value = 'Invalid slide ID';
+    error.value = t('process.markdown.error.invalid-id');
         return;
     }
 
@@ -238,7 +239,7 @@ const initializeSSE = () => {
         eventSource.value.addEventListener('message', event => handleSSEMessage(event, toolcallMapper));
 
     } catch (setupError) {
-        error.value = 'Failed to initialize connection';
+    error.value = t('process.markdown.error.init-conn');
         console.error('SSE setup error:', setupError);
         isButtonDisabled.value = false;
     }
@@ -247,8 +248,8 @@ const initializeSSE = () => {
 const buildSlidevProject = async () => {
     const buildingMessage = {
         severity: 'info',
-        summary: 'Building',
-        detail: 'Slidev project is being built, please wait...',
+    summary: t('process.markdown.building'),
+    detail: t('process.markdown.building.detail'),
         closable: false,
     };
 
@@ -261,14 +262,14 @@ const buildSlidevProject = async () => {
         if (res.data.code != STATUS_CODE.SUCCESS) {
             toast.add({
                 severity: 'error',
-                summary: 'Build Failed',
+                summary: t('process.markdown.build-failed'),
                 detail: res.data.message,
                 life: 5000
             });
         } else {
             toast.add({
                 severity: 'success',
-                summary: 'Build Success',
+                summary: t('process.markdown.build-success'),
                 detail: res.data.message,
                 life: 5000
             });
@@ -277,8 +278,8 @@ const buildSlidevProject = async () => {
         toast.remove(buildingMessage);
         toast.add({
             severity: 'error',
-            summary: 'Error',
-            detail: (error as any)?.message || 'Unknown error',
+            summary: t('process.markdown.error'),
+            detail: (error as any)?.message || t('process.markdown.error.unknown'),
             life: 5000
         });
     }
@@ -304,8 +305,8 @@ const previewSlide = async () => {
     if (!id) {
         toast.add({
             severity: 'error',
-            summary: 'Invalid ID',
-            detail: 'Slide ID is invalid',
+            summary: t('process.markdown.invalid-id'),
+            detail: t('process.markdown.error.invalid-id'),
             life: 3000
         });
         return;
@@ -313,8 +314,8 @@ const previewSlide = async () => {
 
     const buildingMessage = {
         severity: 'info',
-        summary: 'Building',
-        detail: 'Slidev Dev Server is launching, please wait...',
+    summary: t('process.markdown.building'),
+    detail: t('process.markdown.building-preview'),
         closable: false,
     };
 
@@ -331,8 +332,8 @@ const previewSlide = async () => {
         console.error('Error getting preview port:', error);
         toast.add({
             severity: 'error',
-            summary: 'Error',
-            detail: 'Error getting preview port: ' + error
+            summary: t('process.markdown.error'),
+            detail: t('process.markdown.error.get-preview-port') + error
         })
     }
 
@@ -362,7 +363,7 @@ onUnmounted(() => {
         <Card>
             <template #title>
                 <div class="flex justify-between items-center">
-                    <h1>Markdown Generator</h1>
+                    <h1>{{ t('process.markdown.title') }}</h1>
                     <Button icon="pi pi-times" outlined @click="cancelProcessing" severity="secondary"
                         aria-label="Cancel processing" />
                 </div>
@@ -378,9 +379,8 @@ onUnmounted(() => {
                     <div v-if="isProcessing" class="flex flex-col items-center justify-center py-10 space-y-4">
                         <ProgressSpinner />
                         <p class="mt-2 text-center">
-                            Generating markdown...
-                            <span class="block text-sm text-gray-500">Please wait while we process your
-                                presentation</span>
+                            {{ t('process.markdown.generating') }}
+                            <span class="block text-sm text-gray-500">{{ t('process.markdown.generating.help') }}</span>
                         </p>
                     </div>
 
@@ -398,19 +398,19 @@ onUnmounted(() => {
                                             <i class="pi pi-cog mr-2 animate-spin"
                                                 v-if="message.status === 'pending'"></i>
                                             <i class="pi pi-check mr-2" v-else-if="message.status === 'done'"></i>
-                                            {{ message.name || 'Unknown tool' }}
+                                            {{ message.name || t('process.markdown.error.unknown-tool') }}
                                         </span>
                                         <span v-else-if="message.type === 'toolcalled'" class="font-medium">
                                             <i class="pi pi-check-circle mr-2"></i>
-                                            Tool response received
+                                            {{ t('process.markdown.tool-response') }}
                                         </span>
                                         <span v-else-if="message.type === 'error'" class="font-medium text-red-600">
                                             <i class="pi pi-exclamation-triangle mr-2"></i>
-                                            Error: {{ message.error || 'Unknown error' }}
+                                            {{ t('process.markdown.error') }}: {{ message.error || t('process.markdown.error.unknown') }}
                                         </span>
                                         <span v-else-if="message.type === 'busy'" class="font-medium text-yellow-600">
                                             <i class="pi pi-exclamation-triangle mr-2"></i>
-                                            Warning: {{ message.message }}
+                                            {{ message.message }}
                                         </span>
                                     </div>
                                     <span class="text-xs text-gray-500">
@@ -427,13 +427,13 @@ onUnmounted(() => {
                     <!-- Empty state -->
                     <div v-if="!isProcessing" class="text-center py-10">
                         <i class="pi pi-check-circle text-4xl text-green-500 mb-4"></i>
-                        <p class="text-gray-600">Markdown generation completed successfully!</p>
+                        <p class="text-gray-600">{{ t('process.markdown.completed-success') }}</p>
                         <div class="flex justify-center gap-2 mt-4">
-                            <Button label="Preview Slides" icon="pi pi-eye" class="mr-2" @click="previewSlide"
+                            <Button :label="t('process.markdown.preview')" icon="pi pi-eye" class="mr-2" @click="previewSlide"
                                 :disabled="isButtonDisabled" />
-                            <Button label="Regenerate" icon="pi pi-refresh" severity="warning" @click="initializeSSE"
+                            <Button :label="t('process.markdown.regenerate')" icon="pi pi-refresh" severity="warning" @click="initializeSSE"
                                 :disabled="isButtonDisabled" />
-                            <Button label="Deploy" icon="pi pi-send" severity="success" @click="buildSlidevProject"
+                            <Button :label="t('process.markdown.deploy')" icon="pi pi-send" severity="success" @click="buildSlidevProject"
                                 :disabled="isButtonDisabled" />
                         </div>
                     </div>
@@ -442,7 +442,7 @@ onUnmounted(() => {
 
             <template #footer>
                 <div class="flex justify-between items-center">
-                    <Button label="Cancel" icon="pi pi-times" @click="cancelProcessing" severity="secondary"
+                    <Button :label="t('process.markdown.cancel')" icon="pi pi-times" @click="cancelProcessing" severity="secondary"
                         :disabled="!isProcessing" />
                 </div>
             </template>

@@ -5,6 +5,7 @@ import StageUserInput from './Stage1UserInput.vue';
 import StageMakeOutline from './Stage2MakeOutline.vue';
 import StageMakeMarkdown from './Stage3MakeMarkdown.vue';
 import { OutlineItem, SlidevProjectSchema } from './dto';
+import { t } from '@/i18n';
 
 const route = useRoute();
 const router = useRouter();
@@ -63,7 +64,7 @@ const handleStageComplete = (slideId?: number) => {
                     </div>
                     <div class="ml-3">
                         <p class="text-sm text-red-700">
-                            Invalid parameters. Please provide a valid slide ID.
+                            {{ t('process.route.invalid-params') }}
                         </p>
                     </div>
                 </div>
@@ -103,7 +104,7 @@ const handleStageComplete = (slideId?: number) => {
                     </div>
                     <div class="ml-3">
                         <p class="text-sm text-red-700">
-                            Invalid stage. Valid stages are 'input', 'outline' and 'markdown'.
+                            {{ t('process.route.invalid-stage') }}
                         </p>
                     </div>
                 </div>

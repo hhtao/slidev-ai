@@ -10,9 +10,8 @@ import Message from 'primevue/message';
 import Dropdown from 'primevue/dropdown';
 import FileUpload from 'primevue/fileupload';
 import ProcessSteps from '@/components/ProcessSteps.vue';
-import { API_BASE_URL } from '@/utils/api';
-import axios from 'axios';
 import { useSlidesStore } from '@/store/slide';
+import { t } from '@/i18n';
 import { useToast } from 'primevue';
 
 const emit = defineEmits<{
@@ -37,8 +36,8 @@ const slidesStore = useSlidesStore();
 
 // Visibility options for the dropdown
 const visibilityOptions = ref([
-    { label: 'Public', value: 'public' },
-    { label: 'Private', value: 'private' }
+    { label: t('dashboard.tag.public'), value: 'public' },
+    { label: t('dashboard.tag.private'), value: 'private' }
 ]);
 
 const onFileSelect = (event: any) => {
@@ -80,13 +79,13 @@ const collectForm = () => {
 
 const createSlide = async () => {
     if (!title.value.trim()) {
-        error.value = 'Please enter a slide title'
+    error.value = t('process.input.error.title-required')
         return
     }
 
     // Either content or file must be provided
     if (!content.value.trim() && !file.value) {
-        error.value = 'Please provide either a slide content or upload a file'
+    error.value = t('process.input.error.content-required')
         return
     }
 
@@ -102,7 +101,7 @@ const createSlide = async () => {
         console.error('Create slide error:', err)
         if (err.response && err.response.status === 401) {
             // Token is invalid or expired
-            error.value = 'Authentication failed. Please log in again.'
+            error.value = t('process.input.error.auth')
 
             // Add slight delay before redirecting to allow user to see error message
             setTimeout(() => {
@@ -110,13 +109,13 @@ const createSlide = async () => {
             }, 2000)
         } else if (err.response) {
             // Server responded with error status
-            error.value = `Failed to create slide: ${err.response.data.message || err.response.statusText}`
+            error.value = t('process.input.error.create-failed')
         } else if (err.request) {
             // Request was made but no response received
-            error.value = 'Network error. Please check your connection and try again.'
+            error.value = t('process.input.error.network')
         } else {
             // Other error
-            error.value = 'Failed to create slide. Please try again.'
+            error.value = t('process.input.error.create-failed')
         }
     } finally {
         loading.value = false
@@ -132,14 +131,14 @@ const saveSlide = async () => {
         if (!res.data.success) {
             toast.add({
                 severity: 'error',
-                summary: 'Save Failed',
+                summary: t('process.input.save-failed'),
                 life: 5000
             });
         } else {
             toast.add({
                 severity: 'success',
-                summary: 'Success',
-                detail: 'Slide saved successfully',
+                summary: t('process.input.success'),
+                detail: t('process.input.success.save'),
                 life: 5000
             });
 
@@ -148,7 +147,7 @@ const saveSlide = async () => {
     } catch (error) {
         toast.add({
             severity: 'error',
-            summary: 'Error',
+            summary: t('process.input.error'),
             detail: error,
             life: 3000
         });
@@ -189,8 +188,8 @@ const initForm = async () => {
 
             toast.add({
                 severity: 'success',
-                summary: 'Success',
-                detail: 'Slide loaded successfully',
+                summary: t('process.input.success'),
+                detail: t('process.input.success.load'),
                 life: 5000
             })
         }
@@ -198,8 +197,8 @@ const initForm = async () => {
         console.error('Failed to init form:', error);
         toast.add({
             severity: 'error',
-            summary: 'Error',
-            detail: 'Failed to load slide:' + error,
+            summary: t('process.input.error'),
+            detail: t('process.input.error.load') + error,
             life: 5000
         });
     }
@@ -215,54 +214,54 @@ onMounted(() => {
         <ProcessSteps :currentStep="1" />
 
         <div class="header mb-4">
-            <p class="text-600">Enter the basic information for your presentation</p>
+            <p class="text-600">{{ t('process.input.header') }}</p>
         </div>
 
         <Card>
             <template #content>
                 <form>
                     <div class="p-field mb-4">
-                        <label for="title" class="block mb-2">Slide Title</label>
-                        <InputText id="title" v-model="title" type="text" placeholder="Enter slide title" class="w-full"
+                        <label for="title" class="block mb-2">{{ t('process.input.slide-title') }}</label>
+                        <InputText id="title" v-model="title" type="text" :placeholder="t('process.input.slide-title.placeholder')" class="w-full"
                             :disabled="loading" />
                     </div>
 
                     <div class="p-field mb-4">
                         <div class="flex align-items-center justify-content-between mb-2 gap-2">
-                            <label for="outline" class="block m-0">Slide Content</label>
-                            <Button type="button" label="Add Example" text size="small" @click="addExample"
+                            <label for="outline" class="block m-0">{{ t('process.input.slide-content') }}</label>
+                            <Button type="button" :label="t('process.input.add-example')" text size="small" @click="addExample"
                                 :disabled="loading" class="flex-shrink-0" />
                         </div>
                         <Textarea id="content" v-model="content"
-                            placeholder="Enter your slide content&#10;&#10;Example:&#10;Introduction&#10;- Main point 1&#10;- Main point 2&#10;Conclusion"
+                            :placeholder="t('process.input.slide-content.placeholder')"
                             :autoResize="true" rows="10" class="w-full" :disabled="loading" />
                         <small class="block mt-2 text-600">
-                            Enter your slide content, any text fine.
+                            {{ t('process.input.slide-content.help') }}
                         </small>
                     </div>
 
                     <div class="p-field mb-4">
-                        <label class="block mb-2">Upload File (Optional)</label>
+                        <label class="block mb-2">{{ t('process.input.upload.label') }}</label>
                         <FileUpload ref="fileUpload" mode="basic" name="file" :auto="false"
                             accept=".pdf,.doc,.docx,.md,.markdown,.txt" :maxFileSize="5000000" @select="onFileSelect"
                             :disabled="loading" :class="{ 'opacity-50 pointer-events-none': loading }" class="w-full" />
                         <div v-if="file"
                             class="mt-2 p-2 bg-primary-100 border-round flex align-items-center justify-content-between">
-                            <span class="font-medium">Selected file:</span>
+                            <span class="font-medium">{{ t('process.input.upload.selected') }}</span>
                             <span class="mr-2">{{ file.name }}</span>
                             <Button icon="pi pi-times" rounded text severity="danger" @click="removeFile"
                                 :disabled="loading" size="small" />
                         </div>
                         <small class="block mt-2 text-600">
-                            Upload a PDF, Word document, or Markdown file as source material (optional, max 5MB)
+                            {{ t('process.input.upload.help') }}
                         </small>
                     </div>
 
                     <div class="p-field mb-4">
-                        <label for="visibility" class="block mb-2">Visibility</label>
+                        <label for="visibility" class="block mb-2">{{ t('process.input.visibility') }}</label>
                         <Dropdown id="visibility" v-model="visibility" :options="visibilityOptions" optionLabel="label"
-                            optionValue="value" class="w-full" :disabled="loading" placeholder="Select visibility" />
-                        <small class="block mt-2 text-600">Choose whether your slide is public or private.</small>
+                            optionValue="value" class="w-full" :disabled="loading" :placeholder="t('process.input.visibility.placeholder')" />
+                        <small class="block mt-2 text-600">{{ t('process.input.visibility.help') }}</small>
                     </div>
 
                     <div v-if="error" class="mb-4">
@@ -274,11 +273,11 @@ onMounted(() => {
 
             <template #footer>
                 <div class="flex justify-between items-center">
-                    <Button type="button" @click="$router.push('/dashboard')" label="Cancel" severity="secondary"
+                    <Button type="button" @click="$router.push('/dashboard')" :label="t('process.input.cancel')" severity="secondary"
                         :disabled="loading" />
                     <div class="flex space-x-2">
-                        <Button label="Save Draft" icon="pi pi-save" severity="info" :disabled="loading" @click="saveSlide" />
-                        <Button type="submit" :label="loading ? 'Creating...' : 'Continue to Outline'"
+                        <Button :label="t('process.input.save-draft')" icon="pi pi-save" severity="info" :disabled="loading" @click="saveSlide" />
+                        <Button type="submit" :label="loading ? t('process.input.saving') : t('process.input.continue')"
                             :disabled="loading" icon="pi pi-arrow-right" @click="createSlide" />
                     </div>
                 </div>
