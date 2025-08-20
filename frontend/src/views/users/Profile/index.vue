@@ -49,7 +49,15 @@ const goLogin = () => router.push('/login')
 
 <template>
     <div class="p-6 max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-[300px_1fr] gap-8">
-        <FormCard :user="user" :isSelf="isSelf" :selectedNode="selectedNode" @login="goLogin" />
+        <FormCard
+            :user="user"
+            :isSelf="isSelf ?? false"
+            :selectedNode="selectedNode"
+            @login="goLogin"
+            @update:selectedNode="(egoId: number | null) => {
+                selectedNode = egoId;
+            }"    
+        />
         <TreeCard :nodes="kaballahNodes" :edges="kaballahEdges" v-model:selectedNode="selectedNode"
             :selectedDescription="selectedDescription" />
     </div>

@@ -28,6 +28,7 @@ export class UsersController {
         return safe;
     }
 
+
     @Get(':id')
     @ApiOperation({ summary: '获取单个用户', description: '通过用户 ID 获取用户信息（不含密码）。' })
     @ApiOkResponse({ description: '查询成功', type: UserResponseDto })
@@ -40,6 +41,7 @@ export class UsersController {
         const { password, ...safe } = user as any;
         return safe;
     }
+
 
     @Patch('me')
     @UseGuards(AuthGuard('jwt'))
@@ -59,14 +61,29 @@ export class UsersController {
     ): Promise<UserResponseDto> {
         const user = req.user as User;
         const file: any = (req as any).file;
+        
         const update: any = {};
-        if (dto.email) update.email = dto.email;
+        if (dto.email) {
+            update.email = dto.email
+        }
+
+        if (dto.website) {
+            update.website = dto.website;
+        }
+
+        if (dto.egoId) {
+            update.egoId = parseInt(dto.egoId);
+        }
+
         if (file) {
             // 存入带路径的相对 URL，文件名已采用 UUID 生成
             update.avatar = `${file.filename}`;
         }
+
         const updated = await this.userRepository.update(user.id, update);
         const { password, ...safe } = updated as any;
         return safe;
     }
+
+    
 }

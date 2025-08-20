@@ -35,11 +35,15 @@ export const useAuthStore = defineStore('auth', () => {
 
     const refreshMe = async () => {
         const res = await apiGetMe();
-        if (res.success) user.value = res.data;
+        if (res.success) {
+            user.value = res.data;
+        } else {
+            throw new Error(res.error);
+        }
         return res;
     };
 
-    const updateProfile = async (payload: { email?: string; avatar?: File }) => {
+    const updateProfile = async (payload: { email?: string; avatar?: File, website?: string, egoId?: number }) => {        
         const res = await apiUpdateMe(payload);
         if (res.success) user.value = res.data;
         return res;
