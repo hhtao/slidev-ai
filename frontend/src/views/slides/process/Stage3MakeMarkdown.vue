@@ -93,10 +93,10 @@ const handleSSEMessage = async (event: MessageEvent, toolcallMapper: Map<string,
         const data = JSON.parse(event.data);
 
         if (data.type === 'busy') {
-            isBusy.value = true;
             isProcessing.value = false;
-            messages.value.push({ type: 'busy', status: 'failed', message: data.message, timestamp: Date.now() });
-            toast.add({ severity: 'warn', summary: 'Slide Busy', detail: data.message, life: 4000 });
+            hasFinished.value = true;
+            messages.value.push({ type: 'busy', status: 'failed', message: `${data.message}，请稍后再试`, timestamp: Date.now() });
+            toast.add({ severity: 'warn', summary: 'Slide Busy', detail: `${data.message}，请稍后再试`, life: 4000 });
             if (eventSource.value) eventSource.value.close();
             return;
         } else if (data.type === 'toolcall') {
@@ -128,6 +128,7 @@ const handleSSEMessage = async (event: MessageEvent, toolcallMapper: Map<string,
                 }
             }
         }
+        console.log('SSE message received:', data);
 
         if (data.done) {
             isProcessing.value = false;
@@ -211,6 +212,8 @@ const initializeSSE = () => {
         return;
     }
 
+    isProcessing.value = true;
+    hasFinished.value = false;
     isButtonDisabled.value = true;
 
     try {
@@ -393,6 +396,10 @@ onUnmounted(() => {
                                         <span v-else-if="message.type === 'error'" class="font-medium text-red-600">
                                             <i class="pi pi-exclamation-triangle mr-2"></i>
                                             Error: {{ message.error || 'Unknown error' }}
+                                        </span>
+                                        <span v-else-if="message.type === 'busy'" class="font-medium text-red-600">
+                                            <i class="pi pi-exclamation-triangle mr-2"></i>
+                                            Error: {{ message.message }}
                                         </span>
                                     </div>
                                     <span class="text-xs text-gray-500">
