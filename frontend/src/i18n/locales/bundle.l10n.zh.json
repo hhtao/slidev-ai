@@ -3,12 +3,10 @@
     "info.public-slide.created-at": "创建于：",
     "info.public-slide.updated-at": "更新于：",
     "info.public-slide.check-back-later": "稍后再来查看公开的演示文稿。",
-
     "common.loading.slides": "正在加载幻灯片...",
     "common.error.fetch-slides": "获取幻灯片失败",
     "common.user.anonymous": "匿名用户",
     "common.user.profile-title": "我的信息",
-
     "dashboard.button.new": "新建幻灯片",
     "dashboard.button.create": "创建幻灯片",
     "dashboard.filter.placeholder": "筛选",
@@ -32,7 +30,6 @@
     "dashboard.status.processing": "处理中",
     "dashboard.action.edit": "编辑",
     "dashboard.action.delete": "删除",
-
     "preview.loading.slide": "正在加载幻灯片...",
     "preview.error.load-slide": "加载幻灯片失败",
     "preview.button.copy-markdown": "复制 Markdown",
@@ -42,7 +39,6 @@
     "preview.instructions.step3": "安装 Slidev：",
     "preview.instructions.step4": "运行：",
     "preview.not-found": "未找到该幻灯片",
-
     "auth.tagline": "AI 驱动的演示文稿创建工具",
     "auth.login.title": "登录",
     "auth.login.username": "用户名",
@@ -65,7 +61,7 @@
     "process.input.slide-title.placeholder": "输入幻灯片标题",
     "process.input.slide-content": "幻灯片内容",
     "process.input.add-example": "添加示例",
-    "process.input.slide-content.placeholder": "输入幻灯片内容\n\n示例：\n介绍\n- 要点1\n- 要点2\n结论",
+    "process.input.slide-content.placeholder": "输入幻灯片内容\\n\\n示例：\\n介绍\\n- 要点1\\n- 要点2\\n结论",
     "process.input.slide-content.help": "输入你的幻灯片内容，任意文本均可。",
     "process.input.upload.label": "上传文件（可选）",
     "process.input.upload.selected": "已选文件：",
@@ -165,5 +161,9 @@
     "process.stage.markdown": "PPT",
     "process.tooltip.finished": "已完成",
     "locale.english": "英语",
-    "locale.chinese-simplified": "简体中文"
+    "locale.chinese-simplified": "简体中文",
+    "dashboard.delete.confirm": "删除确认",
+    "dashboard.delete.remind": "你确认要删除 {0} 吗？",
+    "yes": "是",
+    "no": "不"
 }

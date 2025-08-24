@@ -58,10 +58,12 @@ const editSlide = (id: string) => router.push(`/slides/process?stage=input&id=${
 
 const deleteSlide = async (id: string, title: string) => {
     confirm.require({
-        message: `Are you sure you want to delete "${title}"?`,
-        header: 'Delete Confirmation',
+        message: t('dashboard.delete.remind', title),
+        header: t('dashboard.delete.confirm'),
         icon: 'pi pi-exclamation-triangle',
         acceptClass: 'p-button-danger',
+        acceptLabel: t('yes'),
+        rejectLabel: t('no'),
         accept: async () => {
             try {
                 await axios.delete(`${API_BASE_URL}/slides/${id}`)

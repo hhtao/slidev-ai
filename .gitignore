@@ -16,7 +16,6 @@ logs
 *.log
 
 # IDE files
-.vscode/
 .idea/
 *.swp
 *.swo

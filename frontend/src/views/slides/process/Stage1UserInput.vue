@@ -232,9 +232,15 @@ onMounted(() => {
                             <Button type="button" :label="t('process.input.add-example')" text size="small" @click="addExample"
                                 :disabled="loading" class="flex-shrink-0" />
                         </div>
-                        <Textarea id="content" v-model="content"
+                        <Textarea
+                            id="content"
+                            v-model="content"
                             :placeholder="t('process.input.slide-content.placeholder')"
-                            :autoResize="true" rows="10" class="w-full" :disabled="loading" />
+                            :autoResize="false"
+                            rows="10"
+                            class="w-full"
+                            :disabled="loading" 
+                        />
                         <small class="block mt-2 text-600">
                             {{ t('process.input.slide-content.help') }}
                         </small>

@@ -3,12 +3,10 @@
     "info.public-slide.created-at": "Created at:",
     "info.public-slide.updated-at": "Updated at:",
     "info.public-slide.check-back-later": "Check back later for public presentations.",
-
     "common.loading.slides": "Loading slides...",
     "common.error.fetch-slides": "Failed to fetch slides",
     "common.user.anonymous": "Anonymous",
     "common.user.profile-title": "My Profile",
-
     "dashboard.button.new": "New Slide",
     "dashboard.button.create": "Create Slide",
     "dashboard.filter.placeholder": "Filter",
@@ -32,7 +30,6 @@
     "dashboard.status.processing": "Processing",
     "dashboard.action.edit": "Edit",
     "dashboard.action.delete": "Delete",
-
     "preview.loading.slide": "Loading slide...",
     "preview.error.load-slide": "Failed to load slide",
     "preview.button.copy-markdown": "Copy Markdown",
@@ -42,7 +39,6 @@
     "preview.instructions.step3": "Install Slidev:",
     "preview.instructions.step4": "Run:",
     "preview.not-found": "Slide not found",
-
     "auth.tagline": "AI-powered presentation creation tool",
     "auth.login.title": "Login",
     "auth.login.username": "Username",
@@ -65,7 +61,7 @@
     "process.input.slide-title.placeholder": "Enter slide title",
     "process.input.slide-content": "Slide Content",
     "process.input.add-example": "Add Example",
-    "process.input.slide-content.placeholder": "Enter your slide content\n\nExample:\nIntroduction\n- Main point 1\n- Main point 2\nConclusion",
+    "process.input.slide-content.placeholder": "Enter your slide content\\n\\nExample:\\nIntroduction\\n- Main point 1\\n- Main point 2\\nConclusion",
     "process.input.slide-content.help": "Enter your slide content, any text fine.",
     "process.input.upload.label": "Upload File (Optional)",
     "process.input.upload.selected": "Selected file:",
@@ -165,5 +161,9 @@
     "process.stage.markdown": "PPT",
     "process.tooltip.finished": "Finished",
     "locale.english": "English",
-    "locale.chinese-simplified": "Simplified Chinese"
+    "locale.chinese-simplified": "Simplified Chinese",
+    "dashboard.delete.confirm": "Delete Confirmation",
+    "dashboard.delete.remind": "Are you sure you want to delete {0}?",
+    "yes": "Yes",
+    "no": "No"
 }

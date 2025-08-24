@@ -22,6 +22,7 @@ export class SlidevMcpService implements OnModuleInit {
             this.logger.log(chalk.yellow(`Repository not found, cloning: ${this.repoUrl}`));
             if (this.gitClone()) {
                 this.installDependencies();
+                this.installHeadlessBrowser();
             }
         } else {
             this.logger.log(chalk.blue(`Repository already exists at ${this.repoPath}, trying to update dependencies...`));
@@ -48,6 +49,17 @@ export class SlidevMcpService implements OnModuleInit {
             this.logger.error(chalk.red(`uv sync failed: ${error.message}`));
         }
     }
+
+    private installHeadlessBrowser() {
+        try {
+            this.logger.log(chalk.blue(`Installing headless browser: uv run playwright install`));
+            execSync(`uv run playwright install`, { cwd: this.repoPath, stdio: 'inherit' });
+            this.logger.log(chalk.green(`Dependencies installed successfully`));
+        } catch (error) {
+            this.logger.error(chalk.red(`uv sync failed: ${error.message}`));
+        }
+    }
+
 
     private updateRepo() {
         try {
