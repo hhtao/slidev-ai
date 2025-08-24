@@ -165,5 +165,7 @@
     "dashboard.delete.confirm": "Delete Confirmation",
     "dashboard.delete.remind": "Are you sure you want to delete {0}?",
     "yes": "Yes",
-    "no": "No"
+    "no": "No",
+    "not-ready": "Not Ready",
+    "slide-is-not-ready": "Slide is not ready yet, click edit to deploy"
 }

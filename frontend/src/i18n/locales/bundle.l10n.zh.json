@@ -165,5 +165,7 @@
     "dashboard.delete.confirm": "删除确认",
     "dashboard.delete.remind": "你确认要删除 {0} 吗？",
     "yes": "是",
-    "no": "不"
+    "no": "不",
+    "not-ready": "尚未就绪",
+    "slide-is-not-ready": "Slide 还没有准备好，点击编辑完成部署"
 }

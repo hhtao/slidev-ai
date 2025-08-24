@@ -77,7 +77,12 @@ const deleteSlide = async (id: string, title: string) => {
 }
 
 const gotoPreview = (slide: any) => {
-    window.open(`${API_BASE_URL}/presentation/${slide.id}`, '_blank')
+    if (slide.processingStatus === 'completed') {
+        window.open(`${API_BASE_URL}/presentation/${slide.id}`, '_blank')
+    } else {
+        toast.add({ severity: 'warn', summary: t('not-ready'), detail: t('slide-is-not-ready'), life: 3000 })
+    }
+
 }
 
 const getStatusTag = (status: string) => {    

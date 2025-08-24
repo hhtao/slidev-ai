@@ -77,7 +77,7 @@ const collectForm = () => {
     return formData;
 }
 
-const createSlide = async () => {
+const gotoOutline = async () => {
     if (!title.value.trim()) {
     error.value = t('process.input.error.title-required')
         return
@@ -94,9 +94,15 @@ const createSlide = async () => {
 
     try {
         const formData = collectForm();
-        const res = await slidesStore.createSlide(formData);
 
-        emit('complete', res.data.id)
+        if (props.id) {
+            await slidesStore.saveSlide(props.id, formData);
+            emit('complete', props.id);
+        } else {
+            const res = await slidesStore.createSlide(formData);
+            emit('complete', res.data.id);
+        }
+
     } catch (err: any) {
         console.error('Create slide error:', err)
         if (err.response && err.response.status === 401) {
@@ -284,7 +290,7 @@ onMounted(() => {
                     <div class="flex space-x-2">
                         <Button :label="t('process.input.save-draft')" icon="pi pi-save" severity="info" :disabled="loading" @click="saveSlide" />
                         <Button type="submit" :label="loading ? t('process.input.saving') : t('process.input.continue')"
-                            :disabled="loading" icon="pi pi-arrow-right" @click="createSlide" />
+                            :disabled="loading" icon="pi pi-arrow-right" @click="gotoOutline" />
                     </div>
                 </div>
             </template>
