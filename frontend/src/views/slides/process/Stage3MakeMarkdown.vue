@@ -75,18 +75,26 @@ const handleSSEError = (event: Event) => {
     });
 };
 
-const saveProjectData = async (projectData: any) => {
-    const res = await axios.post(`${API_BASE_URL}/slides/${props.id}/save-slides-prj-meta`, projectData);
-
-    console.log('save prj data', res);
-
-    if (!res.data.success) {
-        toast.add({
-            severity: 'error',
-            summary: 'Save Failed',
-            detail: res.data.error,
-            life: 5000
-        });
+const saveProjectData = async (projectData: SlidevProjectSchema) => {
+    if (!projectData) return;
+    try {
+        const res = await axios.post(`${API_BASE_URL}/slides/${props.id}/save-slides-prj-meta`, projectData);
+        if (!res.data.success) {
+            toast.add({ severity: 'error', summary: 'Save Failed', detail: res.data.error, life: 5000 });
+        } else {
+            // 同步更新缓存，避免重新生成
+            const slide = slidesStore.slides[props.id];
+            if (slide) {
+                slide.slidevName = projectData.name;
+                slide.slidevHome = projectData.home || projectData.name;
+                if (slide.processingStatus !== 'markdown-saved' && slide.processingStatus !== 'completed') {
+                    slide.processingStatus = 'markdown-saved';
+                }
+            }
+        }
+    } catch (e: any) {
+        console.error('saveProjectData error', e);
+        toast.add({ severity: 'error', summary: 'Save Failed', detail: e?.message || e, life: 4000 });
     }
 };
 
@@ -124,9 +132,20 @@ const handleSSEMessage = async (event: MessageEvent, toolcallMapper: Map<string,
                 messages.value[index].timestamp = Date.now();
 
                 if (messages.value[index].name === 'slidev_export_project') {
-                    const projectData = JSON.parse(toolcalled.content[0]?.text || {}) as SlidevProjectSchema;
-                    await saveProjectData(projectData);
-                    emit('update:data', projectData);
+                    let raw = toolcalled?.content?.[0]?.text;
+                    let projectData: SlidevProjectSchema | null = null;
+                    if (typeof raw === 'string') {
+                        try { projectData = JSON.parse(raw); } catch { /* ignore parse error */ }
+                    } else if (raw && typeof raw === 'object') {
+                        // 已是对象结构
+                        projectData = raw as any;
+                    }
+                    if (projectData && projectData.name) {
+                        await saveProjectData(projectData);
+                        emit('update:data', projectData);
+                    } else {
+                        console.warn('Invalid projectData from toolcalled', raw);
+                    }
                 }
             }
         }
@@ -178,32 +197,31 @@ const checkExistingSlidevProject = async () => {
         console.log(slideData);
 
 
-        // 检查是否有现成的slidev项目数据
-        if (slideData.slidevName && slideData.slidevHome && slideData.slidevEntryFile) {
-            // 构造项目数据对象
-            const projectData: SlidevProjectSchema = {
-                name: slideData.slidevName,
-                home: slideData.slidevHome,
-                slides_path: slideData.slidevEntryFile
-            };
-
-            // 发出事件通知父组件
-            emit('update:data', projectData);
-
-            // 显示成功消息
+        const statusReady = slideData.processingStatus === 'markdown-saved' || slideData.processingStatus === 'completed';
+        const hasMeta = slideData.slidevName && slideData.slidevHome;
+        if (statusReady) {
+            // 即使缺少 name/home，也不要自动重跑；只提示用户可手动重新生成
+            const inferredSlidesPath = hasMeta ? `${slideData.slidevHome}/slides.md` : '';
+            if (hasMeta) {
+                const projectData: SlidevProjectSchema = {
+                    name: slideData.slidevName!,
+                    home: slideData.slidevHome!,
+                    slides_path: inferredSlidesPath
+                };
+                emit('update:data', projectData);
+            }
             isProcessing.value = false;
             toast.add({
-                severity: 'success',
+                severity: 'info',
                 summary: t('process.markdown.loaded-existing'),
-                detail: t('process.markdown.using-existing'),
+                detail: hasMeta ? t('process.markdown.using-existing') : t('process.markdown.missing-meta'),
                 life: 3000
             });
-
             return true;
-        } else {
-            initializeSSE();
-            return false;
         }
+        // 仅未进入 markdown-saved 状态时才真正开始生成
+        initializeSSE();
+        return false;
     } catch (err) {
         console.error('Error fetching slide data:', err);
     error.value = t('process.markdown.error.fetch-failed');

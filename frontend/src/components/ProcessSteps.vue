@@ -54,8 +54,15 @@ onMounted(async () => {
         if (slide.outlines) {
             completedStages.value.push('outline');
         }
-        if (slide.slidevEntryFile) {
-            completedStages.value.push('markdown');
+        // Markdown 完成判定：后端目前未返回 slidevEntryFile 字段，使用 processingStatus 或 slidevHome/slidevName 作为依据
+        if (
+            slide.processingStatus === 'markdown-saved' ||
+            slide.processingStatus === 'completed' ||
+            (slide.slidevName && slide.slidevHome)
+        ) {
+            if (!completedStages.value.includes('markdown')) {
+                completedStages.value.push('markdown');
+            }
         }
 
         // 从 URL query 获取想要进入的阶段

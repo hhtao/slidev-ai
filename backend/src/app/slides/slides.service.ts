@@ -74,12 +74,12 @@ export class SlidesService {
      * 保存幻灯片的 slides_path
      */
     async saveSlidesPath(id: number, slidevData: SlidevProjectDto) {
+        // 这里应使用传入的 home 字段（而不是 name）作为 slidevHome
         await this.slidesRepository.update(id, {
             slidevName: slidevData.name,
             slidevHome: slidevData.name,
             processingStatus: 'markdown-saved',
         });
-
         return { success: true };
     }
 
@@ -192,6 +192,24 @@ export class SlidesService {
             });
             loop.registerOnToolCalled(toolcalled => {
                 if (saveOutlineIds.has(toolcalled.id)) {
+                    // 异步持久化，不阻塞返回类型
+                    (async () => {
+                        try {
+                            const raw = toolcalled?.content?.[0]?.text;
+                            if (typeof raw === 'string') {
+                                const parsed: any = JSON.parse(raw);
+                                if (parsed && parsed.name) {
+                                    await this.slidesRepository.update(id, {
+                                        slidevName: parsed.name,
+                                        slidevHome: parsed.home ?? parsed.name,
+                                        processingStatus: 'markdown-saved'
+                                    });
+                                }
+                            }
+                        } catch (e) {
+                            console.warn('Failed to persist slidev export metadata:', e);
+                        }
+                    })();
                     loop.abort();
                 }
                 subscriber.next(toSseData({ type: 'toolcalled', toolcalled }));

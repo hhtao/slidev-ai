@@ -42,6 +42,22 @@ export const useSlidesStore = defineStore('slides', () => {
         }
     }
 
+    /** 强制刷新：忽略缓存重新获取 */
+    const refreshSlide = async (id: number): Promise<SlidevDto | null> => {
+        try {
+            loadingIds.value.add(id);
+            const response = await axios.get(`${API_BASE_URL}/slides/${id}`);
+            const slideData = response.data;
+            slides.value[id] = slideData;
+            return slideData;
+        } catch (error) {
+            console.error(`Failed to refresh slide ${id}:`, error);
+            return null;
+        } finally {
+            loadingIds.value.delete(id);
+        }
+    }
+
     /**
      * 清除指定ID的slide数据缓存
      * @param id slide ID
@@ -103,5 +119,5 @@ export const useSlidesStore = defineStore('slides', () => {
         return res;
     }
 
-    return { slides, getSlideById, clearSlide, clearAll, saveOutlines, createSlide, saveSlide, buildSlidev }
+    return { slides, getSlideById, refreshSlide, clearSlide, clearAll, saveOutlines, createSlide, saveSlide, buildSlidev }
 })
