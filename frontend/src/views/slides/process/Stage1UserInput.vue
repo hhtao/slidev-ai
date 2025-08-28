@@ -9,6 +9,8 @@ import Card from 'primevue/card';
 import Message from 'primevue/message';
 import Dropdown from 'primevue/dropdown';
 import FileUpload from 'primevue/fileupload';
+import Divider from 'primevue/divider';
+
 import ProcessSteps from '@/components/ProcessSteps.vue';
 import { useSlidesStore } from '@/store/slide';
 import { t } from '@/i18n';
@@ -77,7 +79,6 @@ const collectForm = () => {
     }
     formData.append('visibility', visibility.value);
     formData.append('theme', theme.value);
-    console.log(formData);
     
     return formData;
 }
@@ -167,20 +168,11 @@ const saveSlide = async () => {
 
 // Add example outline to help users
 const addExample = () => {
-    content.value = `Introduction to Slidev AI:
-- What is Slidev AI
-- Key features
-- Benefits of using AI for presentations
-
-How it works:
-- Step 1: Enter your topic
-- Step 2: Provide an outline
-- Step 3: Generate beautiful slides
-
-Getting started:
-- Sign up for an account
-- Create your first presentation
-- Share with your team
+    content.value = `I have recently been researching how to use i18n haru. Below are some materials and resources I have gathered:  
+1. Official website: https://document.kirigaya.cn/blogs/i18n-haru/main.html  
+2. Basic concepts of i18n: https://document.kirigaya.cn/docs/i18n-haru/introduction.html  
+3. Basic concepts of i18n messages: https://document.kirigaya.cn/docs/i18n-haru/introduction.message.html  
+Based on these materials, please help me design a presentation introducing the i18n haru plugin.
 `
 }
 
@@ -293,18 +285,36 @@ onMounted(() => {
                         </small>
                     </div>
 
+                    <Divider />
+
                     <div class="p-field mb-4">
                         <label for="visibility" class="block mb-2">{{ t('process.input.visibility') }}</label>
-                        <Dropdown id="visibility" v-model="visibility" :options="visibilityOptions" optionLabel="label"
-                            optionValue="value" class="w-full" :disabled="loading" :placeholder="t('process.input.visibility.placeholder')" />
+                        <Dropdown
+                            id="visibility"
+                            v-model="visibility"
+                            :options="visibilityOptions"
+                            optionLabel="label"
+                            optionValue="value"
+                            class="w-full"
+                            :disabled="loading"
+                            :placeholder="t('process.input.visibility.placeholder')"
+                        />
                         <small class="block mt-2 text-600">{{ t('process.input.visibility.help') }}</small>
                     </div>
 
                     <div class="p-field mb-4">
                         <label for="theme" class="block mb-2">{{ t('process.input.theme') }}</label>
-                        <Dropdown id="theme" v-model="theme" :options="themes" optionLabel="label"
-                            optionValue="value" class="w-full" :disabled="loading" :placeholder="t('process.input.theme.placeholder')" />
-                        <small class="block mt-2 text-600">{{ t('process.input.theme.help') }}</small>
+                        <Dropdown
+                            id="theme"
+                            v-model="theme"
+                            :options="themes"
+                            optionLabel="label"
+                            optionValue="value"
+                            class="w-full"
+                            :disabled="loading"
+                            :placeholder="t('process.input.theme.placeholder')"
+                        />
+                        <small class="block mt-2 text-600">{{ t("process.input.theme.belong-to") }} <a href="https://sli.dev/resources/theme-gallery" target="_blank">Slidev Theme Gallery</a></small>
                     </div>
 
                     <div v-if="error" class="mb-4">

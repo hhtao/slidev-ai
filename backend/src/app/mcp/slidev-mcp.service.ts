@@ -2,9 +2,14 @@ import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
 import { Interval } from '@nestjs/schedule';
 import { execSync } from 'child_process';
 import { existsSync, mkdirSync, writeFileSync } from 'fs';
+
 import * as path from 'path';
+import * as fs from 'fs-extra';
+
 import chalk from 'chalk';
+
 import {SLIDEV_MCP_ROOT} from '@/constant/filepath';
+import { Slide } from '../slides/slide.entity';
 
 @Injectable()
 export class SlidevMcpService implements OnModuleInit {
@@ -87,7 +92,7 @@ export class SlidevMcpService implements OnModuleInit {
     /**
      * Generate openmcp config file
      */
-    generateOpenMcpConfig(): string {
+    generateOpenMcpConfig(slide: Slide): string {
         const apiKey = process.env.OPENAI_API_KEY;
         const baseUrl = process.env.OPENAI_BASE_URL;
         const model = process.env.OPENAI_MODEL;
@@ -99,6 +104,27 @@ export class SlidevMcpService implements OnModuleInit {
             process.exit(1);
         }
 
+        const theme = slide.theme;
+
+        if (!theme) {
+            this.logger.error(chalk.red('Missing required environment variables: theme'));
+        }
+
+        const serverRoot = path.join(
+            this.repoPath,
+            'servers',
+            'themes',
+            theme
+        );
+
+        if (!fs.existsSync(serverRoot)) {
+            throw new Error(
+                `Theme ${theme} does not exist. Please check the theme name.`
+            );
+        }
+
+        const serverName = 'slidev-mcp-' + theme;
+
         const config = {
             version: '0.0.1',
             namespace: 'openmcp',
@@ -106,9 +132,9 @@ export class SlidevMcpService implements OnModuleInit {
                 'slidev-mcp-academic': {
                     type: 'stdio',
                     command: 'mcp',
-                    args: ['run', 'main.py'],
-                    cwd: this.repoPath, // absolute path of cloned repo
-                    description: 'slidev-mcp-academic',
+                    args: ['run', 'server.py'],
+                    cwd: serverRoot,
+                    description: serverName,
                     env: {
                         SLIDEV_MCP_ROOT: SLIDEV_MCP_ROOT,
                     }

@@ -61,7 +61,7 @@
     "process.input.slide-title.placeholder": "输入幻灯片标题",
     "process.input.slide-content": "幻灯片内容",
     "process.input.add-example": "添加示例",
-    "process.input.slide-content.placeholder": "输入幻灯片内容\\n\\n示例：\\n介绍\\n- 要点1\\n- 要点2\\n结论",
+    "process.input.slide-content.placeholder": "我最近在调研 i18n haru 的使用方法，下面是我搜集到的一些资料和素材：\n1. 官网：https://document.kirigaya.cn/blogs/i18n-haru/main.html\n2. i18n 基础概念：https://document.kirigaya.cn/docs/i18n-haru/introduction.html\n3. i18n message 基本概念： https://document.kirigaya.cn/docs/i18n-haru/introduction.message.html\n结合这些资料，帮我设计一个介绍 i18n haru 插件的讲演",
     "process.input.slide-content.help": "输入你的幻灯片内容，任意文本均可。",
     "process.input.upload.label": "上传文件（可选）",
     "process.input.upload.selected": "已选文件：",
@@ -167,5 +167,8 @@
     "yes": "是",
     "no": "不",
     "not-ready": "尚未就绪",
-    "slide-is-not-ready": "Slide 还没有准备好，点击编辑完成部署"
+    "slide-is-not-ready": "Slide 还没有准备好，点击编辑完成部署",
+    "process.input.theme": "主题",
+    "process.input.theme.belong-to": "主题属于",
+    "process.input.theme.help": "帮助"
 }

@@ -14,6 +14,7 @@ import { PrivateSlideOwnerGuard, PublicSlideOwnerGuard } from '../auth/slide-own
 import { UseFileUploader } from '@/decorators/file-upload.decorator';
 import { ApiTags, ApiOperation, ApiQuery, ApiOkResponse, ApiConsumes, ApiBody, ApiParam, ApiBearerAuth, ApiProduces } from '@nestjs/swagger';
 import BaseResponse from '../base/base.dto';
+import { User } from '../users/user.entity';
 
 const proxy = httpProxy.createProxyServer();
 
@@ -177,9 +178,11 @@ export class SlidesController {
     @ApiProduces('text/event-stream')
     makeOutline(
         @Param('id') id: number,
+        @Request() req: ExpressRequest,
     ): Observable<any> {
+        const user = req.user as User;
         return new Observable(subscriber => {
-            this.slidesService.makeOutlineHandler(id, subscriber);
+            this.slidesService.makeOutlineHandler(id, user, subscriber);
         });
     }
 
@@ -191,10 +194,12 @@ export class SlidesController {
     @ApiParam({ name: 'id', description: '幻灯片 ID' })
     @ApiProduces('text/event-stream')
     makeMarkdown(
-        @Param('id') id: number
+        @Param('id') id: number,
+        @Request() req: ExpressRequest,
     ): Observable<any> {
+        const user = req.user as User;
         return new Observable(subscriber => {
-            this.slidesService.makeMarkdownHandler(id, subscriber);
+            this.slidesService.makeMarkdownHandler(id, user, subscriber);
         });
     }
 

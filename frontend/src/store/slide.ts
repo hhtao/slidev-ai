@@ -96,6 +96,7 @@ export const useSlidesStore = defineStore('slides', () => {
             slide.title = formData.get('title') as string || slide.title;
             slide.content = formData.get('content') as string || slide.content;
             slide.visibility = formData.get('visibility') as string || slide.visibility;
+            slide.theme = formData.get('theme') as string || slide.theme;
         }
 
         return res;

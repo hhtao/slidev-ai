@@ -13,6 +13,10 @@ export class CreateSlideDto {
     @IsNotEmpty()
     @IsEnum(['public', 'private'])
     visibility!: 'public' | 'private';
+
+    @IsString()
+    @IsNotEmpty()
+    theme!: string;
 }
 
 

@@ -14,6 +14,7 @@ import { SlideLockService } from './slide-lock.service';
 import BaseResponse from '@/app/base/base.dto';
 import  STATUS_CODE  from '@/constant/status-code';
 import { SlidevManagerService } from './slidev-manager.service';
+import { User } from '../users/user.entity';
 // 定义文件类型
 type MulterFile = Express.Multer.File;
 
@@ -45,6 +46,7 @@ export class SlidesService {
             title: createSlideDto.title,
             content: createSlideDto.content,
             visibility: createSlideDto.visibility,
+            theme: createSlideDto.theme,
             userId,
             processingStatus: 'pending'
         });
@@ -56,14 +58,15 @@ export class SlidesService {
             title: createSlideDto.title,
             content: createSlideDto.content,
             visibility: createSlideDto.visibility,
+            theme: createSlideDto.theme,
             processingStatus: 'user-input-saved'
         });
 
         return { success: true };
     }
 
-    async getAgentDependency() {
-        const configurationPath = this.slidevMcpService.generateOpenMcpConfig();
+    async getAgentDependency(slide: Slide) {
+        const configurationPath = this.slidevMcpService.generateOpenMcpConfig(slide);
         const agent = new OmAgent();
         agent.loadMcpConfig(configurationPath);
         const loop = await agent.getLoop();
@@ -132,15 +135,17 @@ export class SlidesService {
     }
 
     /** 创建 outline 任务（带锁） */
-    async makeOutlineHandler(id: number, subscriber: Subscriber<any>) {
+    async makeOutlineHandler(id: number, user: User, subscriber: Subscriber<any>) {
         await this.runSseWithLock(id, 'make-outline', subscriber, async () => {
             const slide = await this.slidesRepository.findOneById(id);
             if (!slide) {
                 subscriber.next(toSseData({ type: 'error', message: 'Slide not found' }));
                 return;
             }
-            const { agent, loop } = await this.getAgentDependency();
+
+            const { agent, loop } = await this.getAgentDependency(slide);
             const saveOutlineIds = new Set();
+            
             loop.registerOnToolCall(toolcall => {
                 subscriber.next(toSseData({ type: 'toolcall', toolcall }));
                 if (toolcall.function.name === 'slidev_save_outline') {
@@ -148,6 +153,7 @@ export class SlidesService {
                 }
                 return toolcall;
             });
+            
             loop.registerOnToolCalled(toolcalled => {
                 if (saveOutlineIds.has(toolcalled.id)) {
                     loop.abort();
@@ -155,13 +161,26 @@ export class SlidesService {
                 subscriber.next(toSseData({ type: 'toolcalled', toolcalled }));
                 return toolcalled;
             });
+            
             loop.registerOnError(error => {
                 subscriber.next(toSseData({ error }));
                 console.log('error', error);
             });
+            
             const usermcpPrompt = await agent.getPrompt('usermcp_guide_prompt', {});
-            const outlinePrompt = await agent.getPrompt('outline_generate_prompt', { title: slide.title, content: slide.content });
-            await agent.ainvoke({ messages: [usermcpPrompt, outlinePrompt].join('\n\n') });
+            const outlinePrompt = await agent.getPrompt('outline_generate_prompt', {
+                title: slide.title,
+                content: slide.content
+            });
+            const userInfoPrompt = await agent.getPrompt('slidev_user_info', {
+                username: user.username,
+                email: user.email,
+                // avatar: user.avatar,
+                // egoId: user.egoId,
+                website: user.website,
+            });
+
+            await agent.ainvoke({ messages: [usermcpPrompt, outlinePrompt, userInfoPrompt].join('\n\n') });
             subscriber.next(toSseData({ done: true }));
         });
     }
@@ -169,14 +188,16 @@ export class SlidesService {
     /**
      * @description 创建 markdown 任务，并返回中途进度
      */
-    async makeMarkdownHandler(id: number, subscriber: Subscriber<any>) {
-        await this.runSseWithLock(id, 'make-markdown', subscriber, async () => {
-            const { agent, loop } = await this.getAgentDependency();
+    async makeMarkdownHandler(id: number, user: User, subscriber: Subscriber<any>) {
+        await this.runSseWithLock(id, 'make-markdown', subscriber, async () => {            
             const slide = await this.slidesRepository.findOneById(id);
             if (!slide) {
                 subscriber.next(toSseData({ type: 'error', message: 'Slide not found' }));
                 return;
             }
+
+            const { agent, loop } = await this.getAgentDependency(slide);
+
             const outlines = slide.outlines || '';
             if (outlines.length === 0) {
                 subscriber.next(toSseData({ type: 'message', message: 'Outline not found' }));
@@ -220,8 +241,17 @@ export class SlidesService {
             if (!slidevHome || slidevHome.length === 0) {
                 slidevHome = uuidv4();
             }
+            
             const slidevPrompt = await agent.getPrompt('slidev_generate_with_specific_outlines_prompt', { outlines, title: slide.title, content: slide.content, path: slidevHome });
-            await agent.ainvoke({ messages: [usermcpPrompt, slidevPrompt].join('\n\n') });
+            const userInfoPrompt = await agent.getPrompt('slidev_user_info', {
+                username: user.username,
+                email: user.email,
+                // avatar: user.avatar,
+                // egoId: user.egoId,
+                website: user.website,
+            });
+            
+            await agent.ainvoke({ messages: [usermcpPrompt, slidevPrompt, userInfoPrompt].join('\n\n') });
             subscriber.next(toSseData({ done: true }));
         });
     }
