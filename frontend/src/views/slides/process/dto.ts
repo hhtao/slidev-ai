@@ -42,5 +42,6 @@ export interface SlidevDto {
     slidevName: string | null;
     slidevHome: string | null;
     slidevEntryFile: string | null;
+    theme: string | null;
     userId: number;
 }

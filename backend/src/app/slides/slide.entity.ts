@@ -55,6 +55,13 @@ export class Slide {
     coverFilename: string;
 
     /**
+     * @description 主题
+     * @example "academic"
+     */
+    @Column({ type: 'text', nullable: true })
+    theme: string;
+
+    /**
      * @description 创建者 ID
      */
     @Column()
