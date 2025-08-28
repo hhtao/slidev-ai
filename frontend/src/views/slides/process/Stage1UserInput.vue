@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, onMounted } from 'vue';
+import { ref, onMounted, Ref } from 'vue';
 import { useRouter } from 'vue-router';
 
 import Button from 'primevue/button';
@@ -13,6 +13,7 @@ import ProcessSteps from '@/components/ProcessSteps.vue';
 import { useSlidesStore } from '@/store/slide';
 import { t } from '@/i18n';
 import { useToast } from 'primevue';
+import { useSlidevStore } from '@/store/slidev';
 
 const emit = defineEmits<{
     (e: 'complete', slideId: number): void;
@@ -30,9 +31,12 @@ const fileUpload = ref<any>(null)
 const loading = ref(false)
 const error = ref('')
 const visibility = ref('public')
+const theme = ref('academic')
+const themes = ref<Array<{label: string, value: string}>>([])
 
 const toast = useToast();
 const slidesStore = useSlidesStore();
+const slidevStore = useSlidevStore();
 
 // Visibility options for the dropdown
 const visibilityOptions = ref([
@@ -72,6 +76,7 @@ const collectForm = () => {
         formData.append('file', file.value);
     }
     formData.append('visibility', visibility.value);
+    formData.append('theme', theme.value);
     console.log(formData);
     
     return formData;
@@ -210,8 +215,27 @@ const initForm = async () => {
     }
 }
 
+const loadThemes = async () => {
+    try {
+        const response = await slidevStore.getThemes();
+        themes.value = response.map((theme: string) => ({
+            label: theme,
+            value: theme
+        }));
+    } catch (error) {
+        console.error('Failed to load themes:', error);
+        toast.add({
+            severity: 'error',
+            summary: t('process.input.error'),
+            detail: t('process.input.error.themes-load'),
+            life: 5000
+        });
+    }
+}
+
 onMounted(() => {
     initForm();
+    loadThemes();
 });
 </script>
 
@@ -274,6 +298,13 @@ onMounted(() => {
                         <Dropdown id="visibility" v-model="visibility" :options="visibilityOptions" optionLabel="label"
                             optionValue="value" class="w-full" :disabled="loading" :placeholder="t('process.input.visibility.placeholder')" />
                         <small class="block mt-2 text-600">{{ t('process.input.visibility.help') }}</small>
+                    </div>
+
+                    <div class="p-field mb-4">
+                        <label for="theme" class="block mb-2">{{ t('process.input.theme') }}</label>
+                        <Dropdown id="theme" v-model="theme" :options="themes" optionLabel="label"
+                            optionValue="value" class="w-full" :disabled="loading" :placeholder="t('process.input.theme.placeholder')" />
+                        <small class="block mt-2 text-600">{{ t('process.input.theme.help') }}</small>
                     </div>
 
                     <div v-if="error" class="mb-4">
