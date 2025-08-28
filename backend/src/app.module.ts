@@ -8,6 +8,7 @@ import { AuthModule } from './app/auth/auth.module';
 import { ConfigModule } from '@nestjs/config';
 import { ServeStaticModule } from '@nestjs/serve-static';
 import { SsoLite } from './utils';
+import { SlidevMcpModule } from './app/mcp/slidev-mcp.module';
 
 @Module({
     imports: [
@@ -22,6 +23,7 @@ import { SsoLite } from './utils';
             rootPath: SsoLite.root(),
             serveRoot: '/uploads/',
         }),
+        SlidevMcpModule,
         SlidesModule,
         UsersModule,
         AuthModule,
