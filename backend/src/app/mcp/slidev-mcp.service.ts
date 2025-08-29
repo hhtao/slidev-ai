@@ -161,7 +161,7 @@ export class SlidevMcpService implements OnModuleInit {
                     return { imageUrl, imageName };
                 })
             );
-            
+
             // 保存或更新主题信息到数据库
             this.logger.log(chalk.blue(`Saving theme ${themeName} into database...`));
             let theme = await this.themeRepository.findOneByName(themeName);
@@ -175,13 +175,15 @@ export class SlidevMcpService implements OnModuleInit {
             theme.images = imageMappings;
             theme.installScripts = manifest.installScripts || [];
 
-            await this.themeRepository.save(theme);
-
-            // 执行安装脚本
-            if (manifest.installScripts && Array.isArray(manifest.installScripts)) {
+            // 只有未安装的主题才执行安装脚本
+            if (!theme.installed && manifest.installScripts && Array.isArray(manifest.installScripts)) {
                 this.logger.log(chalk.blue(`Executing install scripts for ${themeName}...`));
                 this.executeInstallScripts(themePath, manifest.installScripts);
+                // 安装完成后设置 installed 为 true
+                theme.installed = true;
             }
+
+            await this.themeRepository.save(theme);
 
             this.logger.log(chalk.green(`✓ Processed theme successfully: ${themeName}`));
         } catch (error) {

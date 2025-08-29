@@ -16,6 +16,9 @@ export class Theme extends BaseEntity {
 
     @Column({ type: 'json', nullable: true })
     installScripts: string[];
+    
+    @Column({ type: 'boolean', default: false })
+    installed: boolean;
 
     @CreateDateColumn()
     createdAt: Date;
