@@ -17,8 +17,8 @@ import { SlideLockService } from './slide-lock.service';
     providers: [
         SlidesService,
         SlidevManagerService,
-    SlideRepository,
-    SlideLockService
+        SlideRepository,
+        SlideLockService
     ],
     controllers: [
         SlidesController,
