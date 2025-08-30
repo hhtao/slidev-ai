@@ -190,6 +190,11 @@ const initForm = async () => {
             visibility.value = slide.visibility || 'public';
             file.value = null;
 
+            const corTheme = themes.value.find(t => t.name === slide.theme);
+            if (corTheme) {
+                theme.value = corTheme;
+            }
+
             toast.add({
                 severity: 'success',
                 summary: t('process.input.success'),
@@ -226,9 +231,9 @@ const initThemes = async () => {
     }
 }
 
-onMounted(() => {
-    initForm();
-    initThemes();
+onMounted(async () => {
+    await initThemes();
+    await initForm();
 });
 </script>
 

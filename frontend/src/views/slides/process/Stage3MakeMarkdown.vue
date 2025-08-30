@@ -13,6 +13,7 @@ import { API_BASE_URL } from '@/utils/api';
 import ProcessSteps from '@/components/ProcessSteps.vue';
 import { t } from '@/i18n';
 import STATUS_CODE from '@/constant/status-code';
+import { IamBusy, IamFree } from '@/utils/loading';
 
 const props = defineProps<{
     id: number
@@ -30,7 +31,7 @@ const slidesStore = useSlidesStore();
 // State management
 const error = ref<string>('');
 const eventSource = ref<EventSource | null>(null);
-const isProcessing = ref<boolean>(true);
+const isProcessing = ref<boolean>(false);
 const connectionRetries = ref<number>(0);
 const MAX_RETRIES = 3;
 const isButtonDisabled = ref(false);
@@ -59,6 +60,7 @@ const handleSSEError = (event: Event) => {
 
     error.value = t('process.markdown.error.sse');
     isProcessing.value = false;
+    IamFree();
 
     messages.value.push({
         type: 'error',
@@ -104,6 +106,8 @@ const handleSSEMessage = async (event: MessageEvent, toolcallMapper: Map<string,
 
         if (data.type === 'busy') {
             isProcessing.value = false;
+            IamFree();
+
             hasFinished.value = true;
             messages.value.push({ type: 'busy', status: 'failed', message: `${data.message}，请稍后再试`, timestamp: Date.now() });
             toast.add({ severity: 'warn', summary: t('process.markdown.slide-busy'), detail: `${data.message}，请稍后再试`, life: 4000 });
@@ -154,6 +158,8 @@ const handleSSEMessage = async (event: MessageEvent, toolcallMapper: Map<string,
 
         if (data.done) {
             isProcessing.value = false;
+            IamFree();
+
             hasFinished.value = true;
 
             toast.add({
@@ -209,6 +215,8 @@ const checkExistingSlidevProject = async () => {
                 emit('update:data', projectData);
             }
             isProcessing.value = false;
+            IamFree();
+
             toast.add({
                 severity: 'info',
                 summary: t('process.markdown.loaded-existing'),
@@ -241,6 +249,8 @@ const initializeSSE = () => {
     }
 
     isProcessing.value = true;
+    IamBusy();
+
     hasFinished.value = false;
     isButtonDisabled.value = true;
 

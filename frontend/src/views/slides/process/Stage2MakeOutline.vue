@@ -12,6 +12,7 @@ import { useSlidesStore } from '@/store/slide';
 import { API_BASE_URL } from '@/utils/api';
 import ProcessSteps from '@/components/ProcessSteps.vue';
 import { t } from '@/i18n';
+import { IamBusy, IamFree } from '@/utils/loading';
 
 const props = defineProps<{
     id: number;
@@ -29,7 +30,7 @@ const slidesStore = useSlidesStore();
 // State management
 const error = ref<string>('');
 const eventSource = ref<EventSource | null>(null);
-const isProcessing = ref<boolean>(true);
+const isProcessing = ref<boolean>(false);
 const outlines = ref<OutlineItem[]>([]);
 const connectionRetries = ref<number>(0);
 const MAX_RETRIES = 3;
@@ -65,6 +66,7 @@ const handleSSEError = (event: Event) => {
 
     error.value = t('process.outline.error.sse');
     isProcessing.value = false;
+    IamFree();
 
     messages.value.push({
         type: 'error',
@@ -162,6 +164,8 @@ const checkExistingOutlines = async () => {
                 if (parsedOutlines && Array.isArray(parsedOutlines) && parsedOutlines.length > 0) {
                     updateOutlines(parsedOutlines);
                     isProcessing.value = false;
+                    IamFree();
+
                     toast.add({
                         severity: 'success',
                         summary: t('process.outline.loaded-existing'),
@@ -194,6 +198,8 @@ const handleSSEMessage = async (event: MessageEvent) => {
         if (data.type === 'busy') {
             isBusy.value = true;
             isProcessing.value = false;
+            IamFree();
+
             messages.value.push({ type: 'busy', status: 'failed', message: data.message, timestamp: Date.now() });
             toast.add({ severity: 'warn', summary: t('process.outline.slide-busy'), detail: data.message, life: 4000 });
             if (eventSource.value) {
@@ -236,6 +242,7 @@ const handleSSEMessage = async (event: MessageEvent) => {
 
         if (data.done) {
             isProcessing.value = false;
+            IamFree();
             hasFinished.value = true;
 
             
@@ -267,6 +274,9 @@ const initializeSSE = () => {
     error.value = t('process.outline.error.invalid-id');
         return;
     }
+
+    isProcessing.value = true;
+    IamBusy();
 
     try {
         const url = `${API_BASE_URL}/slides/process/make-outline/${id}`;
