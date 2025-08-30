@@ -81,15 +81,17 @@ onMounted(fetchSlides)
                         <span class="font-semibold text-lg text-gray-900 dark:text-gray-100 truncate">{{ slide.title
                         }}</span>
 
-                        <div class="flex items-center gap-2 text-sm text-gray-500">
+                        <div class="flex items-center gap-2 text-sm text-gray-500"
+                            @click.stop="router.push(`/profile/${slide.user?.id}`)"
+                        >
 
                             <Avatar v-if="slide.user?.avatar"
                                 :image="`${UPLOADS_BASE_URL}/avatars/${slide.user?.avatar}`" shape="circle"
                                 class="cursor-pointer" :title="t('common.user.profile-title')"
-                                @click.stop="router.push(`/profile/${slide.user?.id}`)" />
+                            />
                             <Avatar v-else :label="slide.user?.username.charAt(0).toUpperCase()" shape="circle"
                                 class="cursor-pointer" :title="t('common.user.profile-title')"
-                                @click.stop="router.push(`/profile/${slide.user?.id}`)" />
+                            />
                             <span class="text-primary-200">{{ slide.user?.username || t('common.user.anonymous') }}</span>
                         </div>
 

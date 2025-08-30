@@ -136,7 +136,7 @@ export class SlidesService {
 
     /** 创建 outline 任务（带锁） */
     async makeOutlineHandler(id: number, user: User, subscriber: Subscriber<any>) {
-        await this.runSseWithLock(id, 'make-outline', subscriber, async () => {
+        // await this.runSseWithLock(id, 'make-outline', subscriber, async () => {
             const slide = await this.slidesRepository.findOneById(id);
             if (!slide) {
                 subscriber.next(toSseData({ type: 'error', message: 'Slide not found' }));
@@ -183,16 +183,16 @@ export class SlidesService {
                 content: slide.content
             });
             const userInfoPrompt = await agent.getPrompt('slidev_user_info', {
-                username: user.username,
-                email: user.email,
+                username: user.username || '',
+                email: user.email || '',
                 // avatar: user.avatar,
                 // egoId: user.egoId,
-                website: user.website,
+                website: user.website || '',
             });
 
             await agent.ainvoke({ messages: [usermcpPrompt, outlinePrompt, userInfoPrompt].join('\n\n') });
             subscriber.next(toSseData({ done: true }));
-        });
+        // });
     }
 
     /**
@@ -254,11 +254,11 @@ export class SlidesService {
             
             const slidevPrompt = await agent.getPrompt('slidev_generate_with_specific_outlines_prompt', { outlines, title: slide.title, content: slide.content, path: slidevHome });
             const userInfoPrompt = await agent.getPrompt('slidev_user_info', {
-                username: user.username,
-                email: user.email,
+                username: user.username || '',
+                email: user.email || '',
                 // avatar: user.avatar,
                 // egoId: user.egoId,
-                website: user.website,
+                website: user.website || '',
             });
             
             await agent.ainvoke({ messages: [usermcpPrompt, slidevPrompt, userInfoPrompt].join('\n\n') });

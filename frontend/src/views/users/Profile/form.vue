@@ -1,5 +1,7 @@
 <script setup lang="ts">
-import { ref, watch, computed, onMounted } from 'vue'
+import { ref, watch, computed, onMounted } from 'vue';
+import { t } from '@/i18n';
+
 import Card from 'primevue/card'
 import Button from 'primevue/button'
 import InputText from 'primevue/inputtext'
@@ -25,7 +27,7 @@ const authStore = useAuthStore()
 const email = ref('')
 const website = ref('')
 const avatarFile = ref<File | null>(null)
-const loading = ref(false)
+const loading = ref(false);
 
 const originalEmail = ref('')
 const originalWebsite = ref('')
@@ -106,6 +108,7 @@ const hasChanges = computed(() => {
     )
 })
 
+
 const submit = async () => {
     if (!props.isSelf) return
     loading.value = true
@@ -147,18 +150,18 @@ const goLogin = () => {
 <template>
     <Card>
         <template #title>
-            <div class="text-xl font-semibold">My Profile</div>
+            <div class="text-xl font-semibold">{{ t('common.user.profile-title') }}</div>
         </template>
 
         <template #content>
-            <div v-if="user" class="flex flex-col items-center gap-6">
+            <div v-if="props.user" class="flex flex-col items-center gap-6">
                 <!-- Avatar -->
                 <div class="relative group cursor-pointer" v-tooltip.top="'Change Avatar'" @click="onAvatarClick">
-                    <Avatar v-if="user.avatar && !avatarFile" :image="`${UPLOADS_BASE_URL}/avatars/${user.avatar}`"
+                    <Avatar v-if="props.user.avatar && !avatarFile" :image="`${UPLOADS_BASE_URL}/avatars/${props.user.avatar}`"
                         shape="circle" size="large" class="p-avatar-lg shadow-md" />
                     <Avatar v-else-if="avatarFile" :image="getImageUrl(avatarFile)" shape="circle" size="large"
                         class="p-avatar-lg shadow-md" />
-                    <Avatar v-else :label="user.username.charAt(0).toUpperCase()" shape="circle" size="large"
+                    <Avatar v-else :label="props.user.username.charAt(0).toUpperCase()" shape="circle" size="large"
                         class="p-avatar-lg shadow-md" />
                     <input id="avatarInput" type="file" accept="image/*" class="hidden" @change="onAvatarSelect" />
                 </div>
@@ -166,34 +169,39 @@ const goLogin = () => {
                 <!-- User Info -->
                 <div class="w-full space-y-4">
                     <div>
-                        <label class="block text-sm font-medium text-gray-500 mb-1">Username</label>
-                        <div class="text-lg font-semibold">{{ user.username }}</div>
+                        <label class="block text-sm font-medium text-gray-500 mb-1">{{ t('profile.username') }}</label>
+                        <div class="text-lg font-semibold">{{ props.user.username }}</div>
                     </div>
                     <div>
                         <div class="flex items-center justify-between">
-                            <label class="block text-sm font-medium text-gray-500 mb-1">Email</label>
+                            <label class="block text-sm font-medium text-gray-500 mb-1">{{ t('profile.email') }}</label>
                             <Button v-if="isEmailValid" icon="pi pi-envelope" severity="secondary" text
                                 @click="openEmail" />
                         </div>
-                        <InputText v-model="email" :disabled="!isSelf" placeholder="Enter new email" class="w-full" />
+                        <InputText v-model="email" :disabled="!props.isSelf" placeholder="Enter new email" class="w-full" />
                     </div>
                     <div>
                         <div class="flex items-center justify-between">
-                            <label class="block text-sm font-medium text-gray-500 mb-1">Website</label>
+                            <label class="block text-sm font-medium text-gray-500 mb-1">{{ t('profile.website') }}</label>
                             <Button v-if="isWebsiteValid" icon="pi pi-external-link" severity="secondary" text
                                 @click="openWebsite" />
                         </div>
-                        <InputText v-model="website" :disabled="!isSelf" placeholder="Your beloved blog or website"
+                        <InputText v-model="website" :disabled="!props.isSelf" placeholder="Your beloved blog or website"
                             class="w-full" />
                     </div>
                 </div>
 
-                <Button label="Save Changes" :disabled="!hasChanges" :loading="loading" icon="pi pi-save"
-                    class="mt-4 w-full" @click="submit" />
+                <Button v-if="props.isSelf"
+                    :label="t('save-change')"
+                    :loading="loading"
+                    icon="pi pi-save"
+                    class="mt-4 w-full"
+                    @click="submit"
+                />
             </div>
 
             <div v-else class="flex flex-col items-center gap-4 py-6 text-center">
-                <div class="text-gray-600">You are not logged in.</div>
+                <div class="text-gray-600">{{ t('you-are-not-log-in') }}</div>
                 <Button label="Login" icon="pi pi-sign-in" @click="goLogin" />
             </div>
         </template>

@@ -6,7 +6,7 @@
     "common.loading.slides": "Loading slides...",
     "common.error.fetch-slides": "Failed to fetch slides",
     "common.user.anonymous": "Anonymous",
-    "common.user.profile-title": "My Profile",
+    "common.user.profile-title": "User Profile",
     "dashboard.button.new": "New Slide",
     "dashboard.button.create": "Create Slide",
     "dashboard.filter.placeholder": "Filter",
@@ -63,7 +63,7 @@
     "process.input.slide-content": "Slide Content",
     "process.input.add-example": "Add Example",
     "process.input.slide-content.placeholder": "Enter slide title",
-    "process.input.slide-content.example": "I have recently been researching how to use i18n haru. Below are some materials and resources I have gathered:\n1. Official website: https://document.kirigaya.cn/blogs/i18n-haru/main.html\n2. Basic concepts of i18n: https://document.kirigaya.cn/docs/i18n-haru/introduction.html\n3. Basic concepts of i18n messages: https://document.kirigaya.cn/docs/i18n-haru/introduction.message.html\nBased on these materials, please help me design a presentation introducing the i18n haru plugin.",
+    "process.input.slide-content.example": "I have recently been researching how to use i18n haru. Below are some materials and resources I have gathered:\\n1. Official website: https://document.kirigaya.cn/blogs/i18n-haru/main.html\\n2. Basic concepts of i18n: https://document.kirigaya.cn/docs/i18n-haru/introduction.html\\n3. Basic concepts of i18n messages: https://document.kirigaya.cn/docs/i18n-haru/introduction.message.html\\nBased on these materials, please help me design a presentation introducing the i18n haru plugin.",
     "process.input.slide-content.help": "Enter your slide content, any text fine.",
     "process.input.upload.label": "Upload File (Optional)",
     "process.input.upload.selected": "Selected file:",
@@ -175,5 +175,13 @@
     "process.input.theme.help": "Help",
     "choose-theme": "Select theme",
     "theme-preview": "Theme Preview",
-    "theme": "Theme"
+    "theme": "Theme",
+    "profile.username": "Username",
+    "profile.email": "Email",
+    "profile.website": "Website",
+    "you-are-not-log-in": "You are not logged in.",
+    "public-slides": "Public Slides",
+    "loading-slides": "Loading slides",
+    "no-public-slides-found": "No public slides found",
+    "save-change": "Save Changes"
 }

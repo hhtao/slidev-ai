@@ -6,7 +6,7 @@
     "common.loading.slides": "正在加载幻灯片...",
     "common.error.fetch-slides": "获取幻灯片失败",
     "common.user.anonymous": "匿名用户",
-    "common.user.profile-title": "我的信息",
+    "common.user.profile-title": "用户信息",
     "dashboard.button.new": "新建幻灯片",
     "dashboard.button.create": "创建幻灯片",
     "dashboard.filter.placeholder": "筛选",
@@ -63,7 +63,7 @@
     "process.input.slide-content": "幻灯片内容",
     "process.input.add-example": "添加示例",
     "process.input.slide-content.placeholder": "输入你的讲演素材",
-    "process.input.slide-content.example": "我最近在调研 i18n haru 的使用方法，下面是我搜集到的一些资料和素材：\n1. 官网：https://document.kirigaya.cn/blogs/i18n-haru/main.html\n2. i18n 基础概念：https://document.kirigaya.cn/docs/i18n-haru/introduction.html\n3. i18n message 基本概念： https://document.kirigaya.cn/docs/i18n-haru/introduction.message.html\n结合这些资料，帮我设计一个介绍 i18n haru 插件的讲演",
+    "process.input.slide-content.example": "我最近在调研 i18n haru 的使用方法，下面是我搜集到的一些资料和素材：\\n1. 官网：https://document.kirigaya.cn/blogs/i18n-haru/main.html\\n2. i18n 基础概念：https://document.kirigaya.cn/docs/i18n-haru/introduction.html\\n3. i18n message 基本概念： https://document.kirigaya.cn/docs/i18n-haru/introduction.message.html\\n结合这些资料，帮我设计一个介绍 i18n haru 插件的讲演",
     "process.input.slide-content.help": "输入你的幻灯片内容，任意文本均可。",
     "process.input.upload.label": "上传文件（可选）",
     "process.input.upload.selected": "已选文件：",
@@ -175,5 +175,13 @@
     "process.input.theme.help": "帮助",
     "choose-theme": "选择主题",
     "theme-preview": "主题预览",
-    "theme": "主题"
+    "theme": "主题",
+    "profile.username": "用户名",
+    "profile.email": "邮箱",
+    "profile.website": "个人网站",
+    "you-are-not-log-in": "你尚未登陆",
+    "public-slides": "公开幻灯片",
+    "loading-slides": "正在加载幻灯片",
+    "no-public-slides-found": "没有公开幻灯片",
+    "save-change": "保存变更"
 }

@@ -37,6 +37,7 @@ const toggleDarkMode = () => {
 // Logout function
 const logout = async () => {
     await authStore.logout();
+    router.push('/login');
 }
 
 // Initialize dark mode from localStorage or system preference

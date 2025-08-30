@@ -1,11 +1,13 @@
 <script setup lang="ts">
-import { ref, computed } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useAuthStore } from '@/store/auth'
 import FormCard from './form.vue'
 import TreeCard from './tree.vue'
 import SlidesCard from './slides.vue';
 import type { UserDTO } from '@/api/auth'
+import axios from 'axios'
+import { API_BASE_URL } from '@/utils/api'
 
 const router = useRouter()
 const route = useRoute()
@@ -45,6 +47,15 @@ const selectedDescription = computed(() => {
 })
 
 const goLogin = () => router.push('/login')
+
+onMounted(async () => {
+    if (!isSelf.value) {
+        const res = await axios.get(`${API_BASE_URL}/users/${route.params.userId}`);
+        viewingUser.value = res.data;
+        console.log(viewingUser.value);
+    }
+});
+
 </script>
 
 <template>

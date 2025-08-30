@@ -65,6 +65,11 @@ const handleSSEError = (event: Event) => {
     }
 
     error.value = t('process.outline.error.sse');
+
+    if (eventSource.value) {
+        eventSource.value.close();
+    }
+
     isProcessing.value = false;
     IamFree();
 

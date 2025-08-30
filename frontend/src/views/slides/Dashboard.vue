@@ -137,8 +137,11 @@ watch(visibility, () => { })
                             ? t('dashboard.empty.public.desc')
                             : t('dashboard.empty.private.desc') }}
                 </p>
-                <Button :label="t('dashboard.button.create')" icon="pi pi-plus" class="p-button-rounded"
-                    @click="createNewSlide" />
+
+                <p class="text-surface-500">
+                    <br>
+                    <small>如果觉得好用，还请为我们点亮 star 🔗 <a class="text-primary-500 hover:underline" href="https://github.com/LSTM-Kirigaya/slidev-ai">LSTM-Kirigaya/slidev-ai</a></small>
+                </p>
             </div>
 
             <!-- Slide Cards (Horizontal) -->

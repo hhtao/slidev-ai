@@ -1,6 +1,9 @@
 <script setup lang="ts">
 import { ref, onMounted, computed } from 'vue'
 import axios from 'axios'
+
+import { t } from '@/i18n';
+
 import { API_BASE_URL, UPLOADS_BASE_URL } from '@/utils/api'
 import { useRoute, useRouter } from 'vue-router'
 
@@ -52,12 +55,12 @@ onMounted(fetchSlides)
 <template>
     <div class="dashboard p-12 max-w-6xl">
         <!-- Page Title -->
-        <h1 class="text-3xl font-bold mb-6 text-gray-900 dark:text-gray-100">Public Slides</h1>
+        <h1 class="text-3xl font-bold mb-6 text-gray-900 dark:text-gray-100">{{ t('public-slides') }}</h1>
 
         <!-- Loading -->
         <div v-if="loading" class="flex flex-col items-center justify-center py-12 text-gray-500">
             <i class="pi pi-spin pi-spinner text-2xl mb-3"></i>
-            Loading slides...
+            {{ t('loading-slides') }}...
         </div>
 
         <!-- Error -->
@@ -69,7 +72,7 @@ onMounted(fetchSlides)
         <div v-else>
             <!-- Empty State -->
             <div v-if="sortedSlides.length === 0" class="text-center p-10 rounded-lg bg-gray-50 dark:bg-gray-800">
-                <h2 class="text-2xl font-semibold mb-2">No public slides found</h2>
+                <h2 class="text-2xl font-semibold mb-2">{{ t('no-public-slides-found') }}</h2>
                 <p class="mb-4 text-gray-500">Check back later for public presentations.</p>
             </div>
 
@@ -93,9 +96,9 @@ onMounted(fetchSlides)
 
                         <!-- Dates -->
                         <div class="text-sm text-gray-500">
-                            <span>Created: {{ formatDate(slide.createdAt) }}</span>
+                            <span>{{ t("info.public-slide.created-at") }}: {{ formatDate(slide.createdAt) }}</span>
                             <span class="mx-1">·</span>
-                            <span>Updated: {{ formatDate(slide.updatedAt) }}</span>
+                            <span>{{ t("info.public-slide.updated-at") }}: {{ formatDate(slide.updatedAt) }}</span>
                         </div>
                     </div>
                 </div>
