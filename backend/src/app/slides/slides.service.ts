@@ -152,9 +152,9 @@ export class SlidesService {
                     saveOutlineIds.add(toolcall.id);
                     // 更新 slide 状态                    
                     try {
-                        const parsedArgs = JSON.parse(toolcall.function.arguments);
-                        if (parsedArgs?.outline?.outlines) {
-                            this.saveOutlines(id, parsedArgs.outline.outlines);
+                        const args = JSON.parse(toolcall.function.arguments);
+                        if (args?.param?.outlines) {
+                            this.saveOutlines(id, args.param.outlines);
                             console.log('saveOutlines');
                         }
                     } catch (parseError) {

@@ -40,9 +40,7 @@ const messages = ref<MessageItem[]>([]);
 
 // Computed properties
 const outlineGenerated = computed<boolean>(() => {
-    return outlines.value.length > 0 && outlines.value.some(outline =>
-        outline.group.trim() !== '' || outline.content.trim() !== ''
-    );
+    return outlines.value.length > 0;
 });
 
 // Methods
@@ -191,12 +189,16 @@ const handleSSEMessage = async (event: MessageEvent) => {
     try {
         const data = JSON.parse(event.data);
 
+        console.log('sse data', data);
+
         if (data.type === 'busy') {
             isBusy.value = true;
             isProcessing.value = false;
             messages.value.push({ type: 'busy', status: 'failed', message: data.message, timestamp: Date.now() });
             toast.add({ severity: 'warn', summary: t('process.outline.slide-busy'), detail: data.message, life: 4000 });
-            if (eventSource.value) eventSource.value.close();
+            if (eventSource.value) {
+                eventSource.value.close();
+            }
             return;
         } else if (data.type === 'toolcall') {
             const toolcall = data.toolcall;
@@ -211,9 +213,10 @@ const handleSSEMessage = async (event: MessageEvent) => {
 
             if (toolcall.function?.name === 'slidev_save_outline') {
                 try {
-                    const parsedArgs = JSON.parse(toolcall.function.arguments);
-                    if (parsedArgs?.outline?.outlines) {
-                        updateOutlines(parsedArgs.outline.outlines);
+                    const args = JSON.parse(toolcall.function.arguments);
+                    
+                    if (args?.param?.outlines) {
+                        updateOutlines(args.param.outlines);
                     }
                 } catch (parseError) {
                     console.error('Error parsing outline:', parseError);
@@ -234,12 +237,18 @@ const handleSSEMessage = async (event: MessageEvent) => {
         if (data.done) {
             isProcessing.value = false;
             hasFinished.value = true;
+
+            
             toast.add({
                 severity: 'success',
                 summary: t('process.outline.processing-complete'),
                 detail: t('process.outline.finished'),
                 life: 3000
             });
+
+            if (eventSource.value) {
+                eventSource.value.close();
+            }
         }
     } catch (parseError) {
         console.error('Error parsing SSE message:', parseError);

@@ -149,22 +149,24 @@ const handleSSEMessage = async (event: MessageEvent, toolcallMapper: Map<string,
                 }
             }
         }
+
         console.log('SSE message received:', data);
 
         if (data.done) {
             isProcessing.value = false;
             hasFinished.value = true;
+
             toast.add({
                 severity: 'success',
                 summary: t('process.markdown.processing-complete'),
                 detail: t('process.markdown.finished'),
                 life: 3000
             });
+
             if (eventSource.value) {
                 eventSource.value.close();
                 eventSource.value = null;
             }
-
         }
     } catch (parseError) {
         console.error('Error parsing SSE message:', parseError);
@@ -185,7 +187,6 @@ const checkExistingSlidevProject = async () => {
         return;
     }
 
-
     try {
         const slideData = await slidesStore.getSlideById(id);
 
@@ -193,9 +194,6 @@ const checkExistingSlidevProject = async () => {
             error.value = t('process.markdown.error.fetch-failed');
             return;
         }
-
-        console.log(slideData);
-
 
         const statusReady = slideData.processingStatus === 'markdown-saved' || slideData.processingStatus === 'completed';
         const hasMeta = slideData.slidevName && slideData.slidevHome;
@@ -224,7 +222,7 @@ const checkExistingSlidevProject = async () => {
         return false;
     } catch (err) {
         console.error('Error fetching slide data:', err);
-    error.value = t('process.markdown.error.fetch-failed');
+        error.value = t('process.markdown.error.fetch-failed');
         return false;
     }
 }
@@ -257,7 +255,7 @@ const initializeSSE = () => {
         eventSource.value.addEventListener('message', event => handleSSEMessage(event, toolcallMapper));
 
     } catch (setupError) {
-    error.value = t('process.markdown.error.init-conn');
+        error.value = t('process.markdown.error.init-conn');
         console.error('SSE setup error:', setupError);
         isButtonDisabled.value = false;
     }
@@ -266,8 +264,8 @@ const initializeSSE = () => {
 const buildSlidevProject = async () => {
     const buildingMessage = {
         severity: 'info',
-    summary: t('process.markdown.building'),
-    detail: t('process.markdown.building.detail'),
+        summary: t('process.markdown.building'),
+        detail: t('process.markdown.building.detail'),
         closable: false,
     };
 
@@ -332,8 +330,8 @@ const previewSlide = async () => {
 
     const buildingMessage = {
         severity: 'info',
-    summary: t('process.markdown.building'),
-    detail: t('process.markdown.building-preview'),
+        summary: t('process.markdown.building'),
+        detail: t('process.markdown.building-preview'),
         closable: false,
     };
 
