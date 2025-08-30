@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, watch, computed, onMounted } from 'vue'
+import { ref, watch, computed } from 'vue'
 import Card from 'primevue/card'
 import Button from 'primevue/button'
 import InputText from 'primevue/inputtext'

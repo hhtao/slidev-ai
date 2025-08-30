@@ -1,8 +1,8 @@
 <script setup lang="ts">
 import { ref, onMounted, computed } from 'vue'
 import axios from 'axios'
-import { API_BASE_URL, UPLOADS_BASE_URL } from '@/utils/api'
-import { useRoute, useRouter } from 'vue-router'
+import { API_BASE_URL } from '@/utils/api'
+import { useRoute } from 'vue-router'
 
 const slides = ref([])
 const loading = ref(true)
@@ -14,7 +14,6 @@ const sortedSlides = computed(() => {
     ) as any[];
 })
 
-const router = useRouter();
 const route = useRoute();
 
 
