@@ -4,8 +4,8 @@ import axios from 'axios'
 
 import { t } from '@/i18n';
 
-import { API_BASE_URL, UPLOADS_BASE_URL } from '@/utils/api'
-import { useRoute, useRouter } from 'vue-router'
+import { API_BASE_URL } from '@/utils/api'
+import { useRoute } from 'vue-router'
 
 const slides = ref([])
 const loading = ref(true)
@@ -17,7 +17,6 @@ const sortedSlides = computed(() => {
     ) as any[];
 })
 
-const router = useRouter();
 const route = useRoute();
 
 
@@ -71,7 +70,7 @@ onMounted(fetchSlides)
         <!-- Content -->
         <div v-else>
             <!-- Empty State -->
-            <div v-if="sortedSlides.length === 0" class="text-center p-10 rounded-lg bg-gray-50 dark:bg-gray-800">
+            <div v-if="sortedSlides.length === 0" class="text-center p-10 rounded-lg p-card">
                 <h2 class="text-2xl font-semibold mb-2">{{ t('no-public-slides-found') }}</h2>
                 <p class="mb-4 text-gray-500">Check back later for public presentations.</p>
             </div>

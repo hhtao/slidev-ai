@@ -58,7 +58,7 @@ onMounted(fetchSlides)
         <!-- Content -->
         <div v-else>
             <!-- Empty State -->
-            <div v-if="sortedSlides.length === 0" class="text-center p-10 rounded-lg bg-gray-50 dark:bg-gray-800">
+            <div v-if="sortedSlides.length === 0" class="text-center p-10 rounded-lg p-card">
                 <h2 class="text-xl font-semibold mb-2">{{ t('info.public-slide.no-public-slide') }}</h2>
                 <p class="mb-4 text-gray-500">{{ t('info.public-slide.check-back-later') }}</p>
             </div>

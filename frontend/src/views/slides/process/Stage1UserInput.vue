@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, onMounted, Ref } from 'vue';
+import { ref, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
 
 import Button from 'primevue/button';
@@ -9,7 +9,6 @@ import Card from 'primevue/card';
 import Message from 'primevue/message';
 import Dialog from 'primevue/dialog'
 import Dropdown from 'primevue/dropdown';
-import FileUpload from 'primevue/fileupload';
 import Divider from 'primevue/divider';
 import Carousel from 'primevue/carousel';
 

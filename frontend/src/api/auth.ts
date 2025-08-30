@@ -1,5 +1,5 @@
 import http from './http';
-import { Result } from './base';
+import { Result } from './base.ts';
 import { API_BASE_URL } from '@/utils/api'
 
 export interface LoginDto {
