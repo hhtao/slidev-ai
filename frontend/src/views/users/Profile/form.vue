@@ -96,17 +96,17 @@ const onAvatarSelect = (e: Event) => {
     if (file) avatarFile.value = file
 }
 
-const hasChanges = computed(() => {
-    if (!props.isSelf) {
-        return false;
-    }
+// const hasChanges = computed(() => {
+//     if (!props.isSelf) {
+//         return false;
+//     }
 
-    return (
-        (email.value !== originalEmail.value) ||
-        (props.selectedNode !== originalEgoId.value) ||
-        (website.value !== originalWebsite.value)
-    )
-})
+//     return (
+//         (email.value !== originalEmail.value) ||
+//         (props.selectedNode !== originalEgoId.value) ||
+//         (website.value !== originalWebsite.value)
+//     )
+// })
 
 
 const submit = async () => {
