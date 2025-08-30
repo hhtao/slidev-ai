@@ -279,7 +279,7 @@ export class SlidevMcpService implements OnModuleInit {
         }
 
 
-        const configPath = path.join(openMcpDir, 'config.json');
+        const configPath = path.join(openMcpDir, `slide-${slide.id}.json`);
         writeFileSync(configPath, JSON.stringify(config, null, 2), 'utf-8');
         this.logger.log(chalk.green(`openmcp config generated: ${configPath}`));
 

@@ -45,3 +45,12 @@ export interface SlidevDto {
     theme: string | null;
     userId: number;
 }
+
+export interface ThemeDto {
+    id: number;
+    name: string;
+    github: string;
+    images: Array<{ imageUrl: string; imageName: string }>;
+    installScripts: string[];
+    installed: boolean;
+}

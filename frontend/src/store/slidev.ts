@@ -1,12 +1,13 @@
 // stores/slidev.ts
-import { API_BASE_URL } from '@/utils/api';
+import { API_BASE_URL, UPLOADS_BASE_URL } from '@/utils/api';
+import { ThemeDto } from '@/views/slides/process/dto';
 import axios from 'axios';
 import { defineStore } from 'pinia';
 import { ref } from 'vue';
 
 export const useSlidevStore = defineStore('slidev', () => {
     // 存储主题列表
-    const themes = ref<string[]>([]);
+    const themes = ref<ThemeDto[]>([]);
 
     // 正在加载标识
     const loading = ref<boolean>(false);
@@ -18,7 +19,7 @@ export const useSlidevStore = defineStore('slidev', () => {
      * 获取所有可用主题
      * @returns 主题列表
      */
-    const getThemes = async (): Promise<string[]> => {
+    const getThemes = async (): Promise<ThemeDto[]> => {
         // 如果数据已存在且不为空，直接返回
         if (themes.value.length > 0) {
             return themes.value;
@@ -29,7 +30,7 @@ export const useSlidevStore = defineStore('slidev', () => {
         error.value = null;
 
         try {
-            const response = await axios.get<string[]>(`${API_BASE_URL}/mcp/themes`);
+            const response = await axios.get<ThemeDto[]>(`${API_BASE_URL}/mcp/themes`);
             themes.value = response.data;
 
             return themes.value;
@@ -53,10 +54,14 @@ export const useSlidevStore = defineStore('slidev', () => {
     /**
      * 强制刷新：忽略缓存重新获取主题列表
      */
-    const refreshThemes = async (): Promise<string[]> => {
+    const refreshThemes = async (): Promise<ThemeDto[]> => {
         clearThemes();
         return await getThemes();
     };
+
+    const getImageSsoUrl = (image: { imageUrl: string; imageName: string }) => {        
+        return `${UPLOADS_BASE_URL}/theme-examples/${image.imageName}`;
+    }
 
     return { 
         themes, 
@@ -64,6 +69,7 @@ export const useSlidevStore = defineStore('slidev', () => {
         error,
         getThemes, 
         clearThemes, 
-        refreshThemes 
+        refreshThemes,
+        getImageSsoUrl
     };
 });
