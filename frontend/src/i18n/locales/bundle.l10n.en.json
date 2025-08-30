@@ -63,7 +63,7 @@
     "process.input.slide-content": "Slide Content",
     "process.input.add-example": "Add Example",
     "process.input.slide-content.placeholder": "Enter slide title",
-    "process.input.slide-content.example": "I have recently been researching how to use i18n haru. Below are some materials and resources I have gathered:\\n1. Official website: https://document.kirigaya.cn/blogs/i18n-haru/main.html\\n2. Basic concepts of i18n: https://document.kirigaya.cn/docs/i18n-haru/introduction.html\\n3. Basic concepts of i18n messages: https://document.kirigaya.cn/docs/i18n-haru/introduction.message.html\\nBased on these materials, please help me design a presentation introducing the i18n haru plugin.",
+    "process.input.slide-content.example": "I have recently been researching how to use i18n haru. Below are some materials and resources I have gathered:\n1. Official website: https://document.kirigaya.cn/blogs/i18n-haru/main.html\n2. Basic concepts of i18n: https://document.kirigaya.cn/docs/i18n-haru/introduction.html\n3. Basic concepts of i18n messages: https://document.kirigaya.cn/docs/i18n-haru/introduction.message.html\nBased on these materials, please help me design a presentation introducing the i18n haru plugin.",
     "process.input.slide-content.help": "Enter your slide content, any text fine.",
     "process.input.upload.label": "Upload File (Optional)",
     "process.input.upload.selected": "Selected file:",

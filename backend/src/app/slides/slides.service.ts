@@ -150,6 +150,16 @@ export class SlidesService {
                 subscriber.next(toSseData({ type: 'toolcall', toolcall }));
                 if (toolcall.function.name === 'slidev_save_outline') {
                     saveOutlineIds.add(toolcall.id);
+                    // 更新 slide 状态                    
+                    try {
+                        const parsedArgs = JSON.parse(toolcall.function.arguments);
+                        if (parsedArgs?.outline?.outlines) {
+                            this.saveOutlines(id, parsedArgs.outline.outlines);
+                            console.log('saveOutlines');
+                        }
+                    } catch (parseError) {
+                        console.error('Error parsing outline:', parseError);
+                    }
                 }
                 return toolcall;
             });
