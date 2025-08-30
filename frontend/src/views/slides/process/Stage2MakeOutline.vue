@@ -150,34 +150,36 @@ const checkExistingOutlines = async () => {
             return;
         }        
 
-        // 检查是否有现成的outlines
-        if (slideData.outlines) {
-            try {
-                let parsedOutlines = JSON.parse(slideData.outlines);
-                console.log(parsedOutlines);
+        console.log(slideData);
+        
+        // // 检查是否有现成的outlines
+        // if (slideData.outlines) {
+        //     try {
+        //         let parsedOutlines = JSON.parse(slideData.outlines);
+        //         console.log(parsedOutlines);
                 
-                if (typeof parsedOutlines === 'string') {
-                    parsedOutlines = JSON.parse(parsedOutlines);
-                }
+        //         if (typeof parsedOutlines === 'string') {
+        //             parsedOutlines = JSON.parse(parsedOutlines);
+        //         }
                 
-                if (parsedOutlines && Array.isArray(parsedOutlines) && parsedOutlines.length > 0) {
-                    updateOutlines(parsedOutlines);
-                    isProcessing.value = false;
-                    toast.add({
-                        severity: 'success',
-                        summary: t('process.outline.loaded-existing'),
-                        detail: t('process.outline.using-existing'),
-                        life: 3000
-                    });
-                    return true;
-                }
-            } catch (parseError) {
-                console.error('Error parsing existing outlines:', parseError);
-            }
-        }
+        //         if (parsedOutlines && Array.isArray(parsedOutlines) && parsedOutlines.length > 0) {
+        //             updateOutlines(parsedOutlines);
+        //             isProcessing.value = false;
+        //             toast.add({
+        //                 severity: 'success',
+        //                 summary: t('process.outline.loaded-existing'),
+        //                 detail: t('process.outline.using-existing'),
+        //                 life: 3000
+        //             });
+        //             return true;
+        //         }
+        //     } catch (parseError) {
+        //         console.error('Error parsing existing outlines:', parseError);
+        //     }
+        // }
 
-        // 如果没有现成的outlines，则初始化SSE
-        initializeSSE();
+        // // 如果没有现成的outlines，则初始化SSE
+        // initializeSSE();
         return false;
     } catch (err) {
     console.error('Error fetching slide data:', err);
@@ -312,14 +314,6 @@ watch(error, (newError) => {
     <div class="p-4 max-w-4xl mx-auto">
         <ProcessSteps />
         <Card>
-            <template #title>
-                <div class="flex justify-between items-center">
-                    <h1>{{ t('process.outline.title') }}</h1>
-                    <Button icon="pi pi-times" outlined @click="cancelProcessing" severity="secondary"
-                        aria-label="Cancel processing" />
-                </div>
-            </template>
-
             <template #content>
                 <div v-if="error">
                     <Message severity="error" :closable="false">{{ error }}</Message>

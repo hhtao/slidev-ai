@@ -379,14 +379,6 @@ onUnmounted(() => {
     <div class="p-4 max-w-4xl mx-auto">
         <ProcessSteps />
         <Card>
-            <template #title>
-                <div class="flex justify-between items-center">
-                    <h1>{{ t('process.markdown.title') }}</h1>
-                    <Button icon="pi pi-times" outlined @click="cancelProcessing" severity="secondary"
-                        aria-label="Cancel processing" />
-                </div>
-            </template>
-
             <template #content>
                 <div v-if="error">
                     <Message severity="error" :closable="false">{{ error }}</Message>
