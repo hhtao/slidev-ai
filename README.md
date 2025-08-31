@@ -9,10 +9,9 @@
 
 *From ideas to presentations to content distribution — our mission is to shorten the distance.*
 
-English | [中文](README.zh.md)
+English | [中文](README.zh.md) | [Video](https://www.bilibili.com/video/BV1SMhBzJEUL)
 
 </div>
-
 
 
 ## 🚀 Overview
@@ -26,6 +25,9 @@ slidev-ai is a downstream implementation within the [OpenMCP](https://github.com
 - A reference implementation for OpenMCP agent development
 - A production-ready presentation generation solution
 - A template for creating domain-specific AI agents
+
+
+Check out the full demo on Bilibili: [完全开源的新世代AI PPT工具！Slidev-AI 功能演示](https://www.bilibili.com/video/BV1SMhBzJEUL)
 
 🔗 [OpenMCP Document](https://kirigaya.cn/openmcp/)
 
