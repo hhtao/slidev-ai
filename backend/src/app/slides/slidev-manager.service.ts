@@ -210,9 +210,9 @@ export class SlidevManagerService implements OnApplicationShutdown {
 
     private buildSlidevArgs(bin: string, filePath: string, port: number): string[] {
         if (bin === 'npx') {
-            return ['-y', 'slidev', filePath, '--port', port.toString()];
+            return ['-y', 'slidev', filePath, '--remote', '--port', port.toString()];
         }
-        return [filePath, '--port', port.toString()];
+        return [filePath, '--remote', '--port', port.toString()];
     }
 
     private async findAvailablePort(start = 5000): Promise<number> {
