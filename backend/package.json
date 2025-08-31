@@ -7,7 +7,7 @@
     "license": "UNLICENSED",
     "type": "commonjs",
     "scripts": {
-        "build": "tsc -p tsconfig.simple.json",
+        "build": "tsc -p tsconfig.simple.json && tsc-alias -p tsconfig.simple.json",
         "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
         "start": "node dist/main.js",
         "start:dev": "node --loader ts-node/esm src/main.ts",
@@ -89,6 +89,7 @@
         "ts-jest": "^29.2.5",
         "ts-loader": "^9.5.2",
         "ts-node": "^10.9.2",
+        "tsc-alias": "^1.8.16",
         "tsconfig-paths": "^4.2.0",
         "typescript": "^5.8.3",
         "typescript-eslint": "^8.20.0"
