@@ -49,7 +49,11 @@ export class SlidevMcpService implements OnModuleInit {
             execSync(`git clone ${this.repoUrl} ${this.repoPath}`, { stdio: 'inherit' });
             return true;
         } catch (error) {
-            this.logger.error(chalk.red(`git clone failed: ${error.message}`));
+            if (error instanceof Error) {
+                this.logger.error(chalk.red(`git clone failed: ${error.message}`));
+            } else {
+                this.logger.error(chalk.red(`git clone failed: ${JSON.stringify(error)}`));
+            }
             return false;
         }
     }
@@ -60,7 +64,11 @@ export class SlidevMcpService implements OnModuleInit {
             execSync(`uv sync`, { cwd: this.repoPath, stdio: 'inherit' });
             this.logger.log(chalk.green(`Dependencies installed successfully`));
         } catch (error) {
-            this.logger.error(chalk.red(`uv sync failed: ${error.message}`));
+            if (error instanceof Error) {
+                this.logger.error(chalk.red(`uv sync failed: ${error.message}`));
+            } else {
+                this.logger.error(chalk.red(`uv sync failed: ${JSON.stringify(error)}`));
+            }
         }
     }
 
@@ -70,7 +78,11 @@ export class SlidevMcpService implements OnModuleInit {
             execSync(`uv run playwright install`, { cwd: this.repoPath, stdio: 'inherit' });
             this.logger.log(chalk.green(`Dependencies installed successfully`));
         } catch (error) {
-            this.logger.error(chalk.red(`uv sync failed: ${error.message}`));
+            if (error instanceof Error) {
+                this.logger.error(chalk.red(`uv sync failed: ${error.message}`));
+            } else {
+                this.logger.error(chalk.red(`uv sync failed: ${JSON.stringify(error)}`));
+            }
         }
     }
 
@@ -80,7 +92,11 @@ export class SlidevMcpService implements OnModuleInit {
             execSync(`git -C ${this.repoPath} pull`, { stdio: 'inherit' });
             this.logger.log(chalk.green(`Repository updated successfully`));
         } catch (error) {
-            this.logger.error(chalk.red(`git pull failed: ${error.message}`));
+            if (error instanceof Error) {
+                this.logger.error(chalk.red(`git pull failed: ${error.message}`));
+            } else {
+                this.logger.error(chalk.red(`git pull failed: ${JSON.stringify(error)}`));
+            }
         }
     }
 
@@ -119,7 +135,11 @@ export class SlidevMcpService implements OnModuleInit {
 
             this.logger.log(chalk.green(`Themes initialization completed`));
         } catch (error) {
-            this.logger.error(chalk.red(`Theme initialization failed: ${error.message}`));
+            if (error instanceof Error) {
+                this.logger.error(chalk.red(`Theme initialization failed: ${error.message}`));
+            } else {
+                this.logger.error(chalk.red(`Theme initialization failed: ${JSON.stringify(error)}`));
+            }
         }
     }
 
@@ -144,7 +164,7 @@ export class SlidevMcpService implements OnModuleInit {
 
             // 处理图片下载
             const imageMappings = await Promise.all(
-                (manifest.images ?? []).map(async (imageUrl) => {
+                (manifest.images ?? []).map(async (imageUrl: string) => {
                     // 生成唯一文件名
                     const imageName = await this.generateImageName(imageUrl);
 
@@ -187,7 +207,11 @@ export class SlidevMcpService implements OnModuleInit {
 
             this.logger.log(chalk.green(`✓ Processed theme successfully: ${themeName}`));
         } catch (error) {
-            this.logger.error(chalk.red(`✗ Failed to process theme ${themeName}: ${error.message}`));
+            if (error instanceof Error) {
+                this.logger.error(chalk.red(`✗ Failed to process theme ${themeName}: ${error.message}`));
+            } else {
+                this.logger.error(chalk.red(`✗ Failed to process theme ${themeName}: ${JSON.stringify(error)}`));
+            }
         }
     }
 
@@ -210,7 +234,11 @@ export class SlidevMcpService implements OnModuleInit {
                 execSync(script, { cwd: themePath, stdio: 'inherit' });
                 this.logger.log(chalk.green(`Script executed successfully: ${script}`));
             } catch (error) {
-                this.logger.error(chalk.red(`Script execution failed: ${script} - ${error.message}`));
+                if (error instanceof Error) {
+                    this.logger.error(chalk.red(`Script execution failed: ${script} - ${error.message}`));
+                } else {
+                    this.logger.error(chalk.red(`Script execution failed: ${script} - ${JSON.stringify(error)}`));
+                }
             }
         }
     }
