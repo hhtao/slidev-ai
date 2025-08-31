@@ -8,6 +8,9 @@
 
 *从想法到演示再到内容传播，我们的任务就是缩短它*
 
+[English](./README.md) | 中文 | [视频](https://www.bilibili.com/video/BV1SMhBzJEUL)
+
+
 </div>
 
 ---
@@ -25,6 +28,9 @@ slidev-ai 是 [OpenMCP](https://github.com/LSTM-Kirigaya/openmcp-client) 生态�
 - OpenMCP Agent 开发的参考实现
 - 可直接用于生产环境的演示文稿生成方案
 - 构建领域专用 AI Agent 的模板
+
+请在B站上查看介绍视频： [完全开源的新世代AI PPT工具！Slidev-AI 功能演示](https://www.bilibili.com/video/BV1SMhBzJEUL)
+
 
 🔗 [OpenMCP 文档](https://kirigaya.cn/openmcp/)
 
