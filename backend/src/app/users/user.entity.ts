@@ -29,7 +29,7 @@ export class User {
     avatar?: string;
 
     @OneToMany(() => Slide, slide => slide.user)
-    slides: Slide[] = [];
+    slides: Slide[];
 
     @Column({ default: 'user' })
     @Check(`"role" IN ('admin', 'user')`)
