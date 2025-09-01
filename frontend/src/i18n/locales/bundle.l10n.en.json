@@ -183,5 +183,11 @@
     "public-slides": "Public Slides",
     "loading-slides": "Loading slides",
     "no-public-slides-found": "No public slides found",
-    "save-change": "Save Changes"
+    "save-change": "Save Changes",
+    "outline.add-item": "add",
+    "outline.delete-item": "delete",
+    "outline.add-below": "add below",
+    "outline.add-above": "add above",
+    "outline.add-group-above": "add group above",
+    "outline.add-group-below": "add group below"
 }

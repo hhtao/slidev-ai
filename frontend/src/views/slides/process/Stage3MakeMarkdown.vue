@@ -352,6 +352,7 @@ const previewSlide = async () => {
         const port = response.data.port;
 
         // 在新窗口中打开预览页面
+        // TODO: 修复此处
         window.open(`http://localhost:${port}/`, '_blank');
 
     } catch (error) {

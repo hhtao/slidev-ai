@@ -183,5 +183,11 @@
     "public-slides": "公开幻灯片",
     "loading-slides": "正在加载幻灯片",
     "no-public-slides-found": "没有公开幻灯片",
-    "save-change": "保存变更"
+    "save-change": "保存变更",
+    "outline.add-item": "添加",
+    "outline.delete-item": "删除",
+    "outline.add-below": "add below",
+    "outline.add-above": "add above",
+    "outline.add-group-above": "add group above",
+    "outline.add-group-below": "add group below"
 }

@@ -82,7 +82,7 @@ const collectForm = () => {
         formData.append('file', file.value);
     }
     formData.append('visibility', visibility.value);
-    formData.append('theme', theme.value?.name || 'academic');
+    formData.append('theme', theme.value?.name || 'default');
 
     return formData;
 }
