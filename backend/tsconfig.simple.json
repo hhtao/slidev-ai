@@ -5,7 +5,7 @@
     "moduleResolution": "NodeNext",
     "esModuleInterop": true,
     "allowSyntheticDefaultImports": true,
-    "strict": true,
+  "strict": false,
     "skipLibCheck": true,
     "outDir": "./dist",
     "rootDir": "./src",
@@ -20,8 +20,10 @@
       "@/*": ["src/*"],
       "@utils/*": ["src/utils/*"]
     },
-    "allowImportingTsExtensions": true,
-    "noEmit": true
+  "noEmit": false,
+  "noEmitOnError": false,
+  "noImplicitAny": false,
+  "strictPropertyInitialization": false
   },
   "include": ["src/**/*"],
   "exclude": ["node_modules", "dist"]

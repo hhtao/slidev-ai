@@ -9,7 +9,7 @@ import { useToast } from 'primevue/usetoast';
 import { MessageItem, SlidevProjectSchema } from './dto';
 import { useSlidesStore } from '@/store/slide';
 import axios from 'axios';
-import { API_BASE_URL } from '@/utils/api';
+import { API_BASE_URL, PREVIEW_URL } from '@/utils/api';
 import ProcessSteps from '@/components/ProcessSteps.vue';
 import { t } from '@/i18n';
 import STATUS_CODE from '@/constant/status-code';
@@ -299,6 +299,10 @@ const buildSlidevProject = async () => {
                 detail: res.data.message,
                 life: 5000
             });
+
+            setTimeout(() => {
+                router.push('/dashboard');
+            }, 500);
         }
     } catch (error) {
         toast.remove(buildingMessage);
@@ -352,8 +356,7 @@ const previewSlide = async () => {
         const port = response.data.port;
 
         // 在新窗口中打开预览页面
-        // TODO: 修复此处
-        window.open(`http://localhost:${port}/`, '_blank');
+        window.open(`${PREVIEW_URL}:${port}/`, '_blank');
 
     } catch (error) {
         console.error('Error getting preview port:', error);

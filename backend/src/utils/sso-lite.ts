@@ -46,7 +46,11 @@ export async function downloadFile(url: string, savePath: string, httpService: H
             writer.on('error', reject);
         });
     } catch (err) {
-        throw new Error(`Failed to download file from ${url}: ${err.message}`);
+        if (err instanceof Error) {
+            throw new Error(`Failed to download file from ${url}: ${err.message}`);
+        } else {
+            throw new Error(`Failed to download file from ${url}: ${JSON.stringify(err)}`);
+        }
     }
 }
 

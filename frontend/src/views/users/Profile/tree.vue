@@ -1,6 +1,8 @@
 <script setup lang="ts">
 import Card from 'primevue/card';
 
+import { t } from '@/i18n';
+
 const props = defineProps<{
     nodes: { id: number; label: string; x: number; y: number; desc: string }[]
     edges: number[][]
@@ -13,7 +15,7 @@ const selectedNode = defineModel('selectedNode');
 <template>
     <Card>
         <template #title>
-            <div class="text-xl font-semibold">Expressing the Ego</div>
+            <div class="text-xl font-semibold">{{ t('express-ego') }}</div>
             <div v-if="props.selectedDescription" class="mt-2 text-sm text-gray-700 dark:text-gray-300 leading-relaxed">
                 {{ props.selectedDescription }}
             </div>

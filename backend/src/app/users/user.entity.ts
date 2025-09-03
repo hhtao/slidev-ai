@@ -4,25 +4,25 @@ import { Slide } from '../slides/slide.entity';
 @Entity('users')
 export class User {
     @PrimaryGeneratedColumn()
-    id: number;
+    id: number = 0;
 
     @CreateDateColumn()
-    createdAt: Date;
+    createdAt: Date = new Date();
 
     @UpdateDateColumn()
-    updatedAt: Date;
+    updatedAt: Date = new Date();
 
     @DeleteDateColumn({ nullable: true })
     deletedAt?: Date;
 
     @Column({ unique: true })
-    username: string;
+    username: string = '';
 
     @Column({ unique: true })
-    email: string;
+    email: string = '';
 
     @Column()
-    password: string;
+    password: string = '';
 
     // 头像文件相对路径 (例如 /uploads/avatar-xxx.png)
     @Column({ nullable: true })
@@ -33,7 +33,7 @@ export class User {
 
     @Column({ default: 'user' })
     @Check(`"role" IN ('admin', 'user')`)
-    role: string;
+    role: string = 'user';
 
     @Column({ nullable: true })
     website?: string;

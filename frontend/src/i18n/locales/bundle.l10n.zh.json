@@ -63,7 +63,7 @@
     "process.input.slide-content": "幻灯片内容",
     "process.input.add-example": "添加示例",
     "process.input.slide-content.placeholder": "输入你的讲演素材",
-    "process.input.slide-content.example": "我最近在调研 i18n haru 的使用方法，下面是我搜集到的一些资料和素材：\n1. 官网：https://document.kirigaya.cn/blogs/i18n-haru/main.html\n2. i18n 基础概念：https://document.kirigaya.cn/docs/i18n-haru/introduction.html\n3. i18n message 基本概念： https://document.kirigaya.cn/docs/i18n-haru/introduction.message.html\n结合这些资料，帮我设计一个介绍 i18n haru 插件的讲演",
+    "process.input.slide-content.example": "我最近在调研 i18n haru 的使用方法，下面是我搜集到的一些资料和素材：\\n1. 官网：https://document.kirigaya.cn/blogs/i18n-haru/main.html\\n2. i18n 基础概念：https://document.kirigaya.cn/docs/i18n-haru/introduction.html\\n3. i18n message 基本概念： https://document.kirigaya.cn/docs/i18n-haru/introduction.message.html\\n结合这些资料，帮我设计一个介绍 i18n haru 插件的讲演",
     "process.input.slide-content.help": "输入你的幻灯片内容，任意文本均可。",
     "process.input.upload.label": "上传文件（可选）",
     "process.input.upload.selected": "已选文件：",
@@ -189,5 +189,16 @@
     "outline.add-below": "添加页",
     "outline.add-above": "添加页",
     "outline.add-group-above": "添加组",
-    "outline.add-group-below": "添加组"
+    "outline.add-group-below": "添加组",
+    "express-ego": "表达本我",
+    "keter-desc": "象征无限、潜能与至高的灵性启示。",
+    "chokhmah-desc": "直觉、创造力与原初的灵感。",
+    "binah-desc": "理性、结构与深邃洞察。",
+    "chesed-desc": "慈爱、仁慈与无尽的扩展。",
+    "gevurah-desc": "纪律、勇气与自我克制。",
+    "tiferet-desc": "平衡、和谐与灵性的核心。",
+    "netzach-desc": "坚毅、热情与情感的力量。",
+    "hod-desc": "理性、沟通与神圣表达。",
+    "yesod-desc": "潜意识、连接与能量的流通。",
+    "malkuth-desc": "现实、行动与神性的显现。"
 }

@@ -9,6 +9,8 @@ import type { UserDTO } from '@/api/auth'
 import axios from 'axios'
 import { API_BASE_URL } from '@/utils/api'
 
+import { t } from '@/i18n';
+
 const router = useRouter()
 const route = useRoute()
 const authStore = useAuthStore()
@@ -24,16 +26,16 @@ const user = computed(() => (isSelf.value ? selfUser.value : viewingUser.value))
 
 // 卡巴拉生命之树
 const kaballahNodes = [
-    { id: 1, label: 'Keter', x: 2, y: 1, desc: 'Represents infinity, potential, and spiritual enlightenment.' },
-    { id: 2, label: 'Chokhmah', x: 1, y: 2, desc: 'Intuition, creativity, and primal inspiration.' },
-    { id: 3, label: 'Binah', x: 3, y: 2, desc: 'Reason, structure, and insight.' },
-    { id: 4, label: 'Chesed', x: 1, y: 3, desc: 'Love, compassion, and expansion.' },
-    { id: 5, label: 'Gevurah', x: 3, y: 3, desc: 'Discipline, courage, and restraint.' },
-    { id: 6, label: 'Tiferet', x: 2, y: 4, desc: 'Balance, harmony, and the spiritual heart.' },
-    { id: 7, label: 'Netzach', x: 1, y: 5, desc: 'Perseverance, passion, and emotional strength.' },
-    { id: 8, label: 'Hod', x: 3, y: 5, desc: 'Logic, communication, and expression.' },
-    { id: 9, label: 'Yesod', x: 2, y: 6, desc: 'Subconscious, connection, and energy transmission.' },
-    { id: 10, label: 'Malkuth', x: 2, y: 7, desc: 'Reality, action, and manifestation.' },
+    { id: 1, label: 'Keter', x: 2, y: 1, desc: t('keter-desc') },
+    { id: 2, label: 'Chokhmah', x: 1, y: 2, desc: t('chokhmah-desc') },
+    { id: 3, label: 'Binah', x: 3, y: 2, desc: t('binah-desc') },
+    { id: 4, label: 'Chesed', x: 1, y: 3, desc: t('chesed-desc') },
+    { id: 5, label: 'Gevurah', x: 3, y: 3, desc: t('gevurah-desc') },
+    { id: 6, label: 'Tiferet', x: 2, y: 4, desc: t('tiferet-desc') },
+    { id: 7, label: 'Netzach', x: 1, y: 5, desc: t('netzach-desc') },
+    { id: 8, label: 'Hod', x: 3, y: 5, desc: t('hod-desc') },
+    { id: 9, label: 'Yesod', x: 2, y: 6, desc: t('yesod-desc') },
+    { id: 10, label: 'Malkuth', x: 2, y: 7, desc: t('malkuth-desc') },
 ]
 
 const kaballahEdges = [

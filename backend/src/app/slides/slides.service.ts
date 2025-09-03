@@ -1,20 +1,23 @@
+import path from 'path';
+import { v4 as uuidv4 } from 'uuid';
+import fs from 'fs';
+
 import { Injectable } from '@nestjs/common';
 import { Observable, Subscriber } from 'rxjs';
-
 import { OmAgent } from 'openmcp-sdk/service/sdk';
+
 import { SlidevMcpService } from '@/app/mcp/slidev-mcp.service';
 import { SlideRepository } from './slide.repository';
 import { CreateSlideDto, SlidevProjectDto } from './slide.dto';
 import { Slide } from './slide.entity';
 import { toSseData } from '@/utils/sse';
-import path from 'path';
-import { v4 as uuidv4 } from 'uuid';
 import { SLIDEV_MCP_ROOT } from '@/constant/filepath';
 import { SlideLockService } from './slide-lock.service';
 import BaseResponse from '@/app/base/base.dto';
 import  STATUS_CODE  from '@/constant/status-code';
 import { SlidevManagerService } from './slidev-manager.service';
 import { User } from '../users/user.entity';
+
 // 定义文件类型
 type MulterFile = Express.Multer.File;
 
@@ -52,14 +55,51 @@ export class SlidesService {
         });
     }
 
+    async getSlideStatus(slide: Slide | null | undefined, defaultStatus?: string) {
+        let status = defaultStatus || 'user-input-saved';
+        if (!slide) {
+            return status;
+        }
+
+        if (slide.outlines) {
+            status = 'outline-saved';
+        } else {
+            return status;
+        }
+
+        const mdPath = this.getSlidePrjAbsolutePath(slide);
+        if (mdPath && fs.existsSync(mdPath)) {
+            status = 'markdown-saved';
+        } else {
+            return status;
+        }
+
+        const coverPath = this.slidevManager.getSlideCoverFilePath(slide);
+        if (coverPath && fs.existsSync(coverPath)) {
+            status = 'completed';
+        } else {
+            return status;
+        }
+
+        return status;
+    }
+
     async saveSlide(id: number, createSlideDto: CreateSlideDto, file?: MulterFile) {
+
+        // 根据当前 slide 的状态决定，如果已经完成了任何一个步骤，则被标记为当前的步骤
+        const slide = await this.slidesRepository.findOneById(id);
+        const status = await this.getSlideStatus(slide, 'user-input-saved');
+
+        console.log(status);
+        console.log(slide);
+        
 
         await this.slidesRepository.update(id, {
             title: createSlideDto.title,
             content: createSlideDto.content,
             visibility: createSlideDto.visibility,
             theme: createSlideDto.theme,
-            processingStatus: 'user-input-saved'
+            processingStatus: status
         });
 
         return { success: true };
@@ -73,28 +113,35 @@ export class SlidesService {
         return { agent, loop };
     }
 
-    /**
-     * 保存幻灯片的 slides_path
-     */
-    async saveSlidesPath(id: number, slidevData: SlidevProjectDto) {
-        // 这里应使用传入的 home 字段（而不是 name）作为 slidevHome
-        await this.slidesRepository.update(id, {
-            slidevName: slidevData.name,
-            slidevHome: slidevData.name,
-            processingStatus: 'markdown-saved',
-        });
-        return { success: true };
-    }
 
     /**
      * 保存幻灯片的大纲数据
      */
     async saveOutlines(id: number, outlines: any) {
+        const slide = await this.slidesRepository.findOneById(id);
+        const status = await this.getSlideStatus(slide, 'outline-saved');
+
         this.slidesRepository.update(id, {
             outlines: JSON.stringify(outlines),
-            processingStatus: 'outline-saved',
+            processingStatus: status,
         });
         return { success: true }
+    }
+
+    /**
+     * 保存幻灯片的 slides_path
+     */
+    async saveSlidesPath(id: number, slidevData: SlidevProjectDto) {
+        // 这里应使用传入的 home 字段（而不是 name）作为 slidevHome
+        const slide = await this.slidesRepository.findOneById(id);
+        const status = await this.getSlideStatus(slide, 'markdown-saved');
+
+        await this.slidesRepository.update(id, {
+            slidevName: slidevData.name,
+            slidevHome: slidevData.name,
+            processingStatus: status,
+        });
+        return { success: true };
     }
 
     /**

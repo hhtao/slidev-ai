@@ -177,7 +177,7 @@ export class SlidevManagerService implements OnApplicationShutdown {
             });
 
             // 打开页面并等待加载完成
-            await page.goto(slidevServer, { waitUntil: 'networkidle2', timeout: 30000 });
+            await page.goto(slidevServer, { waitUntil: 'networkidle0', timeout: 30000 });
 
             // 截图并保存
             await page.screenshot({
