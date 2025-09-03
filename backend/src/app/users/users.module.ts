@@ -4,7 +4,6 @@ import { UsersService } from './users.service';
 import { UserRepository } from './users.repository';
 import { User } from './user.entity';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { SlideRepository } from '@/app/slides/slide.repository';
 import { SlidesModule } from '@/app/slides/slides.module';
 
 @Module({

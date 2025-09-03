@@ -21,6 +21,8 @@ export class AuthService {
         // 加密密码
         const hashedPassword = await bcrypt.hash(createUserDto.password, 10);
         createUserDto.password = hashedPassword;
+        createUserDto.role = 'user';
+
         // 创建用户
         const user = await this.userRepository.create(createUserDto);
 

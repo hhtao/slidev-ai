@@ -1,13 +1,13 @@
-import { Controller, Get, Post, Body, Param, ParseIntPipe, NotFoundException, UseGuards, Patch, Req } from '@nestjs/common';
-import { ApiTags, ApiOperation, ApiCreatedResponse, ApiOkResponse, ApiNotFoundResponse, ApiBody, ApiBearerAuth, ApiConsumes } from '@nestjs/swagger';
+import { Controller, Get, Post, Body, Param, ParseIntPipe, NotFoundException, UseGuards, Patch, Req, BadRequestException, Query, Delete } from '@nestjs/common';
+import { ApiTags, ApiOperation, ApiCreatedResponse, ApiOkResponse, ApiNotFoundResponse, ApiBody, ApiBearerAuth, ApiConsumes, ApiQuery, ApiUnauthorizedResponse, ApiForbiddenResponse } from '@nestjs/swagger';
 import { UsersService } from './users.service';
-import { InjectRepository } from '@nestjs/typeorm';
 import { UserRepository } from '@/app/users/users.repository';
 import { User } from '@/app/users/user.entity';
 import { CreateUserDto, UserResponseDto, UpdateProfileDto } from './user.dto';
 import { AuthGuard } from '@nestjs/passport';
 import { UseAvatarUploader } from '@/decorators/file-upload.decorator';
 import { Request } from 'express';
+import * as bcrypt from 'bcryptjs';
 
 @ApiTags('users')
 @Controller('users')
@@ -86,4 +86,85 @@ export class UsersController {
     }
 
     
+    @Get('role/:role')
+    @ApiOperation({ summary: '根据角色获取用户列表' })
+    @ApiOkResponse({ description: '查询成功', type: [UserResponseDto] })
+    async findByRole(@Param('role') role: string): Promise<UserResponseDto[]> {
+        const users = await this.userRepository.findByRole(role);
+        return users.map(user => {
+            const { password, ...safe } = user as any;
+            return safe;
+        });
+    }
+
+    
+    @Get()
+    @UseGuards(AuthGuard('jwt'))
+    @ApiOperation({ summary: '分页获取用户列表（仅限管理员）' })
+    @ApiQuery({ name: 'page', required: false, type: Number, description: '页码 (默认为 1)' })
+    @ApiQuery({ name: 'limit', required: false, type: Number, description: '每页数量 (默认为 15)' })
+    @ApiOkResponse({ description: '查询成功' })
+    @ApiUnauthorizedResponse({ description: '未授权' })
+    @ApiForbiddenResponse({ description: '权限不足' })
+    async findAll(
+        @Req() req: Request,
+        @Query('page') page: number = 1,
+        @Query('limit') limit: number = 15
+    ): Promise<{ users: UserResponseDto[], total: number, page: number, limit: number }> {
+        // 检查用户是否为管理员
+        const currentUser = req.user as User;
+        if (currentUser.role !== 'admin') {
+            throw new BadRequestException('权限不足，仅管理员可访问');
+        }
+
+        // 限制每页最大数量
+        if (limit > 100) {
+            limit = 100;
+        }
+
+        const [users, total] = await this.userRepository.findAll((page - 1) * limit, limit);
+        
+        const userResponses = users.map(user => {
+            const { password, ...safe } = user as any;
+            return safe;
+        });
+
+        return {
+            users: userResponses,
+            total,
+            page,
+            limit
+        };
+    }
+
+    @Delete(':id')
+    @UseGuards(AuthGuard('jwt'))
+    @ApiOperation({ summary: '删除用户（仅限管理员）' })
+    @ApiOkResponse({ description: '用户删除成功' })
+    @ApiUnauthorizedResponse({ description: '未授权' })
+    @ApiForbiddenResponse({ description: '权限不足' })
+    @ApiNotFoundResponse({ description: '用户不存在' })
+    async remove(
+        @Req() req: Request,
+        @Param('id', ParseIntPipe) id: number
+    ): Promise<void> {
+        // 检查用户是否为管理员
+        const currentUser = req.user as User;
+        if (currentUser.role !== 'admin') {
+            throw new BadRequestException('权限不足，仅管理员可访问');
+        }
+
+        // 检查用户是否存在
+        const user = await this.userRepository.findOneById(id);
+        if (!user) {
+            throw new NotFoundException('用户不存在');
+        }
+
+        // 不能删除自己
+        if (currentUser.id === id) {
+            throw new BadRequestException('不能删除自己');
+        }
+
+        await this.userRepository.remove(id);
+    }
 }

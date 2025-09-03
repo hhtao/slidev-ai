@@ -18,6 +18,11 @@ export class CreateUserDto {
     @IsString()
     @MinLength(6)
     email!: string;
+
+    @ApiProperty({ description: '用户角色', example: 'user', enum: ['user', 'admin'], required: false })
+    @IsOptional()
+    @IsString()
+    role?: string;
 }
 
 // 用于对外返回的用户信息（不含密码）

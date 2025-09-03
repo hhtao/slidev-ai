@@ -102,22 +102,22 @@ const items = computed(() => [
                         <i class="pi pi-github"></i>
                     </a>
                     <div v-if="authStore.user" class="h-[32px] flex items-center gap-2">
-                            <Avatar
-                                v-if="authStore.user.avatar"
-                                :image="`${UPLOADS_BASE_URL}/avatars/${authStore.user.avatar}`"
-                                shape="circle"
-                                class="cursor-pointer"
-                                title="我的信息"
-                                @click="router.push(`/profile/${authStore.user.id}`)"
-                            />
-                            <Avatar
-                                v-else
-                                :label="authStore.user.username.charAt(0).toUpperCase()"
-                                shape="circle"
-                                class="cursor-pointer"
-                                title="我的信息"
-                                @click="router.push(`/profile/${authStore.user.id}`)"
-                            />
+                        <Avatar
+                            v-if="authStore.user.avatar"
+                            :image="`${UPLOADS_BASE_URL}/avatars/${authStore.user.avatar}`"
+                            shape="circle"
+                            class="cursor-pointer"
+                            title="我的信息"
+                            @click="router.push(`/profile/${authStore.user.id}`)"
+                        />
+                        <Avatar
+                            v-else
+                            :label="authStore.user.username.charAt(0).toUpperCase()"
+                            shape="circle"
+                            class="cursor-pointer"
+                            title="我的信息"
+                            @click="router.push(`/profile/${authStore.user.id}`)"
+                        />
                         <Button :label="t('auth.logout.button')" @click="logout" icon="pi pi-sign-out" text size="small" />
                     </div>
                     <Button v-else :label="t('auth.login.button')" @click="router.push('/login')" icon="pi pi-sign-in" />
