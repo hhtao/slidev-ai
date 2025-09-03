@@ -5,14 +5,17 @@ import { UserRepository } from './users.repository';
 import { User } from './user.entity';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { SlidesModule } from '@/app/slides/slides.module';
+import { Invitation } from './invitation.entity';
+import { InvitationRepository } from './invitation.repository';
+import { InvitationService } from './invitation.service';
 
 @Module({
     imports: [
-        TypeOrmModule.forFeature([User]),
+        TypeOrmModule.forFeature([User, Invitation]),
         SlidesModule,
     ],
-    providers: [UserRepository, UsersService],
+    providers: [UserRepository, UsersService, InvitationRepository, InvitationService],
     controllers: [UsersController],
-    exports: [UsersService, UserRepository],
+    exports: [UsersService, UserRepository, InvitationService, InvitationRepository],
 })
 export class UsersModule { }

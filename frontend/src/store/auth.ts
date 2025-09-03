@@ -19,7 +19,7 @@ export const useAuthStore = defineStore('auth', () => {
     };
 
     const register = async (
-        userData: { username: string; email: string; password: string }
+        userData: { username: string; email: string; password: string; invitationCode: string }
     ): Promise<ApiResult<UserDTO>> => {
         const res = await apiRegister(userData);
         if (!res.success) return { success: false, error: res.error, status: res.status };

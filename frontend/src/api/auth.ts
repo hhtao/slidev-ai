@@ -1,67 +1,53 @@
-import http from './http';
-import { Result } from './base.ts';
-import { API_BASE_URL } from '@/utils/api'
+import axios from 'axios';
+import type { Result } from './base';
 
-export interface LoginDto {
-    username: string;
-    password: string;
-}
-
-export interface RegisterDto {
-    username: string;
-    email: string;
-    password: string;
-}
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3001/api';
 
 export interface UserDTO {
     id: number;
     username: string;
     email: string;
-    avatar?: string | null;
-    website?: string | null;
-    egoId?: number | null;
+    avatar?: string;
+    role: 'user' | 'admin';
+    createdAt: string;
+    updatedAt: string;
 }
 
+export interface RegisterPayload {
+    username: string;
+    email: string;
+    password: string;
+    invitationCode: string;
+}
 
+export interface LoginPayload {
+    username: string;
+    password: string;
+}
 
-export async function apiLogin(dto?: LoginDto): Promise<Result<UserDTO>> {
+export const apiRegister = async (payload: RegisterPayload): Promise<Result<UserDTO>> => {
     try {
-        const { data, status } = await http.post(`${API_BASE_URL}/auth/login`, dto);
-        if (data?.success && data?.user) {
-            return { success: true, data: data.user, message: data.message };
-        }
-        if (typeof data?.error === 'string') {
-            return { success: false, error: data.error, status };
-        }
-        return { success: false, error: data?.message || 'Login failed', status };
+        const res = await axios.post(`${API_BASE_URL}/auth/register`, payload);
+        return { success: true, data: res.data };
     } catch (err: any) {
-        const status = err?.response?.status;
-        const msg = err?.response?.data?.message || err?.message || 'Login failed';
-        return { success: false, error: msg, status };
+        return { success: false, status: err?.response?.status, error: err?.response?.data?.message || 'Unknown error' };
     }
-}
+};
 
-export async function apiRegister(dto: RegisterDto): Promise<Result<void>> {
+export const apiLogin = async (payload?: LoginPayload): Promise<Result<UserDTO>> => {
     try {
-        const res = await http.post(`${API_BASE_URL}/auth/register`, dto);
-        if (res.status >= 200 && res.status < 300) {
-            return { success: true, data: undefined };
-        }
-        return { success: false, error: 'Registration failed', status: res.status };
+        const res = await axios.post(`${API_BASE_URL}/auth/login`, payload);
+        return { success: true, data: res.data };
     } catch (err: any) {
-        const status = err?.response?.status;
-        const msg = err?.response?.data?.message || err?.message || 'Registration failed';
-        return { success: false, error: msg, status };
+        return { success: false, status: err?.response?.status, error: err?.response?.data?.message || 'Unknown error' };
     }
-}
+};
 
-export async function apiLogout(): Promise<Result<void>> {
+export const apiLogout = async (): Promise<Result<void>> => {
     try {
-        await http.post(`${API_BASE_URL}/auth/logout`);
+        await axios.post(`${API_BASE_URL}/auth/logout`);
         return { success: true, data: undefined };
     } catch (err: any) {
-        const status = err?.response?.status;
-        const msg = err?.response?.data?.message || err?.message || 'Logout failed';
-        return { success: false, error: msg, status };
+        return { success: false, status: err?.response?.status, error: err?.response?.data?.message || 'Unknown error' };
     }
-}
+};

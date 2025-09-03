@@ -19,6 +19,10 @@ export class CreateUserDto {
     @MinLength(6)
     email!: string;
 
+    @ApiProperty({ description: '邀请码', example: 'abc123' })
+    @IsString()
+    invitationCode!: string;
+
     @ApiProperty({ description: '用户角色', example: 'user', enum: ['user', 'admin'], required: false })
     @IsOptional()
     @IsString()

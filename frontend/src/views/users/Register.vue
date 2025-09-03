@@ -15,13 +15,22 @@ const authStore = useAuthStore();
 const username = ref('');
 const email = ref('');
 const password = ref('');
+const confirmPassword = ref('');
+const invitationCode = ref('');
 const error = ref('');
 
 const handleSubmit = async () => {
+    // Check if passwords match
+    if (password.value !== confirmPassword.value) {
+        error.value = t('auth.register.password-mismatch');
+        return;
+    }
+
     const res = await authStore.register({
         username: username.value,
         email: email.value,
-        password: password.value
+        password: password.value,
+        invitationCode: invitationCode.value
     });
 
     if (res.success) {
@@ -60,8 +69,19 @@ const handleSubmit = async () => {
 
                             <div class="p-field mb-4 w-100">
                                 <label for="password" class="block mb-2">{{ t('auth.register.password') }}</label>
-                                <Password id="password" v-model="password" :feedback="false" toggleMask required
+                                <Password id="password" v-model="password" :feedback="true" toggleMask required
                                     class="w-full" />
+                            </div>
+
+                            <div class="p-field mb-4 w-100">
+                                <label for="confirmPassword" class="block mb-2">{{ t('auth.register.confirm-password') }}</label>
+                                <Password id="confirmPassword" v-model="confirmPassword" :feedback="false" toggleMask required
+                                    class="w-full" />
+                            </div>
+
+                            <div class="p-field mb-4">
+                                <label for="invitationCode" class="block mb-2">{{ t('auth.register.invitation-code') }}</label>
+                                <InputText id="invitationCode" v-model="invitationCode" type="text" required class="w-full" />
                             </div>
 
                             <Button type="submit" :label="t('auth.register.button')" icon="pi pi-user-plus"

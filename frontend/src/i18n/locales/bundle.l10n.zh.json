@@ -200,5 +200,8 @@
     "netzach-desc": "坚毅、热情与情感的力量。",
     "hod-desc": "理性、沟通与神圣表达。",
     "yesod-desc": "潜意识、连接与能量的流通。",
-    "malkuth-desc": "现实、行动与神性的显现。"
+    "malkuth-desc": "现实、行动与神性的显现。",
+    "auth.register.invitation-code": "邀请码",
+    "auth.register.confirm-password": "确认密码",
+    "auth.register.password-mismatch": "密码不一致"
 }

@@ -200,5 +200,8 @@
     "netzach-desc": "Perseverance, passion, and emotional strength.",
     "hod-desc": "Logic, communication, and expression.",
     "yesod-desc": "Subconscious, connection, and energy transmission",
-    "malkuth-desc": "Reality, action, and manifestation."
+    "malkuth-desc": "Reality, action, and manifestation.",
+    "auth.register.invitation-code": "Invitation Code",
+    "auth.register.confirm-password": "Confirm Password",
+    "auth.register.password-mismatch": "Password does not match"
 }
