@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, computed } from 'vue';
+import { ref, computed, watch } from 'vue';
 import { t } from '@/i18n/index';
 import Panel from 'primevue/panel';
 import InputText from 'primevue/inputtext';
@@ -20,6 +20,7 @@ interface ExtendedOutlineItem extends OutlineItem {
     originalIndex: number;
 }
 
+
 const groupedOutlines = computed(() => {
     const groups: { [key: string]: ExtendedOutlineItem[] } = {};
     props.outlines.forEach((outline, index) => {
@@ -31,6 +32,22 @@ const groupedOutlines = computed(() => {
     return groups;
 });
 
+// 缓存每个 group 的本地输入值
+const groupInputs = ref<Record<string, string>>({});
+
+watch(groupedOutlines, (groups) => {
+    Object.keys(groups).forEach(group => {
+        if (!(group in groupInputs.value)) {
+            groupInputs.value[group] = group
+        }
+    })
+}, { immediate: true });
+
+const handleGroupInput = (oldGroup: string, newGroup: string) => {
+    groupInputs.value[oldGroup] = newGroup;
+    updateGroupName(oldGroup, newGroup);
+}
+
 const expandedGroups = ref<Record<string, boolean>>({});
 
 const initializeExpandedGroups = () => {
@@ -39,9 +56,11 @@ const initializeExpandedGroups = () => {
     });
 };
 
-const updateGroup = (originalIndex: number, newGroup: string) => {
-    const updatedOutlines = [...props.outlines];
-    updatedOutlines[originalIndex].group = newGroup;
+// 更新整个组名（一次性更新该组内所有 Outline 的 group 字段）
+const updateGroupName = (oldGroup: string, newGroup: string) => {
+    const updatedOutlines = props.outlines.map(o =>
+        o.group === oldGroup ? { ...o, group: newGroup } : o
+    );
     emit('update:outlines', updatedOutlines);
 };
 
@@ -67,41 +86,29 @@ const addOutline = (position: number, group: string) => {
     expandAll();
 };
 
-// 在组内某一项上方添加
 const addOutlineAbove = (originalIndex: number, group: string) => {
     addOutline(originalIndex, group);
 };
-
-// 在组内某一项下方添加
 const addOutlineBelow = (originalIndex: number, group: string) => {
     addOutline(originalIndex + 1, group);
 };
 
-// 添加组（上方或下方）
+// 添加/删除组（保留原来的逻辑）
 const addGroup = (referenceGroup: string, direction: 'above' | 'below') => {
     const updatedOutlines = [...props.outlines];
-    // 找到当前组在 outlines 中的第一个元素位置
     const firstIndex = updatedOutlines.findIndex(o => o.group === referenceGroup);
     if (firstIndex === -1) return;
-
-    // 新组名称（可以用时间戳避免冲突）
     const newGroupName = t('outline.default-group') + '-' + Date.now();
-
     const insertIndex = direction === 'above' ? firstIndex : firstIndex + groupedOutlines.value[referenceGroup].length;
-
     updatedOutlines.splice(insertIndex, 0, {
         group: newGroupName,
         content: ''
     });
-
     emit('update:outlines', updatedOutlines);
     expandAll();
 };
-
 const addGroupAbove = (group: string) => addGroup(group, 'above');
 const addGroupBelow = (group: string) => addGroup(group, 'below');
-
-// 删除整个组
 const deleteGroup = (group: string) => {
     const updatedOutlines = props.outlines.filter(o => o.group !== group);
     emit('update:outlines', updatedOutlines);
@@ -113,17 +120,14 @@ const collapseAll = () => {
     });
     emit('collapse-all');
 };
-
 const expandAll = () => {
     Object.keys(expandedGroups.value).forEach(group => {
         expandedGroups.value[group] = true;
     });
 };
-
 const updateGroupExpanded = (group: string, expanded: boolean) => {
     expandedGroups.value[group] = expanded;
 };
-
 const updateExpandedGroups = () => {
     const newExpandedGroups: Record<string, boolean> = {};
     Object.keys(groupedOutlines.value).forEach(group => {
@@ -131,7 +135,6 @@ const updateExpandedGroups = () => {
     });
     expandedGroups.value = newExpandedGroups;
 };
-
 computed(() => {
     updateExpandedGroups();
 });
@@ -145,36 +148,42 @@ defineExpose({
 
 <template>
     <Panel v-for="(groupOutlines, group) in groupedOutlines" :key="group"
-        :header="t('outline.panel.group-header', String(group))" toggleable :collapsed="!expandedGroups[group]"
-        @update:collapsed="(val: boolean) => updateGroupExpanded(group.toString(), !val)">
+        toggleable
+        :collapsed="!expandedGroups[group]"
+        @update:collapsed="(val: boolean) => updateGroupExpanded(group.toString(), !val)"
+    >
 
-        <!-- group 操作按钮 -->
-        <template #icons>
-            <Button icon="pi pi-arrow-up" size="small" text
-                :title="t('outline.add-group-above')"
-                @click.stop="addGroupAbove(group.toString())" />
-            <Button icon="pi pi-arrow-down" size="small" text
-                :title="t('outline.add-group-below')"
-                @click.stop="addGroupBelow(group.toString())" />
-            <Button icon="pi pi-trash" size="small" text class="p-button-danger"
-                @click.stop="deleteGroup(group.toString())" />
+        <!-- header 槽：可编辑的 group 名称 -->
+        <template #header>
+            <div class="flex items-center justify-between w-full gap-2">
+                <InputText v-model="groupInputs[group]"
+                    @update:model-value="val => handleGroupInput(group.toString(), val || '')"
+                    class="flex-grow max-w-[250px]" size="small"
+                    @click.stop />
+                <div class="flex gap-1">
+                    <Button icon="pi pi-arrow-up" size="small" text :label="t('outline.add-group-above')"
+                        @click.stop="addGroupAbove(group.toString())" />
+                    <Button icon="pi pi-arrow-down" size="small" text :label="t('outline.add-group-below')"
+                        @click.stop="addGroupBelow(group.toString())" />
+                    <Button icon="pi pi-trash" size="small" text class="p-button-danger"
+                        @click.stop="deleteGroup(group.toString())" />
+                </div>
+            </div>
         </template>
+
 
         <TransitionGroup name="outline-list" tag="div">
             <div v-for="outline in groupOutlines" :key="outline.originalIndex"
-                class="mb-4 p-3 border-b border-gray-200 dark:border-gray-700 last:border-b-0 outline-item">
-                <div class="mb-2">
-                    <label class="block text-sm font-medium mb-1">{{ t('outline.panel.group') }}</label>
-                    <InputText :model-value="outline.group"
-                        @update:model-value="newGroup => updateGroup(outline.originalIndex, newGroup || '')"
-                        class="w-full" size="small" />
-                </div>
+                class="mb-4 pt-2 border-b border-gray-200 dark:border-gray-700 last:border-b-0 outline-item">
+
+                <!-- 只保留 content 编辑 -->
                 <div>
                     <label class="block text-sm font-medium mb-1">{{ t('outline.panel.content') }}</label>
                     <Textarea :model-value="outline.content"
                         @update:model-value="newContent => updateContent(outline.originalIndex, newContent)"
-                        class="w-full" rows="3" />
+                        class="w-full" rows="5" />
                 </div>
+
                 <div class="flex justify-between mt-2">
                     <div></div>
                     <div class="flex">
@@ -182,7 +191,7 @@ defineExpose({
                             @click="addOutlineAbove(outline.originalIndex, outline.group)" />
                         <Button :label="t('outline.add-below')" icon="pi pi-arrow-down" text size="small"
                             @click="addOutlineBelow(outline.originalIndex, outline.group)" />
-                        <Button :label="t('outline.delete-item')" icon="pi pi-trash" text size="small"
+                        <Button icon="pi pi-trash" text size="small"
                             @click="deleteOutline(outline.originalIndex)" class="p-button-danger" />
                     </div>
                 </div>
@@ -190,7 +199,6 @@ defineExpose({
         </TransitionGroup>
     </Panel>
 </template>
-
 
 <style scoped>
 /* .outline-list-move,

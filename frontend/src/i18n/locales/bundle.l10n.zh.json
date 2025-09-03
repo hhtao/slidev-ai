@@ -186,8 +186,8 @@
     "save-change": "保存变更",
     "outline.add-item": "添加",
     "outline.delete-item": "删除",
-    "outline.add-below": "add below",
-    "outline.add-above": "add above",
-    "outline.add-group-above": "add group above",
-    "outline.add-group-below": "add group below"
+    "outline.add-below": "添加页",
+    "outline.add-above": "添加页",
+    "outline.add-group-above": "添加组",
+    "outline.add-group-below": "添加组"
 }
