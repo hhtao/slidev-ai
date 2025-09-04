@@ -8,6 +8,7 @@ import { SlidesModule } from '@/app/slides/slides.module';
 import { Invitation } from './invitation.entity';
 import { InvitationRepository } from './invitation.repository';
 import { InvitationService } from './invitation.service';
+import { InvitationsController } from './invitations.controller';
 
 @Module({
     imports: [
@@ -15,7 +16,7 @@ import { InvitationService } from './invitation.service';
         SlidesModule,
     ],
     providers: [UserRepository, UsersService, InvitationRepository, InvitationService],
-    controllers: [UsersController],
+    controllers: [UsersController, InvitationsController],
     exports: [UsersService, UserRepository, InvitationService, InvitationRepository],
 })
 export class UsersModule { }

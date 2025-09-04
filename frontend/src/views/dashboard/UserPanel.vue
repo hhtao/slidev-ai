@@ -2,7 +2,6 @@
     <div class="user-panel p-6">
         <div class="flex justify-between items-center mb-6">
             <h1 class="text-2xl font-bold">用户管理</h1>
-            <Button label="创建用户" icon="pi pi-plus" @click="showCreateUserDialog" />
         </div>
 
         <div v-if="loading" class="flex flex-col items-center justify-center py-12 text-gray-500">
@@ -54,46 +53,6 @@
                 </DataTable>
             </div>
         </div>
-
-        <!-- 创建用户对话框 -->
-        <Dialog v-model:visible="createUserDialogVisible" :style="{ width: '500px' }" header="创建用户" :modal="true"
-            class="p-fluid rounded-2xl shadow-lg">
-            <div class="space-y-5">
-                <!-- 用户名 -->
-                <div class="flex flex-col gap-2">
-                    <label for="username" class="">用户名</label>
-                    <InputText id="username" v-model="newUser.username" required autofocus class="w-full" />
-                </div>
-
-                <!-- 邮箱 -->
-                <div class="flex flex-col gap-2">
-                    <label for="email" class="">邮箱</label>
-                    <InputText id="email" v-model="newUser.email" required class="w-full" />
-                </div>
-
-                <!-- 密码 -->
-                <div class="flex flex-col gap-2">
-                    <label for="password" class="">密码</label>
-                    <Password id="password" v-model="newUser.password" type="password" required toggleMask class="w-full" />
-                </div>
-
-                <!-- 角色 -->
-                <div class="flex flex-col gap-2">
-                    <label for="role" class="">角色</label>
-                    <Dropdown id="role" v-model="newUser.role" :options="roleOptions" optionLabel="label"
-                        optionValue="value" placeholder="请选择角色" class="w-full" />
-                </div>
-            </div>
-
-            <!-- 底部按钮 -->
-            <template #footer>
-                <div class="flex justify-end gap-3">
-                    <Button label="取消" icon="pi pi-times" text @click="hideCreateUserDialog" class="px-4 py-2" />
-                    <Button label="创建" icon="pi pi-check" @click="createUser" class="px-4 py-2" />
-                </div>
-            </template>
-        </Dialog>
-
     </div>
 </template>
 
@@ -119,15 +78,6 @@ const currentPage = ref(0)
 const toast = useToast()
 
 const router = useRouter();
-
-// 创建用户对话框相关
-const createUserDialogVisible = ref(false)
-const newUser = ref({
-    username: '',
-    email: '',
-    password: '',
-    role: 'user'
-})
 
 const roleOptions = [
     { label: '普通用户', value: 'user' },
@@ -166,32 +116,6 @@ const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString()
 }
 
-// 创建用户相关函数
-const showCreateUserDialog = () => {
-    newUser.value = {
-        username: '',
-        email: '',
-        password: '',
-        role: 'user'
-    }
-    createUserDialogVisible.value = true
-}
-
-const hideCreateUserDialog = () => {
-    createUserDialogVisible.value = false
-}
-
-const createUser = async () => {
-    try {
-        await axios.post(`${API_BASE_URL}/auth/register`, newUser.value)
-        toast.add({ severity: 'success', summary: '成功', detail: '用户创建成功', life: 3000 })
-        hideCreateUserDialog()
-        fetchUsers(currentPage.value)
-    } catch (error: any) {
-        const message = error.response?.data?.message || '创建用户失败'
-        toast.add({ severity: 'error', summary: '错误', detail: message, life: 3000 })
-    }
-}
 
 const deleteUser = async (userId: number) => {
     if (!confirm('确定要删除这个用户吗？')) {

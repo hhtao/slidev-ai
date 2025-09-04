@@ -1,53 +1,69 @@
-import axios from 'axios';
-import type { Result } from './base';
+import http from './http';
+import { Result } from './base.ts';
+import { API_BASE_URL } from '@/utils/api'
 
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3001/api';
-
-export interface UserDTO {
-    id: number;
+export interface LoginDto {
     username: string;
-    email: string;
-    avatar?: string;
-    role: 'user' | 'admin';
-    createdAt: string;
-    updatedAt: string;
+    password: string;
 }
 
-export interface RegisterPayload {
+export interface RegisterDto {
     username: string;
     email: string;
     password: string;
     invitationCode: string;
 }
 
-export interface LoginPayload {
+export interface UserDTO {
+    id: number;
     username: string;
-    password: string;
+    email: string;
+    role: 'admin' | 'user';
+    avatar?: string | null;
+    website?: string | null;
+    egoId?: number | null;
 }
 
-export const apiRegister = async (payload: RegisterPayload): Promise<Result<UserDTO>> => {
-    try {
-        const res = await axios.post(`${API_BASE_URL}/auth/register`, payload);
-        return { success: true, data: res.data };
-    } catch (err: any) {
-        return { success: false, status: err?.response?.status, error: err?.response?.data?.message || 'Unknown error' };
-    }
-};
 
-export const apiLogin = async (payload?: LoginPayload): Promise<Result<UserDTO>> => {
-    try {
-        const res = await axios.post(`${API_BASE_URL}/auth/login`, payload);
-        return { success: true, data: res.data };
-    } catch (err: any) {
-        return { success: false, status: err?.response?.status, error: err?.response?.data?.message || 'Unknown error' };
-    }
-};
 
-export const apiLogout = async (): Promise<Result<void>> => {
+export async function apiLogin(dto?: LoginDto): Promise<Result<UserDTO>> {
     try {
-        await axios.post(`${API_BASE_URL}/auth/logout`);
+        const { data, status } = await http.post(`${API_BASE_URL}/auth/login`, dto);
+        if (data?.success && data?.user) {
+            return { success: true, data: data.user, message: data.message };
+        }
+        if (typeof data?.error === 'string') {
+            return { success: false, error: data.error, status };
+        }
+        return { success: false, error: data?.message || 'Login failed', status };
+    } catch (err: any) {
+        const status = err?.response?.status;
+        const msg = err?.response?.data?.message || err?.message || 'Login failed';
+        return { success: false, error: msg, status };
+    }
+}
+
+export async function apiRegister(dto: RegisterDto): Promise<Result<void>> {
+    try {
+        const res = await http.post(`${API_BASE_URL}/auth/register`, dto);
+        if (res.status >= 200 && res.status < 300) {
+            return { success: true, data: undefined };
+        }
+        return { success: false, error: 'Registration failed', status: res.status };
+    } catch (err: any) {
+        const status = err?.response?.status;
+        const msg = err?.response?.data?.message || err?.message || 'Registration failed';
+        return { success: false, error: msg, status };
+    }
+}
+
+export async function apiLogout(): Promise<Result<void>> {
+    try {
+        await http.post(`${API_BASE_URL}/auth/logout`);
         return { success: true, data: undefined };
     } catch (err: any) {
-        return { success: false, status: err?.response?.status, error: err?.response?.data?.message || 'Unknown error' };
+        const status = err?.response?.status;
+        const msg = err?.response?.data?.message || err?.message || 'Logout failed';
+        return { success: false, error: msg, status };
     }
-};
+}

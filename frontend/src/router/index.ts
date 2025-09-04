@@ -1,4 +1,5 @@
 import { createRouter, createWebHistory } from 'vue-router';
+import { useAuthStore } from '@/store/auth';
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -21,6 +22,19 @@ const router = createRouter({
       path: '/dashboard',
       name: 'dashboard',
       component: () => import('@/views/dashboard/index.vue')
+    },
+    {
+      path: '/invitations',
+      name: 'invitations',
+      component: () => import('@/views/dashboard/InvitationManager.vue'),
+      beforeEnter: (to, from, next) => {
+        const authStore = useAuthStore();
+        if (authStore.user?.role === 'admin') {
+          next();
+        } else {
+          next('/dashboard');
+        }
+      }
     },
     {
       path: '/public',

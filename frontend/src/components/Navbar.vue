@@ -64,13 +64,18 @@ const items = computed(() => [
         command: () => router.push('/public')
     },
     {
-        label: t('nav.my-slides'),
-        icon: 'pi pi-folder',
+        label: authStore.user?.role === 'admin' ? t("user.manager") :  t('nav.my-slides'),
+        icon: authStore.user?.role === 'admin' ? 'pi pi-user' : 'pi pi-folder',
         visible: () => authStore.user !== null,
         command: () => router.push('/dashboard')
+    },
+    {
+        label: 'Keys',
+        icon: 'pi pi-key',
+        visible: () => authStore.user?.role === 'admin',
+        command: () => router.push('/invitations')
     }
 ]);
-
 </script>
 
 <template>
@@ -79,7 +84,7 @@ const items = computed(() => [
             <template #start>
                 <div class="flex align-items-center gap-2">
                     <img src="/favicon.svg" alt="logo" class="w-8 h-8" />
-                    <span class="font-bold text-2xl">slidev-ai</span>
+                    <span class="font-bold text-2xl">Slidev AI</span>
                 </div>
             </template>
 
@@ -107,7 +112,7 @@ const items = computed(() => [
                             :image="`${UPLOADS_BASE_URL}/avatars/${authStore.user.avatar}`"
                             shape="circle"
                             class="cursor-pointer"
-                            title="我的信息"
+                            :title="t('nav.my-profile')"
                             @click="router.push(`/profile/${authStore.user.id}`)"
                         />
                         <Avatar
@@ -115,7 +120,7 @@ const items = computed(() => [
                             :label="authStore.user.username.charAt(0).toUpperCase()"
                             shape="circle"
                             class="cursor-pointer"
-                            title="我的信息"
+                            :title="t('nav.my-profile')"
                             @click="router.push(`/profile/${authStore.user.id}`)"
                         />
                         <Button :label="t('auth.logout.button')" @click="logout" icon="pi pi-sign-out" text size="small" />
