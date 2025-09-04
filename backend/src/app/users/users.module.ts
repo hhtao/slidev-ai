@@ -9,14 +9,32 @@ import { Invitation } from './invitation.entity';
 import { InvitationRepository } from './invitation.repository';
 import { InvitationService } from './invitation.service';
 import { InvitationsController } from './invitations.controller';
+import { ResetPassword } from './reset-password.entity';
+import { ResetPasswordRepository } from './reset-password.repository';
+import { ResetPasswordService } from './reset-password.service';
+import { ResetPasswordController } from './reset-password.controller';
 
 @Module({
     imports: [
-        TypeOrmModule.forFeature([User, Invitation]),
+        TypeOrmModule.forFeature([User, Invitation, ResetPassword]),
         SlidesModule,
     ],
-    providers: [UserRepository, UsersService, InvitationRepository, InvitationService],
-    controllers: [UsersController, InvitationsController],
-    exports: [UsersService, UserRepository, InvitationService, InvitationRepository],
+    providers: [
+        UserRepository, 
+        UsersService, 
+        InvitationRepository, 
+        InvitationService,
+        ResetPasswordRepository,
+        ResetPasswordService
+    ],
+    controllers: [UsersController, InvitationsController, ResetPasswordController],
+    exports: [
+        UsersService, 
+        UserRepository, 
+        InvitationService, 
+        InvitationRepository,
+        ResetPasswordService,
+        ResetPasswordRepository
+    ],
 })
 export class UsersModule { }

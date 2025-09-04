@@ -19,6 +19,12 @@ const router = createRouter({
       component: () => import('@/views/users/Register.vue')
     },
     {
+      path: '/reset-password/:hashId',
+      name: 'reset-password',
+      component: () => import('@/views/users/ResetPassword.vue'),
+      props: true
+    },
+    {
       path: '/dashboard',
       name: 'dashboard',
       component: () => import('@/views/dashboard/index.vue')

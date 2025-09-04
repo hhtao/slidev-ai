@@ -207,6 +207,11 @@ watch(visibility, () => { })
             </DataView>
         </div>
     </div>
+    
+    <!-- Footer -->
+    <div class="text-center p-4 text-gray-500 text-sm">
+        由 锦恢 和 太平羊羊 共同呈现
+    </div>
 </template>
 
 

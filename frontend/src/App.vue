@@ -4,6 +4,8 @@ import { onMounted } from 'vue';
 import Navbar from './components/Navbar.vue';
 import { useAuthStore } from './store/auth';
 import Toast from 'primevue/toast';
+import Divider from 'primevue/divider';
+
 
 const router = useRouter();
 const authStore = useAuthStore();
@@ -25,7 +27,19 @@ onMounted(() => {
 <template>
     <Toast />
     <Navbar />
-    <router-view />
+    <div class="router-main">
+        <router-view />
+    </div>
+
+    <!-- Footer -->
+    <Divider />
+    <div class="text-center p-4 text-gray-500 text-sm">
+        Slidev AI - 由
+        <a href="https://kirigaya.cn/about" target="_blank" class="text-primary">锦恢</a>
+        和
+        <a href="https://peacesheep.xyz/home" target="_blank" class="text-primary">太平羊羊</a>
+        共同呈现
+    </div>
 </template>
 
 <style>
@@ -51,6 +65,10 @@ body {
 
 .my-app-dark .p-dataview-content {
     background-color: #1c1c1c !important;
+}
+
+.router-main {
+    min-height: calc(100vh - 150px);
 }
 
 #app {

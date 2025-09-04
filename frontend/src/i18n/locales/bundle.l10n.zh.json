@@ -1,7 +1,7 @@
 {
     "info.public-slide.no-public-slide": "未找到公开幻灯片",
-    "info.public-slide.created-at": "创建于：",
-    "info.public-slide.updated-at": "更新于：",
+    "info.public-slide.created-at": "创建于",
+    "info.public-slide.updated-at": "更新于",
     "info.public-slide.check-back-later": "稍后再来查看公开的演示文稿。",
     "common.loading.slides": "正在加载幻灯片...",
     "common.error.fetch-slides": "获取幻灯片失败",
@@ -245,5 +245,22 @@
     "user.manager.delete-confirm": "确定要删除此用户吗？",
     "user.manager.delete-success": "用户删除成功",
     "user.manager.delete-error": "删除用户失败",
-    "user.manager": "用户"
+    "user.manager": "用户",
+    "reset-password.title": "重置密码",
+    "reset-password.header": "重置密码",
+    "reset-password.loading": "正在加载...",
+    "reset-password.success-title": "密码重置成功",
+    "reset-password.success-message": "您的密码已成功重置，现在可以使用新密码登录。",
+    "reset-password.login-button": "返回登录",
+    "reset-password.validity": "请输入您的新密码以继续。",
+    "reset-password.new-password": "新密码",
+    "reset-password.confirm-password": "确认密码",
+    "reset-password.submit": "提交",
+    "reset-password.password-required": "请填写密码和确认密码",
+    "reset-password.password-mismatch": "两次输入的密码不一致",
+    "reset-password.password-too-short": "密码长度不能少于 6 位",
+    "reset-password.reset-failed": "密码重置失败，请重试",
+    "user.manager.reset-password-success": "密码重置链接已经复制到剪贴板",
+    "user.manager.reset-password-error": "密码重置失败",
+    "user.manager.reset-password": "重置密码"
 }

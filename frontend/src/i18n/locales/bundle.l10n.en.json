@@ -1,7 +1,7 @@
 {
     "info.public-slide.no-public-slide": "No public slides found",
-    "info.public-slide.created-at": "Created at:",
-    "info.public-slide.updated-at": "Updated at:",
+    "info.public-slide.created-at": "Created at",
+    "info.public-slide.updated-at": "Updated at",
     "info.public-slide.check-back-later": "Check back later for public presentations.",
     "common.loading.slides": "Loading slides...",
     "common.error.fetch-slides": "Failed to fetch slides",
@@ -245,5 +245,22 @@
     "user.manager.delete-confirm": "Are you sure you want to delete this user?",
     "user.manager.delete-success": "User deleted successfully",
     "user.manager.delete-error": "Failed to delete user",
-    "user.manager": "Users"
+    "user.manager": "Users",
+    "reset-password.title": "Reset Password",
+    "reset-password.header": "Reset Password",
+    "reset-password.loading": "Loading...",
+    "reset-password.success-title": "Password Reset Successful",
+    "reset-password.success-message": "Your password has been successfully reset. You can now log in with your new password.",
+    "reset-password.login-button": "Back to Login",
+    "reset-password.validity": "Please enter your new password to continue.",
+    "reset-password.new-password": "New Password",
+    "reset-password.confirm-password": "Confirm Password",
+    "reset-password.submit": "Submit",
+    "reset-password.password-required": "Please fill in both password and confirm password",
+    "reset-password.password-mismatch": "The two passwords do not match",
+    "reset-password.password-too-short": "Password must be at least 6 characters long",
+    "reset-password.reset-failed": "Password reset failed, please try again",
+    "user.manager.reset-password-success": "Password reset link has been copied to clipboard",
+    "user.manager.reset-password-error": "Password reset failed",
+    "user.manager.reset-password": "Reset Password"
 }
