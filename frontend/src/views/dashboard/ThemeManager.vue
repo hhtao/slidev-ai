@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, onMounted } from 'vue';
+import { ref, onMounted, watch, nextTick } from 'vue';
 import { t } from '@/i18n';
 import { API_BASE_URL } from '@/utils/api';
 import { useToast } from 'primevue/usetoast';
@@ -22,6 +22,7 @@ const showUpdateDialog = ref(false);
 const updateDialogTitle = ref('');
 const updateLogs = ref<{ type: string; message: string }[]>([]);
 const updateLoading = ref(false);
+const logsContainer = ref<HTMLElement | null>(null);
 
 const slidevStore = useSlidevStore();
 
@@ -30,6 +31,29 @@ const handleImageError = (e: Event) => {
     const target = e.target as HTMLImageElement;
     target.style.display = 'none';
 };
+
+// 自动滚动到最新的日志
+const scrollToBottom = () => {
+    nextTick(() => {
+        if (logsContainer.value) {
+            logsContainer.value.scrollTop = logsContainer.value.scrollHeight;
+        }
+    });
+};
+
+// 监听 updateLogs 变化并自动滚动
+watch(updateLogs, () => {
+    scrollToBottom();
+    console.log(logsContainer.value);
+
+});
+
+// 监听对话框显示状态并在显示时滚动到底部
+watch(showUpdateDialog, (newVal) => {
+    if (newVal) {
+        scrollToBottom();
+    }
+});
 
 // 获取所有主题
 const fetchThemes = async () => {
@@ -66,6 +90,12 @@ const updateAllThemes = async () => {
             const data = JSON.parse(event.data);
             updateLogs.value.push(data);
 
+            if (data.type === 'success') {
+                handleComplete();
+            } else if (data.type === 'error') {
+                throw new Error(data.message);
+            }
+
             // 自动滚动到底部
             setTimeout(() => {
                 const dialogContent = document.querySelector('.p-dialog-content');
@@ -89,14 +119,6 @@ const updateAllThemes = async () => {
             setTimeout(fetchThemes, 1000);
         };
 
-        // 添加一个简单的超时机制
-        setTimeout(() => {
-            if (updateLoading.value) {
-                updateLoading.value = false;
-                eventSource.close();
-            }
-        }, 30000); // 30秒超时
-
     } catch (error: any) {
         updateLoading.value = false;
         updatingAll.value = false;
@@ -118,9 +140,6 @@ const updateTheme = async (themeId: number) => {
     updateLoading.value = true;
 
     try {
-        const theme = themes.value.find(t => t.id === themeId);
-        const themeName = theme ? theme.name : 'Unknown';
-
         const eventSource = new EventSource(`${API_BASE_URL}/mcp/themes/${themeId}/update`, {
             withCredentials: true
         });
@@ -128,6 +147,12 @@ const updateTheme = async (themeId: number) => {
         eventSource.onmessage = (event) => {
             const data = JSON.parse(event.data);
             updateLogs.value.push(data);
+
+            if (data.type === 'success') {
+                handleComplete();
+            } else if (data.type === 'error') {
+                throw new Error(data.message);
+            }
 
             // 自动滚动到底部
             setTimeout(() => {
@@ -200,44 +225,38 @@ onMounted(() => {
         </div>
 
         <!-- 更新日志对话框 -->
-        <Dialog v-model:visible="showUpdateDialog" modal :header="updateDialogTitle" :style="{ width: '50rem' }"
-            :breakpoints="{ '1199px': '75vw', '575px': '90vw' }" :draggable="false" :closeOnEscape="false"
-            :closable="false">
-            <div class="flex flex-col">
-                <div class="flex-1 max-h-96 overflow-y-auto p-4 bg-gray-100 dark:bg-gray-800 rounded">
-                    <div v-for="(log, index) in updateLogs" :key="index"
-                        class="mb-2 p-3 rounded border-l-4"
-                        :class="{
-                            'bg-blue-50 dark:bg-blue-900/30 border-blue-500': log.type === 'info',
-                            'bg-yellow-50 dark:bg-yellow-900/30 border-yellow-500': log.type === 'warn',
-                            'bg-red-50 dark:bg-red-900/30 border-red-500': log.type === 'error',
-                            'bg-green-50 dark:bg-green-900/30 border-green-500': log.type === 'success'
-                        }">
-                        <div class="flex items-start">
-                            <i class="mr-2 mt-1" 
-                                :class="{
-                                    'pi pi-info-circle text-blue-500': log.type === 'info',
-                                    'pi pi-exclamation-triangle text-yellow-500': log.type === 'warn',
-                                    'pi pi-times-circle text-red-500': log.type === 'error',
-                                    'pi pi-check-circle text-green-500': log.type === 'success'
-                                }"></i>
-                            <div>
-                                <span class="font-medium text-sm opacity-75">{{ log.type.toUpperCase() }}</span>
-                                <p class="mt-1">{{ log.message }}</p>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <div v-if="updateLogs.length === 0" class="text-center py-8 text-gray-500">
-                        <ProgressSpinner class="w-6 h-6 mx-auto" strokeWidth="4" />
-                        <p class="mt-2">{{ t('theme.manager.updating') }}</p>
-                    </div>
-                </div>
+        <Dialog v-model:visible="showUpdateDialog" modal
+            :header="updateDialogTitle"
+            :style="{ width: '50rem' }"
+            :breakpoints="{ '1199px': '75vw', '575px': '90vw' }"
+            :draggable="false"
+            :closeOnEscape="false"
+            :closable="false"
+            class="flex flex-col h-[60vh]"
+        >
 
-                <div v-if="updateLoading" class="mt-4 flex items-center">
-                    <ProgressSpinner class="w-4 h-4 mr-2" strokeWidth="4" />
-                    <span>{{ t('theme.manager.updating') }}</span>
+            <div v-for="(log, index) in updateLogs" :key="index" class="mb-2 p-3 rounded" :class="{
+                'bg-blue-50 dark:bg-blue-900/30 border-blue-500': log.type === 'info',
+                'bg-yellow-50 dark:bg-yellow-900/30 border-yellow-500': log.type === 'warn',
+                'bg-red-50 dark:bg-red-900/30 border-red-500': log.type === 'error',
+                'bg-green-50 dark:bg-green-900/30 border-green-500': log.type === 'success'
+            }">
+                <div class="flex items-start">
+                    <i class="mr-2 mt-1" :class="{
+                        'pi pi-info-circle text-blue-500': log.type === 'info',
+                        'pi pi-exclamation-triangle text-yellow-500': log.type === 'warn',
+                        'pi pi-times-circle text-red-500': log.type === 'error',
+                        'pi pi-check-circle text-green-500': log.type === 'success'
+                    }"></i>
+                    <div>
+                        <span class="font-medium text-sm opacity-75">{{ log.type.toUpperCase() }}</span>
+                        <p class="mt-1">{{ log.message }}</p>
+                    </div>
                 </div>
+            </div>
+
+            <div v-if="updateLoading" class="mt-4 flex justify-end items-center">
+                <ProgressSpinner />
             </div>
 
             <template #footer>
@@ -296,11 +315,8 @@ onMounted(() => {
                 <!-- 操作按钮组 -->
                 <div class="mt-5 p-5 pt-3 bg-muted">
                     <div class="flex gap-3">
-                        <Button :label="t('theme.manager.update')"
-                            icon="pi pi-sync" @click="updateTheme(theme.id)"
-                            :loading="updatingThemeId === theme.id"
-                            class="flex-1" size="small"
-                        />
+                        <Button :label="t('theme.manager.update')" icon="pi pi-sync" @click="updateTheme(theme.id)"
+                            :loading="updatingThemeId === theme.id" class="flex-1" size="small" />
                         <a v-if="theme.github" :href="theme.github" target="_blank"
                             class="p-button p-button-text flex-1 flex justify-center items-center gap-2 text-sm">
                             <i class="pi pi-github"></i>

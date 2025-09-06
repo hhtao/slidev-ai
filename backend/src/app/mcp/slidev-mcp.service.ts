@@ -334,13 +334,13 @@ export class SlidevMcpService implements OnModuleInit {
     // 更新所有主题的处理方法
     async updateAllThemesHandler(subscriber: Subscriber<any>) {
         try {
-            subscriber.next({ data: { type: 'info', message: 'Starting full theme update...' } });
+            subscriber.next(toSseData({ type: 'info', message: 'Starting full theme update...' }));
             
             // 更新仓库
             await this.ensureRepo();
             
             // 强制重新初始化所有主题
-            await this.forceInitializeAllThemes();
+            await this.forceInitializeAllThemes(subscriber);
             
             subscriber.next(toSseData({ type: 'success', message: 'All themes updated successfully' }));
             subscriber.complete();
@@ -351,11 +351,14 @@ export class SlidevMcpService implements OnModuleInit {
     }
 
     // 强制重新初始化所有主题
-    private async forceInitializeAllThemes() {
+    private async forceInitializeAllThemes(subscriber?: Subscriber<any>) {
         try {
             const themesPath = path.join(this.repoPath, 'servers', 'themes');
             if (!existsSync(themesPath)) {
                 this.logger.warn(chalk.yellow(`Themes directory not found: ${themesPath}`));
+                if (subscriber) {
+                    subscriber.next(toSseData({ type: 'warn', message: `Themes directory not found: ${themesPath}` }));
+                }
                 return;
             }
 
@@ -363,45 +366,66 @@ export class SlidevMcpService implements OnModuleInit {
                 .filter(dirent => dirent.isDirectory())
                 .map(dirent => dirent.name);
 
+            if (subscriber) {
+                subscriber.next(toSseData({ type: 'info', message: `Found ${themeDirs.length} themes to process` }));
+            }
+
             for (const themeName of themeDirs) {
-                await this.forceProcessTheme(themesPath, themeName);
+                if (subscriber) {
+                    subscriber.next(toSseData({ type: 'info', message: `Processing theme: ${themeName}` }));
+                }
+                await this.forceProcessTheme(themesPath, themeName, subscriber);
             }
 
             this.logger.log(chalk.green(`All themes force initialization completed`));
+            if (subscriber) {
+                subscriber.next(toSseData({ type: 'info', message: 'All themes force initialization completed' }));
+            }
         } catch (error) {
             if (error instanceof Error) {
                 this.logger.error(chalk.red(`Theme force initialization failed: ${error.message}`));
+                if (subscriber) {
+                    subscriber.next(toSseData({ type: 'error', message: `Theme force initialization failed: ${error.message}` }));
+                }
             } else {
                 this.logger.error(chalk.red(`Theme force initialization failed: ${JSON.stringify(error)}`));
+                if (subscriber) {
+                    subscriber.next(toSseData({ type: 'error', message: `Theme force initialization failed: ${JSON.stringify(error)}` }));
+                }
             }
         }
     }
 
     // 强制处理单个主题（重新下载图片和执行脚本）
-    private async forceProcessTheme(themesPath: string, themeName: string) {
+    private async forceProcessTheme(themesPath: string, themeName: string, subscriber?: Subscriber<any>) {
         try {
             this.logger.log(chalk.cyan(`=== Force processing theme: ${themeName} ===`));
+            subscriber?.next(toSseData({ type: 'info', message: `=== Force processing theme: ${themeName} ===` }));
 
             const themePath = path.join(themesPath, themeName);
             const manifestPath = path.join(themePath, 'manifest.json');
 
             if (!existsSync(manifestPath)) {
                 this.logger.warn(chalk.yellow(`Manifest not found for theme: ${themeName}`));
+                subscriber?.next(toSseData({ type: 'warn', message: `Manifest not found for theme: ${themeName}` }));
                 return;
             }
 
             this.logger.log(chalk.blue(`Reading manifest.json for ${themeName}...`));
+            subscriber?.next(toSseData({ type: 'info', message: `Reading manifest.json for ${themeName}...` }));
             const manifestContent = readFileSync(manifestPath, 'utf-8');
             const manifest = JSON.parse(manifestContent);
 
             // 获取或创建主题
             this.logger.log(chalk.blue(`Saving theme ${themeName} into database...`));
+            subscriber?.next(toSseData({ type: 'info', message: `Saving theme ${themeName} into database...` }));
             let theme = await this.themeRepository.findOneByName(themeName);
 
             if (!theme) {
                 theme = new Theme();
                 theme.name = themeName;
                 this.logger.log(`Created new theme object for ${themeName}`);
+                subscriber?.next(toSseData({ type: 'info', message: `Created new theme object for ${themeName}` }));
             }
 
             // 更新主题属性
@@ -411,16 +435,26 @@ export class SlidevMcpService implements OnModuleInit {
             // 强制执行安装脚本（无论是否已安装）
             if (theme.installScripts.length > 0) {
                 this.logger.log(chalk.blue(`Force executing install scripts for ${themeName}...`));
+                subscriber?.next(toSseData({ type: 'info', message: `Force executing install scripts for ${themeName}...` }));
                 const installSuccess = this.executeInstallScripts(themePath, theme.installScripts);
                 theme.installed = installSuccess;
+                
+                console.log(installSuccess);
+                
+
                 if (installSuccess) {
                     this.logger.log(chalk.green(`Installation completed for ${themeName}`));
+                    subscriber?.next(toSseData({ type: 'info', message: `Installation completed for ${themeName}` }));
                 } else {
                     this.logger.log(chalk.red(`Installation failed for ${themeName}`));
+                    subscriber?.next(toSseData({ type: 'error', message: `Installation failed for ${themeName}` }));
                 }
             }
 
             // 强制重新下载所有图片
+            if (subscriber) {
+                subscriber.next(toSseData({ type: 'info', message: `Downloading images for ${themeName}...` }));
+            }
             theme.images = await Promise.all(
                 (manifest.images ?? []).map(async (imageUrl: string) => {
                     // 生成唯一文件名
@@ -434,6 +468,9 @@ export class SlidevMcpService implements OnModuleInit {
                     
                     await SsoLite.downloadFile(imageUrl, savePath, this.httpService);
                     this.logger.log(chalk.gray(`  ↳ downloaded: ${imageUrl}`));
+                    if (subscriber) {
+                        subscriber.next(toSseData({ type: 'info', message: `  ↳ downloaded: ${imageUrl}` }));
+                    }
 
                     // 返回映射
                     return { imageUrl, imageName };
@@ -442,14 +479,18 @@ export class SlidevMcpService implements OnModuleInit {
 
             const savedTheme = await this.themeRepository.save(theme);
             this.logger.log(`Saved theme ${themeName} with ID: ${savedTheme.id}`);
+            subscriber?.next(toSseData({ type: 'info', message: `Saved theme ${themeName} with ID: ${savedTheme.id}` }));
 
             this.logger.log(chalk.green(`✓ Force processed theme successfully: ${themeName}`));
+            subscriber?.next(toSseData({ type: 'info', message: `✓ Force processed theme successfully: ${themeName}` }));
         } catch (error) {
             if (error instanceof Error) {
                 this.logger.error(chalk.red(`✗ Failed to force process theme ${themeName}: ${error.message}`));
                 this.logger.error(chalk.red(`Error stack: ${error.stack}`));
+                subscriber?.next(toSseData({ type: 'error', message: `✗ Failed to force process theme ${themeName}: ${error.message}` }));
             } else {
                 this.logger.error(chalk.red(`✗ Failed to force process theme ${themeName}: ${JSON.stringify(error)}`));
+                subscriber?.next(toSseData({ type: 'error', message: `✗ Failed to force process theme ${themeName}: ${JSON.stringify(error)}` }));
             }
         }
     }
@@ -464,15 +505,15 @@ export class SlidevMcpService implements OnModuleInit {
                 return;
             }
 
-            subscriber.next({ data: { type: 'info', message: `Starting update for theme: ${theme.name}` } });
+            subscriber.next(toSseData({ type: 'info', message: `Starting update for theme: ${theme.name}` }));
             
             const themesPath = path.join(this.repoPath, 'servers', 'themes');
-            await this.forceProcessTheme(themesPath, theme.name);
+            await this.forceProcessTheme(themesPath, theme.name, subscriber);
             
-            subscriber.next({ data: { type: 'success', message: `Theme ${theme.name} updated successfully` } });
+            subscriber.next(toSseData({ type: 'success', message: `Theme ${theme.name} updated successfully` }));
             subscriber.complete();
         } catch (error) {
-            subscriber.next({ data: { type: 'error', message: `Update failed: ${error.message}` } });
+            subscriber.next(toSseData({ type: 'error', message: `Update failed: ${error.message}` }));
             subscriber.complete();
         }
     }
