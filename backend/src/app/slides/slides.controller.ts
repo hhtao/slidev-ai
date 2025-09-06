@@ -80,7 +80,12 @@ export class SlidesController {
         @Body() createSlideDto: CreateSlideDto,
         @UploadedFile() file?: MulterFile
     ) {
-        const userId = (req.user as any).id;
+        const user = req.user as any;
+        if (!user || !user.id) {
+            throw new Error('用户信息缺失，无法获取 userId');
+        }
+        const userId = user.id;
+        console.log(userId)
         return this.slidesService.createSlide(userId, createSlideDto, file);
     }
 

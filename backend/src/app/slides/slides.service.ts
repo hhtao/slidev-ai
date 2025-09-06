@@ -50,7 +50,7 @@ export class SlidesService {
             content: createSlideDto.content,
             visibility: createSlideDto.visibility,
             theme: createSlideDto.theme,
-            userId,
+            userId: userId,
             processingStatus: 'pending'
         });
     }
