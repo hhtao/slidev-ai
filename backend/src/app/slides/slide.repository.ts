@@ -11,6 +11,7 @@ export class SlideRepository {
     ) { }
 
     async create(slide: Partial<Slide>): Promise<Slide> {
+        console.log('Creating slide with data:', slide);
         return this.slideRepository.save(
             this.slideRepository.create(slide)
         );

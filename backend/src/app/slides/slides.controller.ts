@@ -85,7 +85,6 @@ export class SlidesController {
             throw new Error('用户信息缺失，无法获取 userId');
         }
         const userId = user.id;
-        console.log(userId)
         return this.slidesService.createSlide(userId, createSlideDto, file);
     }
 
