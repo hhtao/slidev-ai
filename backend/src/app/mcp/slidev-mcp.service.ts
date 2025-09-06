@@ -13,6 +13,7 @@ import { ThemeRepository } from './theme.repository';
 import { SsoLite } from '@/utils';
 import { HttpService } from '@nestjs/axios';
 import { Subscriber } from 'rxjs';
+import { toSseData } from '@/utils/sse';
 
 @Injectable()
 export class SlidevMcpService implements OnModuleInit {
@@ -341,10 +342,10 @@ export class SlidevMcpService implements OnModuleInit {
             // 强制重新初始化所有主题
             await this.forceInitializeAllThemes();
             
-            subscriber.next({ data: { type: 'success', message: 'All themes updated successfully' } });
+            subscriber.next(toSseData({ type: 'success', message: 'All themes updated successfully' }));
             subscriber.complete();
         } catch (error) {
-            subscriber.next({ data: { type: 'error', message: `Update failed: ${error.message}` } });
+            subscriber.next(toSseData({ type: 'error', message: `Update failed: ${error.message}` }));
             subscriber.complete();
         }
     }

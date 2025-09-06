@@ -262,5 +262,21 @@
     "reset-password.reset-failed": "密码重置失败，请重试",
     "user.manager.reset-password-success": "密码重置链接已经复制到剪贴板",
     "user.manager.reset-password-error": "密码重置失败",
-    "user.manager.reset-password": "重置密码"
+    "user.manager.reset-password": "重置密码",
+    "theme.manager.title": "主题管理",
+    "theme.manager.updateAll": "全部更新",
+    "theme.manager.loading": "正在加载主题...",
+    "theme.manager.noThemes": "暂无主题",
+    "theme.manager.installed": "已安装",
+    "theme.manager.notInstalled": "未安装",
+    "theme.manager.noImages": "无预览图片",
+    "theme.manager.update": "更新",
+    "theme.manager.viewOnGithub": "在 GitHub 查看",
+    "theme.manager.updating": "正在更新...",
+    "common.close": "关闭",
+    "theme.manager.fetchError": "获取主题失败",
+    "theme.manager.updateAllTitle": "正在更新所有主题",
+    "theme.manager.updateError": "更新失败",
+    "theme.manager.updateThemeTitle": "正在更新主题",
+    "theme.manager.nav": "主题"
 }
