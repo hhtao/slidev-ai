@@ -81,6 +81,12 @@ const items = computed(() => {
             icon: 'pi pi-key',
             visible: () => authStore.user?.role === 'admin',
             command: () => router.push('/invitations')
+        },
+        {
+            label: t("theme.manager.nav"),
+            icon: 'pi pi-palette',
+            visible: () => authStore.user?.role === 'admin',
+            command: () => router.push('/themes')
         }
     ];
 });
@@ -99,8 +105,15 @@ const items = computed(() => {
             <div class="flex items-center gap-2">
                 <Dropdown v-model="selectedLocale" :options="localeOptions" option-label="label" option-value="value"
                     class="w-28 mr-2" size="small" :pt="{ root: { style: 'min-width: 100px' } }" />
-                <Button :icon="darkMode ? 'pi pi-moon' : 'pi pi-sun'" @click="toggleDarkMode" rounded text
-                    class="text-2xl" />
+                <Button 
+                    v-if="authStore.user" 
+                    text 
+                    rounded 
+                    @click="toggleDarkMode"
+                    :icon="darkMode ? 'pi pi-moon' : 'pi pi-sun'" 
+                    severity="secondary" 
+                    aria-label="Dark mode toggle"
+                />
                 <a href="https://github.com/LSTM-Kirigaya/slidev-ai" target="_blank" rel="noopener noreferrer"
                     class="text-2xl p-button p-button-text p-button-rounded h-[var(--p-button-icon-only-width)]">
                     <i class="pi pi-github"></i>
