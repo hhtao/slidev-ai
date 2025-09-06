@@ -316,6 +316,10 @@ export class SlidesService {
 
     getSlidePrjAbsolutePath(slide: Slide): string | null {
 
+        if (!slide.slidevHome) {
+            return null;
+        }
+
         const slidePath = path.join(SLIDEV_MCP_ROOT, slide.slidevHome, "slides.md");
         if (!slidePath) {
             return null;
