@@ -17,8 +17,7 @@ import { SlidevMcpModule } from './app/mcp/slidev-mcp.module';
             type: 'sqlite',
             database: 'database.sqlite',
             autoLoadEntities: true,
-            // synchronize: process.env.NODE_ENV === 'development',
-            synchronize: true,
+            synchronize: process.env.NODE_ENV === 'development',
         }),
         ServeStaticModule.forRoot({
             rootPath: SsoLite.root(),

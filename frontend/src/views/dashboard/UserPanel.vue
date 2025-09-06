@@ -79,10 +79,10 @@ const toast = useToast()
 
 const router = useRouter();
 
-const roleOptions = [
-    { label: '普通用户', value: 'user' },
-    { label: '管理员', value: 'admin' }
-]
+// const roleOptions = [
+//     { label: '普通用户', value: 'user' },
+//     { label: '管理员', value: 'admin' }
+// ]
 
 const fetchUsers = async (page = 0) => {
     loading.value = true
