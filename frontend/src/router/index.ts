@@ -33,7 +33,7 @@ const router = createRouter({
       path: '/invitations',
       name: 'invitations',
       component: () => import('@/views/dashboard/InvitationManager.vue'),
-      beforeEnter: (to, from, next) => {
+      beforeEnter: (_to, _from, next) => {
         const authStore = useAuthStore();
         if (authStore.user?.role === 'admin') {
           next();
