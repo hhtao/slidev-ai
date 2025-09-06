@@ -162,8 +162,38 @@ export class SlidevMcpService implements OnModuleInit {
             const manifestContent = readFileSync(manifestPath, 'utf-8');
             const manifest = JSON.parse(manifestContent);
 
-            // 处理图片下载
-            const imageMappings = await Promise.all(
+            // 保存或更新主题信息到数据库
+            this.logger.log(chalk.blue(`Saving theme ${themeName} into database...`));
+            let theme = await this.themeRepository.findOneByName(themeName);
+
+            this.logger.log(`Found existing theme: ${!!theme}`);
+
+            if (!theme) {
+                theme = new Theme();
+                theme.name = themeName;
+                this.logger.log(`Created new theme object for ${themeName}`);
+            }
+
+            // 更新主题属性
+            theme.github = manifest.github || null;
+            theme.installScripts = manifest.installScripts || [];
+            
+            this.logger.log(`Theme ${themeName} installed: ${theme.installed}, has install scripts: ${theme.installScripts.length > 0}`);
+            
+            // 只有未安装的主题才执行安装脚本
+            if (!theme.installed && theme.installScripts.length > 0) {
+                this.logger.log(chalk.blue(`Executing install scripts for ${themeName}...`));
+                const installSuccess = this.executeInstallScripts(themePath, theme.installScripts);
+                // 安装完成后根据执行结果设置 installed 标志
+                theme.installed = installSuccess;
+                if (installSuccess) {
+                    this.logger.log(chalk.green(`Installation completed for ${themeName}`));
+                } else {
+                    this.logger.log(chalk.red(`Installation failed for ${themeName}`));
+                }
+            }
+
+            theme.images = await Promise.all(
                 (manifest.images ?? []).map(async (imageUrl: string) => {
                     // 生成唯一文件名
                     const imageName = await this.generateImageName(imageUrl);
@@ -182,33 +212,16 @@ export class SlidevMcpService implements OnModuleInit {
                 })
             );
 
-            // 保存或更新主题信息到数据库
-            this.logger.log(chalk.blue(`Saving theme ${themeName} into database...`));
-            let theme = await this.themeRepository.findOneByName(themeName);
-
-            if (!theme) {
-                theme = new Theme();
-                theme.name = themeName;
-            }
-
-            theme.github = manifest.github || null;
-            theme.images = imageMappings;
-            theme.installScripts = manifest.installScripts || [];
-
-            // 只有未安装的主题才执行安装脚本
-            if (!theme.installed && manifest.installScripts && Array.isArray(manifest.installScripts)) {
-                this.logger.log(chalk.blue(`Executing install scripts for ${themeName}...`));
-                this.executeInstallScripts(themePath, manifest.installScripts);
-                // 安装完成后设置 installed 为 true
-                theme.installed = true;
-            }
-
-            await this.themeRepository.save(theme);
+            const savedTheme = await this.themeRepository.save(theme);
+            // 重新加载实体以确保获取正确的ID
+            const finalTheme = await this.themeRepository.findOneByName(theme.name);
+            this.logger.log(`Saved theme ${themeName} with ID: ${finalTheme?.id || savedTheme.id}`);
 
             this.logger.log(chalk.green(`✓ Processed theme successfully: ${themeName}`));
         } catch (error) {
             if (error instanceof Error) {
                 this.logger.error(chalk.red(`✗ Failed to process theme ${themeName}: ${error.message}`));
+                this.logger.error(chalk.red(`Error stack: ${error.stack}`));
             } else {
                 this.logger.error(chalk.red(`✗ Failed to process theme ${themeName}: ${JSON.stringify(error)}`));
             }
@@ -227,7 +240,7 @@ export class SlidevMcpService implements OnModuleInit {
     /**
      * Execute install scripts synchronously
      */
-    private executeInstallScripts(themePath: string, scripts: string[]) {
+    private executeInstallScripts(themePath: string, scripts: string[]): boolean {
         for (const script of scripts) {
             try {
                 this.logger.log(chalk.blue(`Executing script: ${script}`));
@@ -239,8 +252,10 @@ export class SlidevMcpService implements OnModuleInit {
                 } else {
                     this.logger.error(chalk.red(`Script execution failed: ${script} - ${JSON.stringify(error)}`));
                 }
+                return false;
             }
         }
+        return true;
     }
 
     /**
