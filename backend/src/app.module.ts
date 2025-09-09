@@ -10,6 +10,8 @@ import { ServeStaticModule } from '@nestjs/serve-static';
 import { SsoLite } from './utils';
 import { SlidevMcpModule } from './app/mcp/slidev-mcp.module';
 
+console.log('当前 NODE_ENV:', process.env.NODE_ENV);
+
 @Module({
     imports: [
         ConfigModule.forRoot({ isGlobal: true }),
