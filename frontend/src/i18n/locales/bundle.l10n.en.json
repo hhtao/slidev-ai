@@ -262,5 +262,21 @@
     "reset-password.reset-failed": "Password reset failed, please try again",
     "user.manager.reset-password-success": "Password reset link has been copied to clipboard",
     "user.manager.reset-password-error": "Password reset failed",
-    "user.manager.reset-password": "Reset Password"
+    "user.manager.reset-password": "Reset Password",
+    "theme.manager.title": "Theme Manager",
+    "theme.manager.updateAll": "Update All",
+    "theme.manager.loading": "Loading themes...",
+    "theme.manager.noThemes": "No themes available",
+    "theme.manager.installed": "Installed",
+    "theme.manager.notInstalled": "Not Installed",
+    "theme.manager.noImages": "No preview images",
+    "theme.manager.update": "Update",
+    "theme.manager.viewOnGithub": "View on GitHub",
+    "theme.manager.updating": "Updating...",
+    "common.close": "Close",
+    "theme.manager.fetchError": "Failed to fetch themes",
+    "theme.manager.updateAllTitle": "Updating All Themes",
+    "theme.manager.updateError": "Update failed",
+    "theme.manager.updateThemeTitle": "Updating Theme",
+    "theme.manager.nav": "Theme"
 }

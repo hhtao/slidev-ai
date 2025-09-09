@@ -9,7 +9,7 @@
         "backend"
     ],
     "scripts": {
-        "dev": "node scripts/close-port.mjs && turbo dev",
+        "dev": "cross-env NODE_ENV=development node scripts/close-port.mjs && turbo dev",
         "init-db": "turbo init-db",
         "build": "turbo build",
         "start": "turbo start"
@@ -25,6 +25,7 @@
     "license": "MIT",
     "devDependencies": {
         "chalk": "^4.1.2",
+        "cross-env": "^10.0.0",
         "turbo": "^2.5.5"
     }
 }

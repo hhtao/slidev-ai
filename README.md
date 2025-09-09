@@ -39,31 +39,7 @@ For developers looking to create similar AI-powered applications, here's a compr
 
 ## Getting Started
 
-### System Requirements
-- Node.js v18+
-- Python 3.10+
-- npm 9+ or yarn 1.22+
-- 4GB RAM minimum (8GB recommended for development)
-
-### Quick Installation
-
-```
-# TODO
-npx -c ...
-```
-
-### Development
-
-```bash
-git clone https://github.com/yourorg/slidev-ai.git
-cd slidev-ai
-npm i
-npm run dev
-```
-
-The application will be available at:
-- Frontend: http://localhost:3000
-- Backend API: http://localhost:3001
+Please refer to [Quick Start](docs/quickstart.md).
 
 ## 🤝 Contributing
 

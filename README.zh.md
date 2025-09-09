@@ -42,32 +42,7 @@ slidev-ai 是 [OpenMCP](https://github.com/LSTM-Kirigaya/openmcp-client) 生态�
 
 ## 📦 快速开始
 
-### 系统需求
-- Node.js v18+
-- Python 3.10+
-- npm 9+ 或 yarn 1.22+
-- 至少 4GB 内存（推荐 8GB 开发环境）
-
-### 快速安装
-
-```bash
-# TODO
-npx -c ...
-````
-
-### 本地开发
-
-```bash
-git clone https://github.com/yourorg/slidev-ai.git
-cd slidev-ai
-npm i
-npm run dev
-```
-
-应用启动后可访问：
-
-* 前端：[http://localhost:3000](http://localhost:3000)
-* 后端 API：[http://localhost:3001](http://localhost:3001)
+请参阅[快速开始](docs/quickstart_zh.md)。
 
 ## 🤝 贡献指南
 

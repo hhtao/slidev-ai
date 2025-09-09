@@ -1,5 +1,8 @@
 const path = require('path');
 
+const isDev = process.env.NODE_ENV === 'development';
+
+
 module.exports = {
     optimization: {
         minimize: false,       // 禁用代码压缩
@@ -10,7 +13,7 @@ module.exports = {
     },
     entry: './src/main.ts',
     target: 'node',
-    mode: 'production',
+    mode: isDev ? 'development' : 'production',
     externals: {
         // 排除不需要打包的模块
         'bcryptjs': 'commonjs bcryptjs',
