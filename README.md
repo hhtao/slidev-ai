@@ -35,7 +35,7 @@ Check out the full demo on Bilibili: [完全开源的新世代AI PPT工具！Sli
 
 For developers looking to create similar AI-powered applications, here's a comprehensive prompt you can use with LLM to generate a similar website project:
 
-[PROMPT.md](./PROMPT.md)
+[PROMPT.md](docs/PROMPT.md)
 
 ## Getting Started
 

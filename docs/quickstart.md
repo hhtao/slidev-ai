@@ -4,6 +4,7 @@
 - Python 3.10+
 - npm 9+ or yarn 1.22+
 - 4GB RAM minimum (8GB recommended for development)
+- System libraries for Chromium used by Playwright. Install with `sudo uv run playwright install-deps` when first prompted (headless browsing / websearch relies on them).
 
 ### Environment Variables
 
@@ -44,10 +45,33 @@ ADMIN_PASSWORD=ChangeMe_123!
 
 ### Quick Installation
 
+Below is a streamlined local setup (frontend + backend + Playwright Chromium). Adjust paths/secrets as needed.
+
+```bash
+git clone https://github.com/yourorg/slidev-ai.git
+cd slidev-ai
+
+# Install workspace deps (root, frontend, backend)
+npm install
+
+# Install Python dependencies for slidev-mcp and headless browser (Chromium)
+cd backend/slidev-mcp
+uv sync
+uv run playwright install chromium
+# (Optional) system packages if warned
+sudo uv run playwright install-deps || true
+cd ../../
+
+# Start all (Turbo dev: backend + frontend)
+npm run dev
 ```
-# TODO
-npx -c ...
-```
+
+When a feature invokes headless browsing (e.g. websearch) for the first time, Playwright will use the cached Chromium at `~/.cache/ms-playwright`. Cache this path in CI to speed up builds.
+
+#### Playwright Notes
+- To install all browsers later (Python side): `uv run playwright install`
+- Version is pinned via `@playwright/test` in root `package.json`.
+- Headless deps can also be installed manually (see warning output) if `install-deps` is not allowed.
 
 ### Development
 
@@ -55,6 +79,7 @@ npx -c ...
 git clone https://github.com/yourorg/slidev-ai.git
 cd slidev-ai
 npm i
+# （Python crawler already installed its own Chromium via uv run playwright install）
 npm run dev
 ```
 

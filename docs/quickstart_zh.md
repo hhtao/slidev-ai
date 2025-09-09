@@ -6,6 +6,7 @@
 - Python 3.10+
 - npm 9+ 或 yarn 1.22+
 - 至少 4GB 内存（推荐 8GB 开发环境）
+- Playwright Chromium 运行所需的系统库；若首次运行提示缺依赖，可执行 `sudo uv run playwright install-deps`。
 
 ### 环境变量
 
@@ -46,10 +47,33 @@ ADMIN_PASSWORD=ChangeMe_123!
 
 ### 快速安装
 
+以下脚本演示本地快速拉起（前端 + 后端 + Playwright Chromium）。在生产前请替换敏感变量。
+
 ```bash
-# TODO
-npx -c ...
-````
+git clone https://github.com/yourorg/slidev-ai.git
+cd slidev-ai
+
+# 安装工作区依赖（根/前端/后端）
+npm install
+
+# 进入 Python 子项目安装依赖与 Chromium 浏览器
+cd backend/slidev-mcp
+uv sync
+uv run playwright install chromium
+# （可选）若提示缺少系统库
+sudo uv run playwright install-deps || true
+cd ../../
+
+# 启动（Turbo dev 同时跑前后端）
+npm run dev
+```
+
+首次触发需要无头浏览的功能（如 websearch）时，Python 侧 Playwright 将使用其缓存目录（通常位于 `~/.cache/ms-playwright`）。CI 环境可缓存该目录以加速重复构建。
+
+#### Playwright 说明
+- 以后想安装全部浏览器：`uv run playwright install`
+- Python 侧使用 `crawl4ai` 间接依赖的 Playwright，与 Node 侧的 `@playwright/test` 分离。
+- 若 `install-deps` 不可用，可根据启动警告列出的包手动 `apt-get install`。
 
 ### 本地开发
 

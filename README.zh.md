@@ -38,7 +38,7 @@ slidev-ai 是 [OpenMCP](https://github.com/LSTM-Kirigaya/openmcp-client) 生态�
 
 对于想要开发类似 AI 应用的开发者，这里提供了一个完整的 LLM Prompt，可用于生成类似的前后端项目：
 
-[PROMPT.md](./PROMPT.md)
+[PROMPT.md](docs/PROMPT.md)
 
 ## 📦 快速开始
 
