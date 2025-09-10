@@ -1,27 +1,32 @@
 {
-  "$schema": "https://turbo.build/schema.json",
-  "globalEnv": [
-    "PORT",
-    "NODE_ENV"
-  ],
-  "tasks": {
-    "build": {
-      "dependsOn": ["^build"],
-      "outputs": [".next/**", "dist/**"]
-    },
-    "dev": {
-      "cache": false,
-      "persistent": true
-    },
-    "frontend#dev": {
-      "dependsOn": [],
-      "cache": false,
-      "persistent": true
-    },
-    "backend#dev": {
-      "dependsOn": [],
-      "cache": false,
-      "persistent": true
+    "$schema": "https://turbo.build/schema.json",
+    "globalEnv": [
+        "PORT",
+        "NODE_ENV"
+    ],
+    "tasks": {
+        "build": {
+            "dependsOn": [
+                "^build"
+            ],
+            "outputs": [
+                ".next/**",
+                "dist/**"
+            ]
+        },
+        "dev": {
+            "cache": false,
+            "persistent": true
+        },
+        "frontend#dev": {
+            "dependsOn": [],
+            "cache": false,
+            "persistent": true
+        },
+        "backend#dev": {
+            "dependsOn": [],
+            "cache": false,
+            "persistent": true
+        }
     }
-  }
 }

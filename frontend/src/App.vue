@@ -14,7 +14,7 @@ const authStore = useAuthStore();
 const checkAuth = async () => {
     const res = await authStore.login();
     if (!res.success) {
-        router.push('/login');
+        router.push('/public');
     }
 }
 

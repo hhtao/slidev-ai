@@ -1,30 +1,39 @@
 {
-  "compilerOptions": {
-    "target": "ES2023",
-    "module": "NodeNext",
-    "moduleResolution": "NodeNext",
-    "esModuleInterop": true,
-    "allowSyntheticDefaultImports": true,
-  "strict": false,
-    "skipLibCheck": true,
-    "outDir": "./dist",
-    "rootDir": "./src",
-    "declaration": true,
-    "sourceMap": true,
-    "removeComments": true,
-    "resolveJsonModule": true,
-    "experimentalDecorators": true,
-    "emitDecoratorMetadata": true,
-    "baseUrl": "./",
-    "paths": {
-      "@/*": ["src/*"],
-      "@utils/*": ["src/utils/*"]
+    "compilerOptions": {
+        "target": "ES2023",
+        "module": "NodeNext",
+        "moduleResolution": "NodeNext",
+        "esModuleInterop": true,
+        "allowSyntheticDefaultImports": true,
+        "strict": false,
+        "skipLibCheck": true,
+        "outDir": "./dist",
+        "rootDir": "./src",
+        "declaration": false,
+        "sourceMap": false,
+        "removeComments": true,
+        "resolveJsonModule": true,
+        "experimentalDecorators": true,
+        "emitDecoratorMetadata": true,
+        "baseUrl": "./",
+        "paths": {
+            "@/*": [
+                "src/*"
+            ],
+            "@utils/*": [
+                "src/utils/*"
+            ]
+        },
+        "noEmit": false,
+        "noEmitOnError": false,
+        "noImplicitAny": false,
+        "strictPropertyInitialization": false
     },
-  "noEmit": false,
-  "noEmitOnError": false,
-  "noImplicitAny": false,
-  "strictPropertyInitialization": false
-  },
-  "include": ["src/**/*"],
-  "exclude": ["node_modules", "dist"]
+    "include": [
+        "src/**/*"
+    ],
+    "exclude": [
+        "node_modules",
+        "dist"
+    ]
 }

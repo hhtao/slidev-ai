@@ -7,7 +7,8 @@
     "license": "UNLICENSED",
     "type": "commonjs",
     "scripts": {
-        "build": "tsc -p tsconfig.simple.json && tsc-alias -p tsconfig.simple.json",
+        "build": "cross-env NODE_ENV=production nest build",
+        "postbuild": "node scripts/postbuild.mjs",
         "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
         "start": "node dist/main.js",
         "start:dev": "node --loader ts-node/esm src/main.ts",
@@ -20,7 +21,7 @@
         "test:debug": "node --loader ts-node/esm --experimental-specifier-resolution=node -r tsconfig-paths/register node_modules/.bin/jest --runInBand",
         "test:e2e": "jest --config ./test/jest-e2e.json",
         "init-db": "node --loader ts-node/esm src/init-db.ts",
-        "dev": "cross-env NODE_ENV=development  nest start --watch",
+        "dev": "cross-env NODE_ENV=development nest start --watch",
         "create-admin": "ts-node src/scripts/create-admin.ts"
     },
     "dependencies": {
@@ -86,6 +87,7 @@
         "prettier": "^3.4.2",
         "source-map-support": "^0.5.21",
         "supertest": "^7.1.4",
+        "terser-webpack-plugin": "^5.3.14",
         "ts-jest": "^29.2.5",
         "ts-loader": "^9.5.2",
         "ts-node": "^10.9.2",

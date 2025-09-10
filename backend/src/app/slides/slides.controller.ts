@@ -116,7 +116,7 @@ export class SlidesController {
     @ApiParam({ name: 'id', description: '幻灯片 ID' })
     @ApiOkResponse({ description: '删除结果', schema: { type: 'object', properties: { success: { type: 'boolean' } } } })
     async deleteSlide(
-        @Param('id') id: string
+        @Param('id') id: number,
     ): Promise<{ success: boolean }> {
         await this.slideRepository.remove(id);
         return { success: true };

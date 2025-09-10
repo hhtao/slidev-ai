@@ -55,6 +55,13 @@ export class Slide {
     coverFilename: string;
 
     /**
+     * @description 导入文件在 sso-lite 中的名字
+     * @example "sso-lite.cf5878c3-9b41-4cf2-a3a8-678c07f549da.md"
+     */
+    @Column({ type: 'text', nullable: true })
+    importFilename: string;
+
+    /**
      * @description 主题
      * @example "academic"
      */
