@@ -44,13 +44,6 @@ ADMIN_USER=admin
 ADMIN_PASSWORD=ChangeMe_123!
 ```
 
-### 快速安装
-
-```bash
-# TODO
-npx -c ...
-````
-
 ### 本地开发
 
 ```bash
