@@ -5,6 +5,8 @@ import { useToast } from 'primevue/usetoast'
 import Button from 'primevue/button'
 import InputText from 'primevue/inputtext'
 import FileUpload from 'primevue/fileupload'
+import Dropdown from 'primevue/dropdown'
+
 import Card from 'primevue/card'
 import { useSlidesStore } from '@/store/slide'
 import { t } from '@/i18n'
@@ -16,6 +18,11 @@ const slidesStore = useSlidesStore()
 const title = ref('')
 const selectedFile = ref<File | null>(null)
 const isSubmitting = ref(false)
+const visibility = ref('public');
+const visibilityOptions = ref([
+    { label: t('dashboard.tag.public'), value: 'public' },
+    { label: t('dashboard.tag.private'), value: 'private' }
+]);
 
 const onFileSelect = (event: any) => {
     const file = event.files[0]
@@ -64,12 +71,16 @@ const onSubmit = async () => {
     try {
         const formData = new FormData()
         formData.append('title', title.value)
-        formData.append('content', '') // 内容将从文件中解析
-        formData.append('visibility', 'private') // 默认设为私有
-        formData.append('theme', 'default') // 默认主题
+        formData.append('visibility', visibility.value)
         formData.append('file', selectedFile.value)
 
-        const response = await slidesStore.createSlide(formData)
+        toast.add({
+            severity: 'info',
+            summary: 'working'
+        })
+        const response = await slidesStore.importSlide(formData);
+
+        console.log(response);
 
         if (response.data?.id) {
             toast.add({
@@ -80,7 +91,7 @@ const onSubmit = async () => {
             })
 
             // 导入成功后跳转到处理页面
-            router.push(`/slides/process?stage=input&id=${response.data.id}`)
+            router.push(`/public`)
         } else {
             throw new Error('Import failed')
         }
@@ -103,7 +114,7 @@ const onCancel = () => {
 </script>
 
 <template>
-    <div class="import-slide p-6 max-w-3xl mx-auto">
+    <div class="import-slide p-6 max-w-1xl mx-auto">
         <Card>
             <template #title>
                 <h2>{{ t('import-slide.title') }}</h2>
@@ -113,7 +124,7 @@ const onCancel = () => {
                 <div class="space-y-6">
                     <div class="field">
                         <label for="title" class="block text-sm font-medium mb-2">
-                            {{ t('import-slide.slide-title') }} *
+                            {{ t('import-slide.slide-title') }}
                         </label>
                         <InputText id="title" v-model="title" class="w-full"
                             :placeholder="t('import-slide.title-placeholder')" />
@@ -121,7 +132,7 @@ const onCancel = () => {
 
                     <div class="field">
                         <label class="block text-sm font-medium mb-2">
-                            {{ t('import-slide.select-file') }} *
+                            {{ t('import-slide.select-file') }}
                         </label>
                         <FileUpload mode="basic" :chooseLabel="t('import-slide.choose-file')" accept=".md,.slidev"
                             :maxFileSize="10000000" @select="onFileSelect" :auto="true" :showUploadButton="false" />
@@ -129,9 +140,15 @@ const onCancel = () => {
                             {{ t('import-slide.file-hint') }}
                         </small>
 
-                        <div v-if="selectedFile" class="mt-2 p-2 bg-gray-100 rounded">
+                        <div v-if="selectedFile" class="mt-2 p-2 rounded">
                             <span class="text-sm">{{ selectedFile.name }}</span>
                         </div>
+                    </div>
+
+                    <div class="field">
+                        <label class="block mb-2 font-bold">{{ t("process.input.visibility") }}</label>
+                        <Dropdown v-model="visibility" :options="visibilityOptions" optionLabel="label"
+                            optionValue="value" class="w-full" />
                     </div>
 
                     <div class="flex justify-end gap-3 pt-4">
@@ -148,7 +165,7 @@ const onCancel = () => {
 
 <style scoped>
 .import-slide {
-    max-width: 1200px;
+    max-width: 800px;
     margin: auto;
 }
 </style>

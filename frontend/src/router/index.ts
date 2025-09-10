@@ -6,7 +6,7 @@ const router = createRouter({
     routes: [
         {
             path: '/',
-            redirect: '/dashboard'
+            redirect: '/public'
         },
         {
             path: '/login',
@@ -74,7 +74,7 @@ const router = createRouter({
         {
             path: '/slides/import',
             name: 'ImportSlide',
-            component: () => import('../views/slides/ImportSlide.vue'),
+            component: () => import('../views/dashboard/ImportSlide.vue'),
             meta: { requiresAuth: true }
         },
         {

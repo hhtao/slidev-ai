@@ -6,6 +6,7 @@ export class CreateSlideDto {
     title!: string;
 
     @IsString()
+    @IsNotEmpty()
     content!: string;
 
     @IsString()
@@ -18,6 +19,16 @@ export class CreateSlideDto {
     theme!: string;
 }
 
+export class ImportSlideDto {
+    @IsString()
+    @IsNotEmpty()
+    title!: string;
+
+    @IsString()
+    @IsNotEmpty()
+    @IsEnum(['public', 'private'])
+    visibility!: 'public' | 'private';
+}
 
 export interface OutlinesDto {
     outlines: any;

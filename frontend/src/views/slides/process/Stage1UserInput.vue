@@ -305,7 +305,7 @@ onMounted(async () => {
 
                 <!-- 可见性 -->
                 <div>
-                    <label class="block mb-2 font-bold">可见性</label>
+                    <label class="block mb-2 font-bold">{{ t("process.input.visibility") }}</label>
                     <Dropdown v-model="visibility" :options="visibilityOptions" optionLabel="label" optionValue="value"
                         class="w-full" />
                 </div>

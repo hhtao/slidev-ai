@@ -1,6 +1,6 @@
 import path from 'path';
 import { v4 as uuidv4 } from 'uuid';
-import fs from 'fs';
+import fs from 'fs-extra';
 
 import { Injectable } from '@nestjs/common';
 import { Observable, Subscriber } from 'rxjs';
@@ -8,7 +8,7 @@ import { OmAgent } from 'openmcp-sdk/service/sdk';
 
 import { SlidevMcpService } from '@/app/mcp/slidev-mcp.service';
 import { SlideRepository } from './slide.repository';
-import { CreateSlideDto, SlidevProjectDto } from './slide.dto';
+import { CreateSlideDto, ImportSlideDto, SlidevProjectDto } from './slide.dto';
 import { Slide } from './slide.entity';
 import { toSseData } from '@/utils/sse';
 import { SLIDEV_MCP_ROOT } from '@/constant/filepath';
@@ -17,6 +17,7 @@ import BaseResponse from '@/app/base/base.dto';
 import  STATUS_CODE  from '@/constant/status-code';
 import { SlidevManagerService } from './slidev-manager.service';
 import { User } from '../users/user.entity';
+import { readLayout } from '@/utils/slidev';
 
 // 定义文件类型
 type MulterFile = Express.Multer.File;
@@ -59,29 +60,35 @@ export class SlidesService {
     /**
      * @description 导入幻灯片文件
      */
-    async importSlide(userId: string, createSlideDto: CreateSlideDto, file?: MulterFile): Promise<Slide> {
-        // 读取文件内容
-        let fileContent = '';
-        let importFilename = '';
-        
-        if (file) {
-            // 读取文件内容
-            fileContent = await fs.promises.readFile(file.path, 'utf-8');
-            // 保存文件名
-            importFilename = file.filename;
+    async importSlide(userId: string, createSlideDto: ImportSlideDto, file?: MulterFile) {
+
+        if (!file) {
+            throw new Error('No file uploaded');
         }
+
+        const theme = await readLayout(file.path);
+
+        // 创建项目名
+        const projectName = `import-${uuidv4()}`;
+
+        fs.moveSync(file.path, path.join(SLIDEV_MCP_ROOT, projectName, 'slides.md'));
 
         // 创建幻灯片实体
         const slide = await this.slidesRepository.create({
             title: createSlideDto.title,
-            content: fileContent, // 使用文件内容作为幻灯片内容
+            content: '{{IMPORT}}',
+            outlines: JSON.stringify([{ group: '{{IMPORT}}', content: '{{IMPORT}}' }]),
             visibility: createSlideDto.visibility,
-            theme: createSlideDto.theme,
-            userId: String(userId),
-            user: { id: parseInt(userId) } as User,
-            processingStatus: 'pending',
-            importFilename: importFilename // 保存导入文件名
+            theme: theme,
+            userId: userId,
+            processingStatus: 'markdown-saved',
+            importFilename: file.path,
+            slidevName: projectName,
+            slidevHome: projectName,
+            coverFilename: ''
         });
+
+        await this.buildSlidevProject(slide.id);
 
         return slide;
     }
@@ -358,7 +365,7 @@ export class SlidesService {
 
         return slidePath;
     }
-    async buildSlidevProject(id:number): Promise<BaseResponse> {
+    async buildSlidevProject(id: number): Promise<BaseResponse> {
         try {
             await this.slideLock.withLock(id, 'build-slidev', async () => {
                 const slide = await this.slidesRepository.findOneById(id);

@@ -7,7 +7,7 @@ import { diskStorage } from 'multer';
 import path, { extname } from 'path';
 import { Observable } from 'rxjs';
 import { SlideRepository } from '@/app/slides/slide.repository';
-import { CreateSlideDto, OutlinesDto, SlidevProjectDto } from './slide.dto';
+import { CreateSlideDto, ImportSlideDto, OutlinesDto, SlidevProjectDto } from './slide.dto';
 import { SlidevManagerService } from './slidev-manager.service';
 import httpProxy from 'http-proxy';
 import { PrivateSlideOwnerGuard, PublicSlideOwnerGuard } from '../auth/slide-owner.guard';
@@ -300,7 +300,7 @@ export class SlidesController {
             ws: true,
         });
     }
-    
+
     @UseGuards(JwtAuthGuard, PrivateSlideOwnerGuard)
     @Post(':id/build-slidev')
     @ApiOperation({ summary: '构建 Slidev 项目', description: '进行项目打包与首页截图生成，更新状态。' })
@@ -317,26 +317,24 @@ export class SlidesController {
     @UseGuards(JwtAuthGuard)
     @UseFileUploader('file')
     @Post('import')
-    @ApiOperation({ summary: '导入幻灯片' })
+    @ApiOperation({ summary: '创建幻灯片' })
     @ApiBearerAuth()
     @ApiConsumes('multipart/form-data')
-    @ApiBody({ 
-        description: '导入幻灯片文件', 
-        schema: { 
-            type: 'object', 
-            properties: { 
-                title: { type: 'string' }, 
-                content: { type: 'string' }, 
-                visibility: { type: 'string', enum: ['public', 'private'] }, 
-                theme: { type: 'string' },
-                file: { type: 'string', format: 'binary', description: 'Markdown或Slidev文件' } 
-            } 
-        } 
+    @ApiBody({
+        description: '导入幻灯片文件',
+        schema: {
+            type: 'object',
+            properties: {
+                title: { type: 'string' },
+                file: { type: 'string', format: 'binary', description: 'Markdown或Slidev文件' },
+                visibility: { type: 'string', enum: ['public', 'private'] }
+            }
+        }
     })
     @ApiOkResponse({ description: '返回导入后的幻灯片实体' })
     async importSlide(
         @Request() req: ExpressRequest,
-        @Body() createSlideDto: CreateSlideDto,
+        @Body() createSlideDto: ImportSlideDto,
         @UploadedFile() file?: MulterFile
     ) {
         const user = req.user as any;

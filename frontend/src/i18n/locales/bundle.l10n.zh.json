@@ -279,5 +279,20 @@
     "theme.manager.updateError": "更新失败",
     "theme.manager.updateThemeTitle": "正在更新主题",
     "theme.manager.nav": "主题",
-    "dashboard.button.import": "导入幻灯片"
+    "dashboard.button.import": "导入幻灯片",
+    "common.error": "错误",
+    "import-slide.invalid-file-type": "文件类型无效，仅支持 .md 或 .slidev 文件",
+    "import-slide.title-required": "请输入标题",
+    "import-slide.file-required": "请选择文件",
+    "common.success": "成功",
+    "import-slide.import-success": "幻灯片导入成功",
+    "import-slide.import-failed": "幻灯片导入失败",
+    "import-slide.title": "导入幻灯片",
+    "import-slide.slide-title": "幻灯片标题",
+    "import-slide.title-placeholder": "请输入幻灯片标题",
+    "import-slide.select-file": "选择文件",
+    "import-slide.choose-file": "选择文件",
+    "import-slide.file-hint": "支持 .md 或 .slidev 格式，大小不超过 10MB",
+    "common.cancel": "取消",
+    "common.submit": "提交"
 }

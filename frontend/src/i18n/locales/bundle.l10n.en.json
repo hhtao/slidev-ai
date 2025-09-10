@@ -279,5 +279,20 @@
     "theme.manager.updateError": "Update failed",
     "theme.manager.updateThemeTitle": "Updating Theme",
     "theme.manager.nav": "Theme",
-    "dashboard.button.import": "Import Slide"
+    "dashboard.button.import": "Import Slide",
+    "common.error": "Error",
+    "import-slide.invalid-file-type": "Invalid file type, only .md or .slidev files are supported",
+    "import-slide.title-required": "Please enter a title",
+    "import-slide.file-required": "Please select a file",
+    "common.success": "Success",
+    "import-slide.import-success": "Slide imported successfully",
+    "import-slide.import-failed": "Slide import failed",
+    "import-slide.title": "Import Slide",
+    "import-slide.slide-title": "Slide Title",
+    "import-slide.title-placeholder": "Enter slide title",
+    "import-slide.select-file": "Select File",
+    "import-slide.choose-file": "Choose File",
+    "import-slide.file-hint": "Supports .md or .slidev format, maximum size 10MB",
+    "common.cancel": "Cancel",
+    "common.submit": "Submit"
 }
