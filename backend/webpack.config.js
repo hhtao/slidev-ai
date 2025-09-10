@@ -9,7 +9,7 @@ module.exports = {
         concatenateModules: !isDev, // 在生产模式下启用模块合并
         usedExports: !isDev,    // 在生产模式下启用 Tree Shaking
         sideEffects: !isDev,    // 在生产模式下启用副作用优化
-        mangleExports: !isDev,  // 在生产模式下启用导出名混淆
+        mangleExports: false,  // 在生产模式下启用导出名混淆
         splitChunks: false,   // 彻底禁用代码分割
         runtimeChunk: false,  // 禁止生成 runtime 文件
         // 禁止生成额外的chunks

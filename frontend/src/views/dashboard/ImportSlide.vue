@@ -74,13 +74,17 @@ const onSubmit = async () => {
         formData.append('visibility', visibility.value)
         formData.append('file', selectedFile.value)
 
-        toast.add({
+        const buildingMessage = {
             severity: 'info',
-            summary: 'working'
-        })
-        const response = await slidesStore.importSlide(formData);
+            summary: t('process.markdown.building'),
+            detail: t('process.markdown.building.detail'),
+            closable: false,
+        };
 
-        console.log(response);
+        toast.add(buildingMessage);
+        const response = await slidesStore.importSlide(formData);
+        
+        toast.remove(buildingMessage);
 
         if (response.data?.id) {
             toast.add({

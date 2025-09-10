@@ -1,5 +1,5 @@
 import fsPath from 'node:path';
-import fs from 'node:fs';
+import fs from 'fs-extra';
 import * as process from "node:process";
 
 function createDirIfExists(filePath) {
@@ -23,6 +23,14 @@ createDirIfExists(rootDistPath);
 
 const backendDistPath = fsPath.join(rootDistPath, 'server');
 recreateDir(backendDistPath);
+
+// 将 .env 也搬运到 rootDistPath 里面
+if (!fs.existsSync(fsPath.join(rootDistPath, '.env'))) {
+    console.error('.env file not found, please run `node scripts/install.mjs`');
+    process.exit();
+}
+
+fs.copyFileSync(fsPath.join(currentDir, '.env'), fsPath.join(rootDistPath, '.env'));
 
 const sourceDist = fsPath.join(currentDir, 'dist');
 

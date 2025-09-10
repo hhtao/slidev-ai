@@ -9,8 +9,11 @@ import { ConfigModule } from '@nestjs/config';
 import { ServeStaticModule } from '@nestjs/serve-static';
 import { SsoLite } from './utils';
 import { SlidevMcpModule } from './app/mcp/slidev-mcp.module';
+import path from 'path';
 
-console.log('当前 NODE_ENV:', process.env.NODE_ENV);
+console.log('current NODE_ENV:', process.env.NODE_ENV);
+console.log('current app:', process.env.NODE_ENV === 'development' ? path.join(__dirname, '..', '..', 'dist', 'app') : './app');
+
 
 @Module({
     imports: [
@@ -25,14 +28,11 @@ console.log('当前 NODE_ENV:', process.env.NODE_ENV);
         SlidesModule,
         UsersModule,
         AuthModule,
+
         ServeStaticModule.forRoot({
             rootPath: SsoLite.root(),
             serveRoot: '/uploads/',
-        }),
-        ServeStaticModule.forRoot({
-            rootPath: './app', // 假设 vue build 输出到 dist
-            exclude: ['/api(.*)', '/uploads(.*)'], // 很关键！排除 /api 和 /uploads
-        }),
+        })
     ],
     controllers: [AppController],
     providers: [AppService],
