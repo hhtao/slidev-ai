@@ -60,10 +60,6 @@ uv sync
 uv run playwright install chromium
 # (Optional) system packages if warned
 sudo uv run playwright install-deps || true
-cd ../../
-
-# Start all (Turbo dev: backend + frontend)
-npm run dev
 ```
 
 When a feature invokes headless browsing (e.g. websearch) for the first time, Playwright will use the cached Chromium at `~/.cache/ms-playwright`. Cache this path in CI to speed up builds.
@@ -76,9 +72,6 @@ When a feature invokes headless browsing (e.g. websearch) for the first time, Pl
 ### Development
 
 ```bash
-git clone https://github.com/yourorg/slidev-ai.git
-cd slidev-ai
-npm i
 # （Python crawler already installed its own Chromium via uv run playwright install）
 npm run dev
 ```

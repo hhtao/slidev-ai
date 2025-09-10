@@ -62,10 +62,6 @@ uv sync
 uv run playwright install chromium
 # （可选）若提示缺少系统库
 sudo uv run playwright install-deps || true
-cd ../../
-
-# 启动（Turbo dev 同时跑前后端）
-npm run dev
 ```
 
 首次触发需要无头浏览的功能（如 websearch）时，Python 侧 Playwright 将使用其缓存目录（通常位于 `~/.cache/ms-playwright`）。CI 环境可缓存该目录以加速重复构建。
@@ -78,9 +74,6 @@ npm run dev
 ### 本地开发
 
 ```bash
-git clone https://github.com/yourorg/slidev-ai.git
-cd slidev-ai
-npm i
 npm run dev
 ```
 
