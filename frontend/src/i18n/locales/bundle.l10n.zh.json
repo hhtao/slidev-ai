@@ -278,5 +278,6 @@
     "theme.manager.updateAllTitle": "正在更新所有主题",
     "theme.manager.updateError": "更新失败",
     "theme.manager.updateThemeTitle": "正在更新主题",
-    "theme.manager.nav": "主题"
+    "theme.manager.nav": "主题",
+    "dashboard.button.import": "导入幻灯片"
 }

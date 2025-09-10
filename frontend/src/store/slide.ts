@@ -120,5 +120,26 @@ export const useSlidesStore = defineStore('slides', () => {
         return res;
     }
 
-    return { slides, getSlideById, refreshSlide, clearSlide, clearAll, saveOutlines, createSlide, saveSlide, buildSlidev }
+    const importSlide = async (formData: FormData) => {
+        const res = await axios.post(`${API_BASE_URL}/slides/import`, formData, {
+            headers: {
+                'Content-Type': 'multipart/form-data'
+            }
+        });
+
+        return res;
+    }
+
+    return { 
+        slides, 
+        getSlideById, 
+        refreshSlide, 
+        clearSlide, 
+        clearAll, 
+        saveOutlines, 
+        createSlide, 
+        saveSlide, 
+        buildSlidev,
+        importSlide  // 添加导入方法
+    }
 })

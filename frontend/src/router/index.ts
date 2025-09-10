@@ -60,7 +60,6 @@ const router = createRouter({
             name: 'public',
             component: () => import('@/views/public/PublicSlides.vue')
         },
-        // 可选 userId 访问他人主页
         {
             path: '/profile/:userId',
             name: 'user-profile',
@@ -71,6 +70,12 @@ const router = createRouter({
             path: '/slides/process',
             name: 'slide-processing',
             component: () => import('@/views/slides/process/index.vue')
+        },
+        {
+            path: '/slides/import',
+            name: 'ImportSlide',
+            component: () => import('../views/slides/ImportSlide.vue'),
+            meta: { requiresAuth: true }
         },
         {
             path: '/preview/:hash',

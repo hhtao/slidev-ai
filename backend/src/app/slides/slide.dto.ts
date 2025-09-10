@@ -6,7 +6,6 @@ export class CreateSlideDto {
     title!: string;
 
     @IsString()
-    @IsNotEmpty()
     content!: string;
 
     @IsString()

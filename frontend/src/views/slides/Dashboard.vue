@@ -54,6 +54,8 @@ const fetchSlides = async () => {
 }
 
 const createNewSlide = () => router.push('/slides/process?stage=input')
+const importSlide = () => router.push('/slides/import')
+
 const editSlide = (id: string) => router.push(`/slides/process?stage=input&id=${id}`)
 
 const deleteSlide = async (id: string, title: string) => {
@@ -107,7 +109,10 @@ watch(visibility, () => { })
     <div class="dashboard p-6">
         <!-- Header -->
         <div class="flex justify-between items-center mb-6">
-            <Button icon="pi pi-plus" :label="t('dashboard.button.new')" class="p-button-rounded" @click="createNewSlide" />
+            <div class="flex gap-2">
+                <Button icon="pi pi-plus" :label="t('dashboard.button.new')" class="p-button-rounded" @click="createNewSlide" />
+                <Button icon="pi pi-upload" :label="t('dashboard.button.import')" class="p-button-rounded p-button-outlined" @click="importSlide" />
+            </div>
             <Dropdown v-model="visibility" :options="visibilityOptions" optionLabel="label" optionValue="value"
                 class="w-40" :disabled="loading" :placeholder="t('dashboard.filter.placeholder')" />
         </div>

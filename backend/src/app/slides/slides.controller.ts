@@ -123,7 +123,6 @@ export class SlidesController {
     }
 
 
-
     /**
      * 保存幻灯片的大纲数据
      */
@@ -313,5 +312,38 @@ export class SlidesController {
     ) {
         const resp: BaseResponse = await this.slidesService.buildSlidevProject(id);
         return resp;
+    }
+
+    @UseGuards(JwtAuthGuard)
+    @UseFileUploader('file')
+    @Post('import')
+    @ApiOperation({ summary: '导入幻灯片' })
+    @ApiBearerAuth()
+    @ApiConsumes('multipart/form-data')
+    @ApiBody({ 
+        description: '导入幻灯片文件', 
+        schema: { 
+            type: 'object', 
+            properties: { 
+                title: { type: 'string' }, 
+                content: { type: 'string' }, 
+                visibility: { type: 'string', enum: ['public', 'private'] }, 
+                theme: { type: 'string' },
+                file: { type: 'string', format: 'binary', description: 'Markdown或Slidev文件' } 
+            } 
+        } 
+    })
+    @ApiOkResponse({ description: '返回导入后的幻灯片实体' })
+    async importSlide(
+        @Request() req: ExpressRequest,
+        @Body() createSlideDto: CreateSlideDto,
+        @UploadedFile() file?: MulterFile
+    ) {
+        const user = req.user as any;
+        if (!user || !user.id) {
+            throw new Error('用户信息缺失，无法获取 userId');
+        }
+        const userId = user.id;
+        return this.slidesService.importSlide(userId, createSlideDto, file);
     }
 }

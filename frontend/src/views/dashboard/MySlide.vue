@@ -44,7 +44,6 @@ const fetchSlides = async () => {
     try {
         const response = await axios.get(`${API_BASE_URL}/slides/self`)
         slides.value = response.data
-        console.log(slides.value);
 
     } catch (err) {
         error.value = t('common.error.fetch-slides')
@@ -175,7 +174,7 @@ watch(visibility, () => { })
                                 <div class="flex items-center gap-2 mb-2">
                                     <Tag :value="slide.visibility === 'public' ? t('dashboard.tag.public') : t('dashboard.tag.private')"
                                         :severity="slide.visibility === 'public' ? 'success' : 'secondary'"
-                                        v-tooltip.top="slide.visibility" />
+                                    />
                                     <Tag :value="slide.processingStatus === 'completed' ? t('dashboard.status.completed') : t('dashboard.status.processing')"
                                         :severity="getStatusTag(slide.processingStatus).severity" />
                                 </div>

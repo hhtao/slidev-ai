@@ -278,5 +278,6 @@
     "theme.manager.updateAllTitle": "Updating All Themes",
     "theme.manager.updateError": "Update failed",
     "theme.manager.updateThemeTitle": "Updating Theme",
-    "theme.manager.nav": "Theme"
+    "theme.manager.nav": "Theme",
+    "dashboard.button.import": "Import Slide"
 }

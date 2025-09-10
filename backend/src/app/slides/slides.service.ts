@@ -56,6 +56,36 @@ export class SlidesService {
         });
     }
 
+    /**
+     * @description 导入幻灯片文件
+     */
+    async importSlide(userId: string, createSlideDto: CreateSlideDto, file?: MulterFile): Promise<Slide> {
+        // 读取文件内容
+        let fileContent = '';
+        let importFilename = '';
+        
+        if (file) {
+            // 读取文件内容
+            fileContent = await fs.promises.readFile(file.path, 'utf-8');
+            // 保存文件名
+            importFilename = file.filename;
+        }
+
+        // 创建幻灯片实体
+        const slide = await this.slidesRepository.create({
+            title: createSlideDto.title,
+            content: fileContent, // 使用文件内容作为幻灯片内容
+            visibility: createSlideDto.visibility,
+            theme: createSlideDto.theme,
+            userId: String(userId),
+            user: { id: parseInt(userId) } as User,
+            processingStatus: 'pending',
+            importFilename: importFilename // 保存导入文件名
+        });
+
+        return slide;
+    }
+
     async getSlideStatus(slide: Slide | null | undefined, defaultStatus?: string) {
         let status = defaultStatus || 'user-input-saved';
         if (!slide) {
