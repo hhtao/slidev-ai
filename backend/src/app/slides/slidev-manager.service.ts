@@ -176,6 +176,11 @@ export class SlidevManagerService implements OnApplicationShutdown {
                 deviceScaleFactor: 1,
             });
 
+            // 设置为暗色模式
+            await page.emulateMediaFeatures([
+                { name: "prefers-color-scheme", value: "dark" },
+            ]);
+
             // 打开页面并等待加载完成
             await page.goto(slidevServer, { waitUntil: 'networkidle0', timeout: 30000 });
 

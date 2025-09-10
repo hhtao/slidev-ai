@@ -91,6 +91,7 @@ export class SlidevMcpService implements OnModuleInit {
 
     private updateRepo() {
         try {
+            execSync(`git stash`, { stdio: 'inherit' });
             execSync(`git -C ${this.repoPath} pull`, { stdio: 'inherit' });
             this.logger.log(chalk.green(`Repository updated successfully`));
         } catch (error) {

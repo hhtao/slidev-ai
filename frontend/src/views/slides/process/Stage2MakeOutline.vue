@@ -102,6 +102,13 @@ const collapseAllPanels = () => {
     }
 };
 
+// 重新生成大纲的方法
+const regenerateOutline = () => {
+    // 清空现有大纲
+    outlines.value = [];
+    // 重新初始化SSE连接以生成新的大纲
+    initializeSSE();
+};
 
 const saveOutlines = async () => {
     const id = props.id;
@@ -391,7 +398,11 @@ watch(error, (newError) => {
 
                     <!-- 显示可编辑的大纲 -->
                     <div v-if="outlineGenerated">
-                        <h2 class="text-xl font-bold mb-4">{{ t('process.outline.generated') }}</h2>
+                        <div class="flex justify-between items-center mb-4">
+                            <h2 class="text-xl font-bold">{{ t('process.outline.generated') }}</h2>
+                            <Button :label="t('process.outline.try-again')" icon="pi pi-refresh" 
+                                @click="regenerateOutline" :disabled="isProcessing" />
+                        </div>
                         <EditableOutline ref="editableOutlineRef" :outlines="outlines" @update:outlines="updateOutlines"
                             @collapse-all="() => { }" />
                     </div>
