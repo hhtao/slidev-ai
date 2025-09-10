@@ -21,14 +21,18 @@ console.log('当前 NODE_ENV:', process.env.NODE_ENV);
             autoLoadEntities: true,
             synchronize: process.env.NODE_ENV === 'development',
         }),
-        ServeStaticModule.forRoot({
-            rootPath: SsoLite.root(),
-            serveRoot: '/uploads/',
-        }),
         SlidevMcpModule,
         SlidesModule,
         UsersModule,
         AuthModule,
+        ServeStaticModule.forRoot({
+            rootPath: SsoLite.root(),
+            serveRoot: '/uploads/',
+        }),
+        ServeStaticModule.forRoot({
+            rootPath: './app', // 假设 vue build 输出到 dist
+            exclude: ['/api(.*)', '/uploads(.*)'], // 很关键！排除 /api 和 /uploads
+        }),
     ],
     controllers: [AppController],
     providers: [AppService],

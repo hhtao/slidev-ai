@@ -29,7 +29,7 @@ export function UseAvatarUploader(fieldName = 'file') {
         UseInterceptors(
             FileInterceptor(fieldName, {
                 storage: diskStorage({
-                    destination: './uploads/avatars',
+                    destination: SsoLite.getPath('avatars'),
                     filename: (req, file, callback) => {
                         const uniqueSuffix = uuidv4();
                         const ext = extname(file.originalname);

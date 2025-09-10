@@ -21,7 +21,7 @@ const currentDir = process.cwd();
 const rootDistPath = fsPath.join(currentDir, '..', 'dist');
 createDirIfExists(rootDistPath);
 
-const backendDistPath = fsPath.join(rootDistPath, 'backend');
+const backendDistPath = fsPath.join(rootDistPath, 'server');
 recreateDir(backendDistPath);
 
 const sourceDist = fsPath.join(currentDir, 'dist');

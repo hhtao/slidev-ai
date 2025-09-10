@@ -9,6 +9,7 @@ import cookieParser from 'cookie-parser';
 import { SlidevManagerService } from './app/slides/slidev-manager.service';
 import morgan from 'morgan';
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
+import { SsoLite } from './utils';
 
 function setupSwagger(app: INestApplication) {
     const config = new DocumentBuilder()
@@ -28,7 +29,7 @@ function setupSwagger(app: INestApplication) {
 }
 async function bootstrap() {
     // 确保uploads目录存在
-    const uploadDir = join(__dirname, '..', 'uploads');
+    const uploadDir = SsoLite.root();
     if (!existsSync(uploadDir)) {
         mkdirSync(uploadDir);
     }
