@@ -29,7 +29,10 @@ slidev-ai 是 [OpenMCP](https://github.com/LSTM-Kirigaya/openmcp-client) 生态�
 - 可直接用于生产环境的演示文稿生成方案
 - 构建领域专用 AI Agent 的模板
 
-请在B站上查看介绍视频： [完全开源的新世代AI PPT工具！Slidev-AI 功能演示](https://www.bilibili.com/video/BV1SMhBzJEUL)
+请在B站上查看介绍视频： 
+
+<a href="https://www.bilibili.com/video/BV1SMhBzJEUL/?spm_id_from=333.1387.homepage.video_card.click&vd_source=3f248073d6ebdb61308992901b606f24" target="_blank"><img src="https://pica.zhimg.com/80/v2-3674ccdc2ceef8255724dbf078cf6ee7_1440w.png" /></a>
+
 
 
 🔗 [OpenMCP 文档](https://kirigaya.cn/openmcp/)
@@ -38,36 +41,11 @@ slidev-ai 是 [OpenMCP](https://github.com/LSTM-Kirigaya/openmcp-client) 生态�
 
 对于想要开发类似 AI 应用的开发者，这里提供了一个完整的 LLM Prompt，可用于生成类似的前后端项目：
 
-[PROMPT.md](./PROMPT.md)
+[PROMPT.md](docs/PROMPT.md)
 
 ## 📦 快速开始
 
-### 系统需求
-- Node.js v18+
-- Python 3.10+
-- npm 9+ 或 yarn 1.22+
-- 至少 4GB 内存（推荐 8GB 开发环境）
-
-### 快速安装
-
-```bash
-# TODO
-npx -c ...
-````
-
-### 本地开发
-
-```bash
-git clone https://github.com/yourorg/slidev-ai.git
-cd slidev-ai
-npm i
-npm run dev
-```
-
-应用启动后可访问：
-
-* 前端：[http://localhost:3000](http://localhost:3000)
-* 后端 API：[http://localhost:3001](http://localhost:3001)
+请参阅[快速开始](docs/quickstart_zh.md)。
 
 ## 🤝 贡献指南
 

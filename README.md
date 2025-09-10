@@ -27,7 +27,11 @@ slidev-ai is a downstream implementation within the [OpenMCP](https://github.com
 - A template for creating domain-specific AI agents
 
 
-Check out the full demo on Bilibili: [完全开源的新世代AI PPT工具！Slidev-AI 功能演示](https://www.bilibili.com/video/BV1SMhBzJEUL)
+
+Check out the full demo on Bilibili: 
+
+
+<a href="https://www.bilibili.com/video/BV1SMhBzJEUL/?spm_id_from=333.1387.homepage.video_card.click&vd_source=3f248073d6ebdb61308992901b606f24" target="_blank"><img src="https://pica.zhimg.com/80/v2-3674ccdc2ceef8255724dbf078cf6ee7_1440w.png" /></a>
 
 🔗 [OpenMCP Document](https://kirigaya.cn/openmcp/)
 
@@ -35,35 +39,11 @@ Check out the full demo on Bilibili: [完全开源的新世代AI PPT工具！Sli
 
 For developers looking to create similar AI-powered applications, here's a comprehensive prompt you can use with LLM to generate a similar website project:
 
-[PROMPT.md](./PROMPT.md)
+[PROMPT.md](docs/PROMPT.md)
 
 ## Getting Started
 
-### System Requirements
-- Node.js v18+
-- Python 3.10+
-- npm 9+ or yarn 1.22+
-- 4GB RAM minimum (8GB recommended for development)
-
-### Quick Installation
-
-```
-# TODO
-npx -c ...
-```
-
-### Development
-
-```bash
-git clone https://github.com/yourorg/slidev-ai.git
-cd slidev-ai
-npm i
-npm run dev
-```
-
-The application will be available at:
-- Frontend: http://localhost:3000
-- Backend API: http://localhost:3001
+Please refer to [Quick Start](docs/quickstart.md).
 
 ## 🤝 Contributing
 
