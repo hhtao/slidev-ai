@@ -42,13 +42,6 @@ ADMIN_USER=admin
 ADMIN_PASSWORD=ChangeMe_123!
 ```
 
-### Quick Installation
-
-```
-# TODO
-npx -c ...
-```
-
 ### Development
 
 ```bash
