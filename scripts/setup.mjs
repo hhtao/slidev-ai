@@ -7,6 +7,7 @@ import net from "net";
 import path from 'path';
 import fs from 'fs-extra';
 import OpenAI from "openai";
+import { execSync } from "child_process";
 
 // 项目信息展示框
 const projectBox = boxen(
@@ -221,14 +222,22 @@ async function main() {
     const frontendPath = path.resolve("frontend/.env.production");
     fs.writeFileSync(frontendPath, frontendEnv, "utf-8");
 
-    console.log(chalk.magenta("\n最终配置如下："));
-    console.log(answers);
-
     console.log(chalk.green(`\n✅ 已生成配置文件：`));
     console.log(`- ${backendPath}`);
     console.log(`- ${frontendPath}`);
 
-
+    try {
+        console.log(chalk.yellow("\n📦 正在执行 npm run build，请稍候..."));
+        execSync("npm run build", { stdio: "inherit" });
+        console.log(chalk.green("\n✅ slidev-ai 构建成功！"));
+        console.log(chalk.cyan(`
+slidev-ai 安装成功，请运行下面的命令来运行服务器：
+cd dist && node server/main.js
+        `));
+    } catch (err) {
+        console.error(chalk.red("\n❌ 构建失败，请检查错误信息并手动执行 npm run build"));
+        process.exit(1);
+    }
 }
 
 main().catch((err) => {
