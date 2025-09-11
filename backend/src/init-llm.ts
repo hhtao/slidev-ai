@@ -5,7 +5,7 @@ import Joi from 'joi';
 
 // 按优先级加载 .env.local -> .env
 const root = process.cwd();
-['.env.local', '.env'].forEach((file) => {
+['.env.production', '.env'].forEach((file) => {
 	const full = path.join(root, file);
 	if (fs.existsSync(full)) {
 		dotenv.config({ path: full });
