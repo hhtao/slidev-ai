@@ -25,7 +25,7 @@ const backendDistPath = fsPath.join(rootDistPath, 'server');
 recreateDir(backendDistPath);
 
 // 将 .env 也搬运到 rootDistPath 里面
-if (!fs.existsSync(fsPath.join(rootDistPath, '.env.production'))) {
+if (!fs.existsSync(fsPath.join(currentDir, '.env.production'))) {
     console.error('.env.production file not found, please run `node scripts/install.mjs` to generate it');
     process.exit();
 }
