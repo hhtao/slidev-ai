@@ -172,10 +172,15 @@ export class SlidevMcpService implements OnModuleInit {
             this.logger.log(`Found existing theme: ${!!theme}`);
 
             if (!theme) {
-                theme = new Theme();
-                theme.name = themeName;
+                theme = await this.themeRepository.create({
+                    name: themeName
+                });
+
                 this.logger.log(`Created new theme object for ${themeName}`);
             }
+
+            console.log('current theme', theme.id);
+            
 
             // 更新主题属性
             theme.github = manifest.github || null;
@@ -206,8 +211,6 @@ export class SlidevMcpService implements OnModuleInit {
                     if (!fs.existsSync(savePath)) {
                         await SsoLite.downloadFile(imageUrl, savePath, this.httpService);
                         this.logger.log(chalk.gray(`  ↳ downloaded: ${imageUrl}`));
-                    } else {
-                        this.logger.log(chalk.gray(`  ↳ cached: ${imageUrl}`));
                     }
 
                     // 返回映射
@@ -215,7 +218,9 @@ export class SlidevMcpService implements OnModuleInit {
                 })
             );
 
-            const savedTheme = await this.themeRepository.save(theme);
+            const { id, ...themeData } = theme;
+            const savedTheme = await this.themeRepository.update(theme.id, { ...themeData });
+
             // 重新加载实体以确保获取正确的ID
             const finalTheme = await this.themeRepository.findOneByName(theme.name);
             this.logger.log(`Saved theme ${themeName} with ID: ${finalTheme?.id || savedTheme.id}`);

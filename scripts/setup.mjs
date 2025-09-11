@@ -63,7 +63,58 @@ async function validateOpenAI(apiKey, baseUrl, model) {
     return resp.choices?.length > 0;
 }
 
+
+
+function checkPython() {
+    try {
+        execSync("python3 --version", { stdio: "ignore" });
+        execSync("pip3 --version", { stdio: "ignore" });
+        console.log(chalk.green("✅ 检测到 Python 和 pip 已安装"));
+    } catch (err) {
+        console.error(chalk.red("❌ 未检测到 Python 或 pip。"));
+        console.error(chalk.yellow("请先安装 Python（https://www.python.org/）和 pip 再继续。"));
+        process.exit(1);
+    }
+}
+
+// 检查 Python 模块 uv（通常是 uvicorn）
+function checkPythonUV() {
+    try {
+        execSync("python3 -m uv --version", { stdio: "ignore" });
+        console.log(chalk.green("✅ 检测到 uv 模块已安装"));
+    } catch (err) {
+        console.log(chalk.yellow("未检测到 uv 模块，将使用 pip 安装..."));
+        try {
+            execSync("pip3 install uv", { stdio: "inherit" });
+            console.log(chalk.green("✅ uv 模块安装成功"));
+        } catch (installErr) {
+            console.error(chalk.red("❌ uv 模块安装失败，请手动安装"));
+            process.exit(1);
+        }
+    }
+}
+function checkSlidev() {
+    try {
+        execSync("slidev --version", { stdio: "ignore" });
+        console.log(chalk.green("✅ 检测到 Slidev CLI 已安装"));
+    } catch (err) {
+        console.log(chalk.yellow("未检测到 Slidev CLI，将进行全局安装..."));
+        try {
+            execSync("npm install -g @slidev/cli", { stdio: "inherit" });
+            console.log(chalk.green("✅ Slidev CLI 安装成功"));
+        } catch (installErr) {
+            console.error(chalk.red("❌ Slidev CLI 安装失败，请手动安装"));
+            process.exit(1);
+        }
+    }
+}
+
 async function main() {
+
+    checkPython();
+    checkPythonUV();
+    checkSlidev();
+
     const answers = await inquirer.prompt([
         {
             name: "OPENAI_BASE_URL",

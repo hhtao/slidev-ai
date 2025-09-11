@@ -7,7 +7,7 @@
     "license": "UNLICENSED",
     "type": "commonjs",
     "scripts": {
-        "build": "cross-env NODE_ENV=production nest build",
+        "build": "tsc -p tsconfig.simple.json && tsc-alias -p tsconfig.simple.json",
         "postbuild": "node scripts/postbuild.mjs",
         "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
         "start": "node dist/main.js",
@@ -21,7 +21,7 @@
         "test:debug": "node --loader ts-node/esm --experimental-specifier-resolution=node -r tsconfig-paths/register node_modules/.bin/jest --runInBand",
         "test:e2e": "jest --config ./test/jest-e2e.json",
         "init-db": "node --loader ts-node/esm src/init-db.ts",
-        "dev": "cross-env NODE_ENV=development nest start --watch",
+        "dev": "cross-env NODE_ENV=development nest start",
         "create-admin": "ts-node src/scripts/create-admin.ts"
     },
     "dependencies": {

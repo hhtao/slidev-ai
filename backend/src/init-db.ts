@@ -8,13 +8,8 @@ async function initDatabase() {
     const app = await NestFactory.create(AppModule);
     const dataSource = app.get(DataSource);
 
-    if (isDev) {
-        // 仅在开发模式下执行 schema 同步
-        await dataSource.synchronize();
-        console.log('✅ Database schema synchronized (development mode)');
-    } else {
-        console.log('⚠️ Skipped synchronize: NODE_ENV is not development. Use migrations in production.');
-    }
+    await dataSource.synchronize();
+    console.log('✅ Database schema synchronized (development mode)');
 
     await app.close();
 }

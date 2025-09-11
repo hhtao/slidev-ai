@@ -247,7 +247,7 @@ export class SlidevManagerService implements OnApplicationShutdown {
 
     // 终止所有Slidev进程
     killAllProcesses() {
-        console.log('正在终止所有Slidev进程...');
+        console.log('🧹 正在终止所有Slidev进程 ...');
         for (const instance of this.instances.values()) {
             try {
                 instance.process.kill();
@@ -259,6 +259,7 @@ export class SlidevManagerService implements OnApplicationShutdown {
         // 清空实例和端口记录
         this.instances.clear();
         this.usedPorts.clear();
+        console.log('✅ 已终止所有进程');
     }
 
     onApplicationShutdown() {

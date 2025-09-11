@@ -1,5 +1,5 @@
 import { Request, Response, NextFunction } from 'express';
-import { join } from 'path';
+import path from 'path';
 
 /**
  * SPA 回退中间件
@@ -13,7 +13,7 @@ export function spaFallbackMiddleware(options?: {
 }) {
     // 默认配置
     const config = {
-        spaPath: options?.spaPath || join(process.cwd(), 'app'),
+        spaPath: options?.spaPath || path.join(process.cwd(), 'app'),
         excludedPrefixes: options?.excludedPrefixes || ['/api', '/docs', '/uploads'],
         staticExtensions: options?.staticExtensions || [
             'js', 'css', 'png', 'jpg', 'jpeg', 'gif', 'ico', 'svg',
@@ -26,8 +26,6 @@ export function spaFallbackMiddleware(options?: {
 
     return (req: Request, res: Response, next: NextFunction) => {
         const url = req.url;
-
-        console.log('receive url', url);
 
         // 检查是否应该排除
         const isExcluded = config.excludedPrefixes.some(prefix =>
@@ -50,20 +48,23 @@ export function spaFallbackMiddleware(options?: {
 
         // 如果是静态资源，返回
         if (isStaticResource) {
-            const resourcePath = join(config.spaPath, url);
-            console.log(resourcePath);
+            const resourcePath = path.resolve(path.join(config.spaPath, url));
+            console.log('send', resourcePath);
             
             return res.sendFile(resourcePath);
         }
 
 
         // 返回 SPA 的 index.html
-        const indexPath = join(config.spaPath, 'index.html');
+        const indexPath = path.resolve(path.join(config.spaPath, 'index.html'));
 
         // 可选：添加调试日志
         if (process.env.NODE_ENV === 'development') {
             console.log(`SPA fallback: ${url} -> ${indexPath}`);
         }
+
+
+        console.log('send', indexPath);
 
         res.sendFile(indexPath, (err) => {
             if (err) {

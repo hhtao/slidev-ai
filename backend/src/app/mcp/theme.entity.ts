@@ -3,26 +3,26 @@ import { Entity, PrimaryGeneratedColumn, Column, BaseEntity, CreateDateColumn, U
 @Entity()
 export class Theme extends BaseEntity {
     @PrimaryGeneratedColumn()
-    id: number = 0;
+    id: number;
 
     @Column({ unique: true })
-    name: string = '';
+    name: string;
 
     @Column({ nullable: true })
-    github: string = '';
+    github: string;
 
     @Column({ type: 'json', nullable: true })
-    images: Array<{ imageUrl: string; imageName: string }> = [];
+    images: Array<{ imageUrl: string; imageName: string }>;
 
     @Column({ type: 'json', nullable: true })
-    installScripts: string[] = [];
+    installScripts: string[];
     
     @Column({ type: 'boolean', default: false })
-    installed: boolean = false;
+    installed: boolean;
 
     @CreateDateColumn()
-    createdAt: Date = new Date();
+    createdAt: Date;
 
     @UpdateDateColumn()
-    updatedAt: Date = new Date();
+    updatedAt: Date;
 }
