@@ -13,7 +13,7 @@ export class UsersService implements OnModuleInit {
     }
 
     private async initializeAdminUser() {
-        const adminUsername = process.env.ADMIN_USER || 'admin';
+        const adminUsername = process.env.ADMIN_USERNAME || 'admin';
         const adminPassword = process.env.ADMIN_PASSWORD || 'admin';
         
         // Check if admin user already exists

@@ -17,7 +17,10 @@ console.log('current app:', process.env.NODE_ENV === 'development' ? path.join(_
 
 @Module({
     imports: [
-        ConfigModule.forRoot({ isGlobal: true }),
+        ConfigModule.forRoot({
+            isGlobal: true,
+            envFilePath: process.env.NODE_ENV === 'development' ? '.env' : '.env.production',
+        }),
         TypeOrmModule.forRoot({
             type: 'sqlite',
             database: 'database.sqlite',

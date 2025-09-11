@@ -4,8 +4,8 @@
     "main": "index.js",
     "type": "module",
     "scripts": {
-        "dev": "vite --host",
-        "build": "vue-tsc && vite build",
+        "dev": "vite --host --mode development",
+        "build": "vue-tsc && vite build --mode production",
         "postbuild": "node scripts/postbuild.js",
         "preview": "vite preview"
     },
