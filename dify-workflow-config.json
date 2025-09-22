@@ -1,0 +1,116 @@
+{
+  "name": "Slidev PPT Generator",
+  "description": "使用自然语言生成Slidev演示文稿的工作流",
+  "icon": "📊",
+  "mode": "workflow",
+  "graph": {
+    "nodes": [
+      {
+        "id": "start",
+        "type": "start",
+        "position": {
+          "x": 100,
+          "y": 100
+        },
+        "data": {
+          "variables": [
+            {
+              "name": "user_query",
+              "type": "string",
+              "description": "用户要生成的PPT主题或内容描述",
+              "required": true
+            }
+          ]
+        }
+      },
+      {
+        "id": "llm_parser",
+        "type": "llm",
+        "position": {
+          "x": 300,
+          "y": 100
+        },
+        "data": {
+          "model": "gpt-4",
+          "prompt": "请将用户的输入转换为 PPT 生成的结构化参数，严格按照以下 JSON 格式输出：\n{\n  \"title\": \"PPT 标题\",\n  \"content\": \"详细内容描述\",\n  \"theme\": \"主题风格\",\n  \"visibility\": \"可见性\"\n}\n\n主题风格可选值：academic（学术）、default（默认）、frankfurt（法兰克福）、penguin（企鹅）、vuetiful\n可见性可选值：public（公开）、private（私有）\n\n用户输入：{{user_query}}\n\n请只返回 JSON 格式，不要包含其他解释文字。",
+          "variables": ["user_query"],
+          "outputs": {
+            "title": "string",
+            "content": "string",
+            "theme": "string",
+            "visibility": "string"
+          }
+        }
+      },
+      {
+        "id": "create_ppt",
+        "type": "tool",
+        "position": {
+          "x": 500,
+          "y": 100
+        },
+        "data": {
+          "tool_name": "slidev_create",
+          "parameters": {
+            "title": "{{llm_parser.outputs.title}}",
+            "content": "{{llm_parser.outputs.content}}",
+            "theme": "{{llm_parser.outputs.theme}}",
+            "visibility": "{{llm_parser.outputs.visibility}}",
+            "generateContent": true
+          }
+        }
+      },
+      {
+        "id": "wait_completion",
+        "type": "code",
+        "position": {
+          "x": 700,
+          "y": 100
+        },
+        "data": {
+          "code": "import requests\nimport time\n\ndef main(slide_id: int):\n    \"\"\"轮询等待PPT生成完成\"\"\"\n    url = f\"http://localhost:3001/api/mcp/dify/presentation/{slide_id}/status\"\n    max_attempts = 60\n    \n    for i in range(max_attempts):\n        try:\n            response = requests.get(url, timeout=10)\n            result = response.json()\n            \n            if result.get(\"success\"):\n                status = result.get(\"status\")\n                if status == \"completed\":\n                    return {\n                        \"success\": True,\n                        \"status\": status,\n                        \"preview_url\": result.get(\"previewUrl\"),\n                        \"message\": \"PPT生成完成\"\n                    }\n                elif status == \"error\":\n                    return {\n                        \"success\": False,\n                        \"status\": status,\n                        \"message\": \"PPT生成失败\"\n                    }\n            \n            # 等待5秒后重试\n            time.sleep(5)\n            \n        except Exception as e:\n            return {\n                \"success\": False,\n                \"error\": str(e),\n                \"message\": \"状态查询失败\"\n            }\n    \n    return {\n        \"success\": False,\n        \"message\": \"等待超时\"\n    }",
+          "inputs": {
+            "slide_id": "{{create_ppt.outputs.slideId}}"
+          },
+          "outputs": {
+            "success": "boolean",
+            "status": "string",
+            "preview_url": "string",
+            "message": "string"
+          }
+        }
+      },
+      {
+        "id": "end",
+        "type": "end",
+        "position": {
+          "x": 900,
+          "y": 100
+        },
+        "data": {
+          "outputs": {
+            "response": "{{wait_completion.outputs}}"
+          }
+        }
+      }
+    ],
+    "edges": [
+      {
+        "source": "start",
+        "target": "llm_parser"
+      },
+      {
+        "source": "llm_parser",
+        "target": "create_ppt"
+      },
+      {
+        "source": "create_ppt",
+        "target": "wait_completion"
+      },
+      {
+        "source": "wait_completion",
+        "target": "end"
+      }
+    ]
+  }
+}

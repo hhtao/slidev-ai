@@ -1,0 +1,18 @@
+测试中文PDF内容
+
+这是一个包含中文内容的测试文档。
+
+主要内容包括：
+- 中文字符测试
+- 编码处理验证 
+- UTF-8 支持测试
+
+技术要点：
+1. 正确的字符编码处理
+2. 避免乱码问题
+3. 确保中英文混合内容正常显示
+
+This document also contains English content to test mixed language support.
+
+测试目标：
+验证新的编码处理机制是否能够正确处理中文PDF文档，避免出现乱码问题。

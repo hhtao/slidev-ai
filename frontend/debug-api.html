@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>API Debug</title>
+</head>
+<body>
+    <h1>API Configuration Debug</h1>
+    <div id="debug-info"></div>
+    
+    <script type="module">
+        // 模拟 Vite 环境变量
+        const env = {
+            VITE_DOMAIN: import.meta.env.VITE_DOMAIN || 'localhost',
+            VITE_PORT: import.meta.env.VITE_PORT || 3001,
+            VITE_ENABLE_HTTPS: import.meta.env.VITE_ENABLE_HTTPS === 'true'
+        };
+        
+        function isIpOrLocalhost(host) {
+            return (
+                host === "localhost" ||
+                /^\d{1,3}(\.\d{1,3}){3}$/.test(host)
+            );
+        }
+
+        function getEntryUrl(domain, port, enableHttps) {
+            const protocol = enableHttps ? "https" : "http";
+            if (isIpOrLocalhost(domain)) {
+                return `${protocol}://${domain}:${port}`;
+            }
+            return `${protocol}://${domain}`;
+        }
+
+        const entryUrl = getEntryUrl(env.VITE_DOMAIN, env.VITE_PORT, env.VITE_ENABLE_HTTPS);
+        const apiBaseUrl = entryUrl + '/api';
+        
+        document.getElementById('debug-info').innerHTML = `
+            <p><strong>VITE_DOMAIN:</strong> ${env.VITE_DOMAIN}</p>
+            <p><strong>VITE_PORT:</strong> ${env.VITE_PORT}</p>
+            <p><strong>VITE_ENABLE_HTTPS:</strong> ${env.VITE_ENABLE_HTTPS}</p>
+            <p><strong>Entry URL:</strong> ${entryUrl}</p>
+            <p><strong>API Base URL:</strong> ${apiBaseUrl}</p>
+        `;
+        
+        // 测试API连接
+        fetch(apiBaseUrl + '/slides/public')
+            .then(response => {
+                document.getElementById('debug-info').innerHTML += `
+                    <p><strong>API Test Result:</strong> ${response.status} ${response.statusText}</p>
+                `;
+            })
+            .catch(error => {
+                document.getElementById('debug-info').innerHTML += `
+                    <p><strong>API Test Error:</strong> ${error.message}</p>
+                `;
+            });
+    </script>
+</body>
+</html>

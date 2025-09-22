@@ -1,0 +1,21 @@
+测试文档标题
+
+这是一个用于测试BGE-M3向量模型的测试文档。
+
+文档内容说明：
+- 包含中英文混合内容，用于验证向量化功能
+- This document contains mixed Chinese and English content
+- 用于测试知识库系统的文档处理和向量化能力  
+- Testing document processing and vectorization capabilities
+
+技术特点：
+1. 支持多语言内容处理
+2. 高质量的语义向量生成
+3. 优秀的相似性搜索性能
+
+应用场景：
+- 文档检索与推荐
+- 语义相似性分析
+- 知识库智能问答
+
+这个测试文档将用来验证新配置的Ollama BGE-M3向量模型是否正常工作。

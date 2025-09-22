@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>语言测试</title>
+    <meta charset="utf-8">
+</head>
+<body>
+    <h1>语言环境测试</h1>
+    <p>当前浏览器语言: <span id="browser-lang"></span></p>
+    <p>本地存储的语言: <span id="local-lang"></span></p>
+    <p>导航器语言: <span id="navigator-lang"></span></p>
+    <hr>
+    <h2>可用的翻译键:</h2>
+    <ul id="translations"></ul>
+
+    <script>
+        // 显示浏览器信息
+        document.getElementById('browser-lang').textContent = navigator.language;
+        document.getElementById('navigator-lang').textContent = navigator.languages?.join(', ') || 'N/A';
+        document.getElementById('local-lang').textContent = localStorage.getItem('app.locale') || '未设置';
+
+        // 模拟一些翻译键
+        const translations = {
+            'nav.knowledge-base': '知识库',
+            'nav.ai-slides': '智能生成',
+            'nav.public-slides': '公开幻灯片',
+            'nav.my-slides': '我的幻灯片'
+        };
+
+        const ul = document.getElementById('translations');
+        for (const [key, value] of Object.entries(translations)) {
+            const li = document.createElement('li');
+            li.textContent = `${key}: ${value}`;
+            ul.appendChild(li);
+        }
+
+        // 提供语言切换功能
+        document.body.innerHTML += '<hr><h2>语言切换测试</h2>';
+        document.body.innerHTML += '<button onclick="setLang(\"en\")">切换到英文</button> ';
+        document.body.innerHTML += '<button onclick="setLang(\"zh-CN\")">切换到中文</button>';
+
+        function setLang(lang) {
+            localStorage.setItem('app.locale', lang);
+            alert(`语言已设置为: ${lang}`);
+            location.reload();
+        }
+    </script>
+</body>
+</html>

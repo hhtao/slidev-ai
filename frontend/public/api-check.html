@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>API Port Check</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .result { padding: 10px; margin: 10px 0; border-radius: 5px; }
+        .success { background-color: #d4edda; border: 1px solid #c3e6cb; color: #155724; }
+        .error { background-color: #f8d7da; border: 1px solid #f5c6cb; color: #721c24; }
+        .info { background-color: #d1ecf1; border: 1px solid #bee5eb; color: #0c5460; }
+    </style>
+</head>
+<body>
+    <h1>API端口配置检查</h1>
+    <div id="results"></div>
+    
+    <script>
+        function addResult(message, type = 'info') {
+            const div = document.createElement('div');
+            div.className = `result ${type}`;
+            div.textContent = message;
+            document.getElementById('results').appendChild(div);
+        }
+
+        // 检查当前页面地址
+        addResult(`当前页面: ${window.location.href}`);
+        
+        // 测试不同端口的API
+        const ports = [3000, 3001, 3003];
+        
+        ports.forEach(port => {
+            const url = `http://localhost:${port}/api/slides/public`;
+            addResult(`正在测试: ${url}`);
+            
+            fetch(url)
+                .then(response => {
+                    if (response.ok) {
+                        addResult(`✅ 端口 ${port} API 可用`, 'success');
+                    } else {
+                        addResult(`❌ 端口 ${port} API 响应错误: ${response.status}`, 'error');
+                    }
+                })
+                .catch(error => {
+                    addResult(`❌ 端口 ${port} API 连接失败: ${error.message}`, 'error');
+                });
+        });
+        
+        // 检查Vite环境变量（在Vue应用中检查）
+        addResult('环境变量检查需要在Vue应用中进行');
+    </script>
+</body>
+</html>

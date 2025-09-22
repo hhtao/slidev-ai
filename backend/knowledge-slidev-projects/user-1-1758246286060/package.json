@@ -1,0 +1,14 @@
+{
+  "name": "knowledge-slidev-user-1-1758246286060",
+  "type": "module",
+  "scripts": {
+    "build": "slidev build",
+    "dev": "slidev --open",
+    "export": "slidev export"
+  },
+  "dependencies": {
+    "@slidev/cli": "^0.49.0",
+    "@slidev/theme-academic": "^0.1.1",
+    "@slidev/theme-default": "^0.1.0"
+  }
+}

@@ -1,0 +1,17 @@
+{
+  "id": "user-1-1758246286060",
+  "name": "多模态PDF检索",
+  "title": "多模态PDF检索",
+  "content": "多模态PDF检索",
+  "slides_path": "E:\\slidev-ai\\backend\\knowledge-slidev-projects\\user-1-1758246286060\\slides.md",
+  "theme": "academic",
+  "status": "ready",
+  "createdAt": "2025-09-19T01:44:46.063Z",
+  "updatedAt": "2025-09-21T09:57:23.440Z",
+  "previewPort": 5000,
+  "buildPath": "E:\\slidev-ai\\backend\\presentation\\11758246286060",
+  "convertedToPublic": true,
+  "convertedAt": "2025-09-21T10:00:20.680Z",
+  "publicSlideId": 17,
+  "publicUrl": "/api/presentation/17"
+}

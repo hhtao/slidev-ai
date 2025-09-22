@@ -82,11 +82,35 @@ const items = computed(() => {
             visible: () => authStore.user?.role === 'admin',
             command: () => router.push('/invitations')
         },
-        {
+                        {
             label: t("theme.manager.nav"),
             icon: 'pi pi-palette',
             visible: () => authStore.user?.role === 'admin',
             command: () => router.push('/themes')
+        },
+        {
+            label: t('nav.knowledge-base'),
+            icon: 'pi pi-database',
+            visible: () => authStore.user !== null,
+            command: () => router.push('/knowledge')
+        },
+        {
+            label: t('nav.ai-slides'),
+            icon: 'pi pi-sparkles',
+            visible: () => authStore.user !== null,
+            command: () => router.push('/knowledge-slides')
+        },
+        {
+            label: '知识库',
+            icon: 'pi pi-database',
+            visible: () => authStore.user !== null,
+            command: () => router.push('/knowledge')
+        },
+        {
+            label: '智能生成',
+            icon: 'pi pi-sparkles',
+            visible: () => authStore.user !== null,
+            command: () => router.push('/knowledge-slides')
         }
     ];
 });
