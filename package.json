@@ -1,7 +1,7 @@
 {
     "name": "slidev-ai",
-    "version": "1.0.0",
-    "description": "A web application for creating Slidev presentations with AI",
+    "version": "1.1.0",
+    "description": "Enhanced AI-powered Slidev presentation platform with comprehensive local knowledge base integration",
     "main": "index.js",
     "packageManager": "npm@10.8.1",
     "workspaces": [
@@ -19,9 +19,13 @@
         "ai",
         "presentation",
         "vue",
-        "nestjs"
+        "nestjs",
+        "knowledge-base",
+        "document-processing",
+        "semantic-search",
+        "rag"
     ],
-    "author": "",
+    "author": "hhtao",
     "license": "MIT",
     "devDependencies": {
         "@playwright/test": "^1.47.0",

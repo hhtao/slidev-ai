@@ -2,11 +2,13 @@
 
 <img src="frontend/src/assets/icons/slidev-ai.svg" height="200px" />
 
-<a href="https://github.com/LSTM-Kirigaya/slidev-ai"> <img src="https://img.shields.io/github/stars/LSTM-Kirigaya/slidev-ai?style=social" alt="GitHub Stars"></a><a href="https://opensource.org/licenses/MIT"> <img src="https://img.shields.io/badge/License-MIT-blue.svg" alt="License"></a><a href="https://kirigaya.cn/openmcp/"> <img src="https://img.shields.io/badge/OpenMCP_SDK-0.1.0-blue" alt="License"></a>
+<a href="https://github.com/hhtao/slidev-ai"> <img src="https://img.shields.io/github/stars/hhtao/slidev-ai?style=social" alt="GitHub Stars"></a><a href="https://opensource.org/licenses/MIT"> <img src="https://img.shields.io/badge/License-MIT-blue.svg" alt="License"></a><a href="https://kirigaya.cn/openmcp/"> <img src="https://img.shields.io/badge/OpenMCP_SDK-0.1.0-blue" alt="License"></a>
 
-<h3>Slidev AI - AI 驱动的演示文稿生成平台</h3>
+<h3>Slidev AI - AI 驱动的演示文稿生成平台（集成知识库）</h3>
 
-*从想法到演示再到内容传播，我们的任务就是缩短它*
+*从想法到演示再到内容传播，结合智能知识库功能，让距离更短*
+
+> **Fork 说明**: 本项目 Fork 自 [LSTM-Kirigaya/slidev-ai](https://github.com/LSTM-Kirigaya/slidev-ai)，并增强了全面的本地知识库功能。
 
 [English](./README.md) | 中文 | [视频](https://www.bilibili.com/video/BV1SMhBzJEUL)
 
@@ -17,17 +19,27 @@
 
 ## 🚀 项目简介
 
-Slidev-AI 是一个基于 LLM（大语言模型）的 Web 应用，它能让创建基于 Slidev 的在线演示文稿变得优雅而轻松。  
-它的设计目标是帮助工程师与学术人员快速生成内容为中心、简洁美观且易于在线分享的 PPT。
+Slidev-AI 是一个增强版的 Web 应用，结合了 LLM（大语言模型）技术和强大的本地知识库功能，让创建基于 Slidev 的在线演示文稿变得优雅而轻松。在原项目基础上，本 Fork 版本增加了全面的知识管理能力，允许用户上传、组织和利用自己的文档进行智能演示文稿生成。
 
-> 本项目同时是我参加 [ModelScope MCP&Agent Competition](https://modelscope.cn/active/aihackathon-mcp-agent) 的作品。
+### 🆕 增强功能
 
-slidev-ai 是 [OpenMCP](https://github.com/LSTM-Kirigaya/openmcp-client) 生态下的一个下游实现，展示了开发者如何利用 OpenMCP 的强大框架构建专用 Agent。  
-该项目的定位包括：
+本 Fork 版本在原项目基础上新增：
 
-- OpenMCP Agent 开发的参考实现
-- 可直接用于生产环境的演示文稿生成方案
-- 构建领域专用 AI Agent 的模板
+- **📚 本地知识库**: 上传和管理 PDF、Markdown、Word 文档和文本文件
+- **🔍 智能文档处理**: 自动内容提取、解析和向量化
+- **🧠 语义搜索**: AI 驱动的文档搜索和检索
+- **🎯 知识驱动生成**: 基于特定知识语料库创建演示文稿
+- **🔄 四阶段生成流程**: 从配置到最终演示的流线化工作流
+- **👥 用户管理**: 基于角色的文档和演示访问控制
+
+> **原始项目**: 本项目基于 [LSTM-Kirigaya](https://github.com/LSTM-Kirigaya) 为 [ModelScope MCP&Agent Competition](https://modelscope.cn/active/aihackathon-mcp-agent) 创建的优秀作品。
+
+本增强版本保持了与 [OpenMCP](https://github.com/LSTM-Kirigaya/openmcp-client) 生态的兼容性，同时添加了企业级的知识管理能力。该项目的定位包括：
+
+- 综合性知识库驱动的演示文稿平台
+- 文档感知 AI 应用的参考实现
+- 大型知识库管理组织的生产就绪解决方案
+- 具有文档智能的领域专用 AI Agent 扩展模板
 
 请在B站上查看介绍视频： 
 
@@ -43,9 +55,32 @@ slidev-ai 是 [OpenMCP](https://github.com/LSTM-Kirigaya/openmcp-client) 生态�
 
 [PROMPT.md](docs/PROMPT.md)
 
+## ✨ 核心特性
+
+### 📖 知识库管理
+- **多格式支持**: PDF、Markdown (.md)、Word (.docx, .doc) 和纯文本文件
+- **智能处理**: 自动内容提取和元数据生成
+- **向量存储**: 支持向量嵌入的高级语义搜索功能
+- **权限控制**: 公开和私有文档可见性设置
+- **批量操作**: 上传多个文档并高效管理
+
+### 🎨 增强的演示文稿生成
+- **AI 驱动大纲**: 基于知识库内容生成演示结构
+- **上下文内容**: 利用检索到的文档生成准确、相关的演示文稿
+- **四阶段工作流**: 配置 → 大纲 → 内容 → 预览/导出
+- **模板灵活性**: 多种主题和自定义选项
+- **导出选项**: 下载为 Slidev 项目、在线预览或公开发布
+
+### 🔧 技术架构
+- **后端**: NestJS with TypeScript，SQLite 数据库，向量存储
+- **前端**: Vue 3 with Vite，现代响应式 UI
+- **AI 集成**: OpenAI/DeepSeek API，智能降级机制
+- **文档处理**: 各种文件格式的高级解析引擎
+- **部署**: Docker 支持，易于扩展选项
+
 ## 📦 快速开始
 
-请参阅[快速开始](docs/quickstart_zh.md)。
+请参阅[快速开始](docs/quickstart_zh.md)获取基本设置，以及[知识库模块文档](docs/KNOWLEDGE_MODULE.md)了解知识库功能的详细信息。
 
 ## 🤝 贡献指南
 
@@ -63,4 +98,15 @@ Slidev AI 基于 **MIT License** 开源，并对商业用途附加条款。详�
 
 ---
 
-*"从想法到演示再到内容传播，我们的任务就是缩短它"* - Slidev AI 团队
+*"从想法到演示再到内容传播，结合智能知识库功能，让您的知识与精彩演示之间的距离更短"* - hhtao 增强版
+
+## 🙏 致谢
+
+本项目构建在 [LSTM-Kirigaya/slidev-ai](https://github.com/LSTM-Kirigaya/slidev-ai) 提供的优秀基础之上。特别感谢原作者创建了如此架构良好且可扩展的平台。
+
+## 📊 项目统计
+
+- **原始项目**: [LSTM-Kirigaya/slidev-ai](https://github.com/LSTM-Kirigaya/slidev-ai)
+- **增强作者**: [hhtao](https://github.com/hhtao)
+- **核心增强**: 全面的本地知识库集成
+- **新增代码**: 10,000+ 行知识管理功能代码
